@@ -12,6 +12,47 @@
   gtag('config', 'G-Y3KF9ZZ8JP');
 </script>
 
+<script>
+    // --- Time on Page ---
+    let pageStartTime = Date.now();
+    window.addEventListener("beforeunload", function () {
+      const seconds = Math.round((Date.now() - pageStartTime) / 1000);
+      gtag('event', 'time_on_page', {
+        event_category: 'engagement',
+        value: seconds
+      });
+    });
+  
+    // --- Click Counter ---
+    let clickCount = 0;
+    document.addEventListener("click", () => {
+      clickCount++;
+      gtag('event', 'click', {
+        event_category: 'interaction',
+        event_label: 'click #' + clickCount
+      });
+    });
+  
+    // --- Mouse Movement Logger ---
+    let movementCounter = 0;
+    let mouseMoved = false;
+    let throttleTimer;
+  
+    function trackMouse() {
+      if (!throttleTimer) {
+        throttleTimer = setTimeout(() => {
+          gtag('event', 'mouse_move', {
+            event_category: 'engagement',
+            value: ++movementCounter
+          });
+          throttleTimer = null;
+        }, 1000); // one event per second
+      }
+    }
+  
+    document.addEventListener("mousemove", trackMouse);
+  </script>
+  
     </head>
     <body>
         <h1>-------------this is h1 which is the title - pretty big-------------</h1>
