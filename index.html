@@ -12,7 +12,8 @@
   gtag('config', 'G-Y3KF9ZZ8JP');
 </script>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" 
+integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
 
     </head>
     <body>
@@ -20,11 +21,20 @@
         <p>-------------this is p which is the text content - small-------------</p>
         <!--this is a dummy login page-->
         <form action="/submit_login_server" method="POST">
-          username = <input type="text" name="username" />
-          <br />
-          password = <input type="password" name="password" />
-          <br />
-          <input type="submit" />
+            <div class="mb-3">
+              <label for="exampleInputUsername1" class="form-label">Username </label>
+              <input type="text" class="form-control" name="Username" id="exampleInputUsername1" aria-describedby="UsernameHelp">
+              <div id="UsernamelHelp" class="form-text"> </div>
+            </div>
+            <div class="mb-3">
+              <label for="exampleInputPassword1" class="form-label">Password</label>
+              <input type="password" class="form-control" name="Password" id="exampleInputPassword1">
+            </div>
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="exampleCheck1">
+              <label class="form-check-label" for="exampleCheck1">Check me out</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
         </form>
 
         <img src="fem_pilot_tf2.jpg" alt="TF2 pilot render" width="400">
