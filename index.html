@@ -15,6 +15,19 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" 
 integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
 
+<script> function validate_username(){
+  let Username = document.getElementById("exampleInputUsername1").value;
+  if (Username == ""){
+    alert("please fill out the form");
+    return false;
+  }
+  else{
+    return true;
+  }
+}
+
+</script>
+
     </head>
     <body>
         <h1>-------------this is h1 which is the title - pretty big-------------</h1>
@@ -34,7 +47,7 @@ integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5m
               <input type="checkbox" class="form-check-input" id="exampleCheck1">
               <label class="form-check-label" for="exampleCheck1">Check me out</label>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" onclick="return validate_username;" class="btn btn-primary">Submit</button>
         </form>
 
         <img src="fem_pilot_tf2.jpg" alt="TF2 pilot render" width="400">
