@@ -42,8 +42,7 @@
           });
         });
     }
-<<<<<<< Updated upstream
-=======
+
 
     function clearAllPosts() {
       if (confirm("Are you sure you want to delete all posts?")) {
@@ -52,15 +51,7 @@
       }
     }
 
-    loadPosts();
-const GITHUB_USERNAME = 'admiralahav';
-const GITHUB_REPO = 'admiralahav.github.io';
-const FILE_PATH = 'data/posts.json';
 
-// 🔥 TEMP for dev only — remove before public deploy!
-const GITHUB_TOKEN = 'git_token_here';
-
->>>>>>> Stashed changes
 function writePostToGitHub(newPost) {
   fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${FILE_PATH}`, {
     headers: { Authorization: `Bearer ${GITHUB_TOKEN}` }
