@@ -26,9 +26,23 @@
     <a href="blog.html" class="nav-link d-inline fw-bold">Blog</a>
   </nav>
 
-  <h1 class="mb-4">📚 Blog Posts</h1>
+  <h1 class="mb-4">📚 Blog</h1>
+
+  <!-- Post Form -->
+  <h3>Create a New Post</h3>
+  <form id="postForm" class="mb-4">
+    <input type="text" id="postTitle" placeholder="Post Title" class="form-control mb-2" required>
+    <textarea id="postContent" placeholder="Post Content" class="form-control mb-2" rows="4" required></textarea>
+    <button type="submit" class="btn btn-success">Post</button>
+  </form>
+
+  <button onclick="clearAllPosts()" class="btn btn-warning mb-3">Clear All Posts</button>
+
+  <hr>
+  <h3>Posts:</h3>
   <div id="postsContainer"></div>
 
+  <!-- Scripts -->
   <script>
     function loadPosts() {
       const posts = JSON.parse(localStorage.getItem('posts') || '[]');
@@ -36,24 +50,51 @@
       container.innerHTML = '';
 
       if (posts.length === 0) {
-        container.innerHTML = `<p class="text-muted">No posts found. Go back to <a href='index.html'>Home</a> to create one.</p>`;
+        container.innerHTML = `<p class="text-muted">No posts found. Start writing above!</p>`;
         return;
       }
 
-      posts.forEach(post => {
+      posts.forEach((post, index) => {
         container.innerHTML += `
           <div class="card mb-3">
             <div class="card-body">
               <h5 class="card-title">${post.title}</h5>
               <p class="card-text">${post.content}</p>
+              <button class="btn btn-danger btn-sm" onclick="deletePost(${index})">Delete</button>
             </div>
           </div>
         `;
       });
     }
 
+    document.getElementById('postForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const title = document.getElementById('postTitle').value;
+      const content = document.getElementById('postContent').value;
+
+      const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+      posts.unshift({ title, content });
+      localStorage.setItem('posts', JSON.stringify(posts));
+
+      document.getElementById('postForm').reset();
+      loadPosts();
+    });
+
+    function deletePost(index) {
+      const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+      posts.splice(index, 1);
+      localStorage.setItem('posts', JSON.stringify(posts));
+      loadPosts();
+    }
+
+    function clearAllPosts() {
+      if (confirm("Are you sure you want to delete all posts?")) {
+        localStorage.removeItem('posts');
+        loadPosts();
+      }
+    }
+
     loadPosts();
   </script>
 </body>
 </html>
-
