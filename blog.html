@@ -28,20 +28,26 @@
   <script>
 
     function loadPosts() {
-      fetch('https://raw.githubusercontent.com/admiralahav/admiralahav.github.io/main/data/posts.json')
+  fetch(`https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPO}/main/${FILE_PATH}`)
+    .then(res => {
+      if (!res.ok) throw new Error("GitHub load failed: " + res.statusText);
+      return res.json();
+    })
+    .then(posts => {
+      const container = document.getElementById('postsContainer');
+      container.innerHTML = '';
+      posts.forEach(post => {
+        const div = document.createElement('div');
+        div.className = 'post';
+        div.innerHTML = `<h3>${post.title}</h3><p>${post.content}</p>`;
+        container.appendChild(div);
+      });
+    })
+    .catch(err => {
+      console.error("❌ GitHub load error:", err);
+    });
+}
 
-        .then(res => res.json())
-        .then(posts => {
-          const container = document.getElementById('postsContainer');
-          container.innerHTML = '';
-          posts.forEach(post => {
-            const div = document.createElement('div');
-            div.className = 'post';
-            div.innerHTML = `<h3>${post.title}</h3><p>${post.content}</p>`;
-            container.appendChild(div);
-          });
-        });
-    }
 
 
     function clearAllPosts() {
