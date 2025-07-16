@@ -1,132 +1,75 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>My website, no GPT</title>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-Y3KF9ZZ8JP"></script>
+<head>
+  <title>Admiral Lahav's Website</title>
 
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-Y3KF9ZZ8JP');
-</script>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y3KF9ZZ8JP"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-Y3KF9ZZ8JP');
+  </script>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" 
-integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .nav-link { margin-right: 15px; }
+  </style>
+</head>
 
-<script> function validate_username(){
-  let Username = document.getElementById("exampleInputUsername1").value;
-  if (Username == ""){
-    alert("please fill out the form");
-    return false;
-    //example javascript comment
-  }
-  else{
-    return true;
-  }
-}
+<body class="container py-4">
 
-</script>
+  <!-- Navigation Bar -->
+  <nav class="mb-4">
+    <a href="index.html" class="nav-link d-inline">Home</a>
+    <a href="blog.html" class="nav-link d-inline">Blog</a>
+  </nav>
 
-    </head>
-    <body>
-        <h1>-------------this is h1 which is the title - pretty big-------------</h1>
-        <p>-------------this is p which is the text content - small-------------</p>
-        <!--this is a dummy login page-->
-        <form action="/submit_login_server" method="POST">
-            <div class="mb-3">
-              <label for="exampleInputUsername1" class="form-label">Username </label>
-              <input type="text" class="form-control" name="Username" id="exampleInputUsername1" aria-describedby="UsernameHelp">
-              <div id="UsernamelHelp" class="form-text"> example text that can be inserted </div>
-            </div>
-            <div class="mb-3">
-              <label for="exampleInputPassword1" class="form-label">Password</label>
-              <input type="password" class="form-control" name="Password" id="exampleInputPassword1">
-            example text that can be inserted</div>
-            <div class="mb-3 form-check">
-              <input type="checkbox" class="form-check-input" id="exampleCheck1">
-              <label class="form-check-label" for="exampleCheck1">Check me out</label>
-            </div>
-            <button type="submit" onclick="return validate_username();" class="btn btn-primary">Submit</button>
-        </form>
+  <!-- Page Content -->
+  <h1 class="mb-3">This is h1 — the Title</h1>
+  <p>This is a paragraph (p) — the main text content of the home page.</p>
 
-        <img src="pictures/fem_pilot_tf2.jpg" alt="TF2 pilot render" width="400">
-        <img src="pictures/soldier.webp" alt="soldier picture" width="400">
+  <!-- Images -->
+  <img src="fem_pilot_tf2.jpg" alt="TF2 pilot render" width="400" class="me-2 mb-3">
+  <img src="soldier.webp" alt="Soldier picture" width="400" class="mb-3">
 
-        <h2>Create a New Post</h2>
-<form id="postForm">
-  <input type="text" id="postTitle" placeholder="Post Title" class="form-control mb-2" required>
-  <textarea id="postContent" placeholder="Post Content" class="form-control mb-2" rows="4" required></textarea>
-  <button type="submit" class="btn btn-success">Post</button>
-</form>
+  <!-- Login Form -->
+  <h3 class="mt-5">Login Form</h3>
+  <form action="/submit_login_server" method="POST" onsubmit="return validate_username();">
+    <div class="mb-3">
+      <label for="exampleInputUsername1" class="form-label">Username</label>
+      <input type="text" class="form-control" name="Username" id="exampleInputUsername1" required>
+      <div id="UsernameHelp" class="form-text">example text that can be inserted</div>
+    </div>
+    <div class="mb-3">
+      <label for="exampleInputPassword1" class="form-label">Password</label>
+      <input type="password" class="form-control" name="Password" id="exampleInputPassword1" required>
+      <div class="form-text">example text that can be inserted</div>
+    </div>
+    <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="exampleCheck1">
+      <label class="form-check-label" for="exampleCheck1">Check me out</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
 
-<hr>
-<h3>Posts:</h3>
+  <!-- Bootstrap box sample -->
+  <div class="p-3 mt-4 mb-2 bg-primary text-white">This is a .bg-primary div</div>
 
-<button onclick="clearAllPosts()" class="btn btn-warning mb-3">Clear All Posts</button>
-
-<div id="postsContainer"></div>
-
-<script>
-  function clearAllPosts() {
-    if (confirm("Are you sure you want to delete all posts?")) {
-      localStorage.removeItem('posts');
-      loadPosts();
+  <!-- JS -->
+  <script>
+    function validate_username() {
+      const Username = document.getElementById("exampleInputUsername1").value;
+      if (Username === "") {
+        alert("Please fill out the form");
+        return false;
+      }
+      return true;
     }
-  }
-  
 
-  // Load posts from localStorage
-  function loadPosts() {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    const container = document.getElementById('postsContainer');
-    container.innerHTML = '';
-    posts.forEach((post, index) => {
-      container.innerHTML += `
-        <div class="card mb-3">
-          <div class="card-body">
-            <h5 class="card-title">${post.title}</h5>
-            <p class="card-text">${post.content}</p>
-            <button class="btn btn-danger btn-sm" onclick="deletePost(${index})">Delete</button>
-          </div>
-        </div>
-      `;
-    });
-  }
-
-  // Save post
-  document.getElementById('postForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const title = document.getElementById('postTitle').value;
-    const content = document.getElementById('postContent').value;
-
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift({ title, content }); // add to the top
-    localStorage.setItem('posts', JSON.stringify(posts));
-
-    document.getElementById('postForm').reset();
-    loadPosts();
-  });
-
-  // Delete a post
-  function deletePost(index) {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.splice(index, 1);
-    localStorage.setItem('posts', JSON.stringify(posts));
-    loadPosts();
-  }
-
-  loadPosts(); // Load posts on page load
-</script>
-
-
-        <!-- this a seprate js code-->
-        <script>
-          alert("Hello!");
-        </script>
-
-        <div class="p-3 mb-2 bg-primary text-white">.bg-primary</div>
-        
-    </body>
+    alert("Hello!");
+  </script>
+</body>
 </html>
