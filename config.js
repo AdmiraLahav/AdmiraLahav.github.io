@@ -1,1 +1,2 @@
 
+const GITHUB_TOKEN = "github_pat_...";
