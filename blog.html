@@ -45,40 +45,43 @@
           });
         });
     }
+function writePostToGitHub(newPost) {
+  fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${FILE_PATH}`, {
+    headers: { Authorization: `Bearer ${GITHUB_TOKEN}` }
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("GitHub fetch failed: " + res.statusText);
+    return res.json();
+  })
+  .then(fileData => {
+    const cleanedContent = fileData.content.replace(/\n/g, '');
+    const existingContent = JSON.parse(atob(cleanedContent));
+    existingContent.unshift(newPost);
+    const updatedContent = btoa(JSON.stringify(existingContent, null, 2));
 
-    function writePostToGitHub(newPost) {
-      fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${FILE_PATH}`, {
-        headers: { Authorization: `token ${GITHUB_TOKEN}` }
+    return fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${FILE_PATH}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: `Add post: ${newPost.title}`,
+        content: updatedContent,
+        sha: fileData.sha
       })
-      .then(res => res.json())
-      .then(fileData => {
-        const existingContent = JSON.parse(atob(fileData.content));
-        existingContent.unshift(newPost);
-        const updatedContent = btoa(JSON.stringify(existingContent, null, 2));
-
-        return fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${FILE_PATH}`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `token ${GITHUB_TOKEN}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            message: `Add post: ${newPost.title}`,
-            content: updatedContent,
-            sha: fileData.sha
-          })
-        });
-      })
-      .then(res => res.json())
-      .then(data => {
-        alert("✅ Post uploaded!");
-        loadPosts();
-      })
-      .catch(err => {
-        console.error("❌ GitHub save error:", err);
-        alert("Failed to save post. See console.");
-      });
-    }
+    });
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert("✅ Post uploaded!");
+    loadPosts();
+  })
+  .catch(err => {
+    console.error("❌ GitHub save error:", err);
+    alert("Failed to save post. See console.");
+  });
+}
 
     document.getElementById('postForm').addEventListener('submit', function (e) {
       e.preventDefault();
