@@ -28,7 +28,8 @@
   <script>
 
     function loadPosts() {
-      fetch(`https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPO}/main/${FILE_PATH}`)
+      fetch('https://raw.githubusercontent.com/admiralahav/admiralahav.github.io/main/data/posts.json')
+
         .then(res => res.json())
         .then(posts => {
           const container = document.getElementById('postsContainer');
