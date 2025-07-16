@@ -1,1 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blog - Admiral Lahav</title>
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y3KF9ZZ8JP"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-Y3KF9ZZ8JP');
+  </script>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .nav-link { margin-right: 15px; }
+  </style>
+</head>
+<body class="container py-4">
+
+  <!-- Navbar -->
+  <nav class="mb-4">
+    <a href="index.html" class="nav-link d-inline">Home</a>
+    <a href="blog.html" class="nav-link d-inline fw-bold">Blog</a>
+  </nav>
+
+  <h1 class="mb-4">📚 Blog Posts</h1>
+  <div id="postsContainer"></div>
+
+  <script>
+    function loadPosts() {
+      const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+      const container = document.getElementById('postsContainer');
+      container.innerHTML = '';
+
+      if (posts.length === 0) {
+        container.innerHTML = `<p class="text-muted">No posts found. Go back to <a href='index.html'>Home</a> to create one.</p>`;
+        return;
+      }
+
+      posts.forEach(post => {
+        container.innerHTML += `
+          <div class="card mb-3">
+            <div class="card-body">
+              <h5 class="card-title">${post.title}</h5>
+              <p class="card-text">${post.content}</p>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    loadPosts();
+  </script>
+</body>
+</html>
 
