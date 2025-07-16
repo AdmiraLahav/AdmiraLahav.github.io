@@ -53,6 +53,63 @@ integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5m
 
         <img src="fem_pilot_tf2.jpg" alt="TF2 pilot render" width="400">
         <img src="soldier.webp" alt="soldier picture" width="400">
+
+        <h2>Create a New Post</h2>
+<form id="postForm">
+  <input type="text" id="postTitle" placeholder="Post Title" class="form-control mb-2" required>
+  <textarea id="postContent" placeholder="Post Content" class="form-control mb-2" rows="4" required></textarea>
+  <button type="submit" class="btn btn-success">Post</button>
+</form>
+
+<hr>
+<h3>Posts:</h3>
+<div id="postsContainer"></div>
+
+<script>
+  // Load posts from localStorage
+  function loadPosts() {
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    const container = document.getElementById('postsContainer');
+    container.innerHTML = '';
+    posts.forEach((post, index) => {
+      container.innerHTML += `
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">${post.title}</h5>
+            <p class="card-text">${post.content}</p>
+            <button class="btn btn-danger btn-sm" onclick="deletePost(${index})">Delete</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  // Save post
+  document.getElementById('postForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const title = document.getElementById('postTitle').value;
+    const content = document.getElementById('postContent').value;
+
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    posts.unshift({ title, content }); // add to the top
+    localStorage.setItem('posts', JSON.stringify(posts));
+
+    document.getElementById('postForm').reset();
+    loadPosts();
+  });
+
+  // Delete a post
+  function deletePost(index) {
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    posts.splice(index, 1);
+    localStorage.setItem('posts', JSON.stringify(posts));
+    loadPosts();
+  }
+
+  loadPosts(); // Load posts on page load
+</script>
+
+
         <!-- this a seprate js code-->
         <script>
           alert("Hello!");
