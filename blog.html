@@ -23,13 +23,9 @@
   <h2>All Posts</h2>
   <div id="postsContainer"></div>
 
+<script src="config.js"></script>
+  
   <script>
-    const GITHUB_USERNAME = 'admiralahav';
-    const GITHUB_REPO = 'admiralahav.github.io';
-    const FILE_PATH = 'data/posts.json';
-
-    // 🔥 Replace this with your GitHub token (TEMPORARILY for dev only)
-    const GITHUB_TOKEN = 'github_token_is_here';
 
     function loadPosts() {
       fetch(`https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPO}/main/${FILE_PATH}`)
