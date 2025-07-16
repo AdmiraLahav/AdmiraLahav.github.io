@@ -1,1 +1,11 @@
+[
+  {
+    "title": "Welcome to the Blog!",
+    "content": "This is the very first post. Feel free to explore or add more posts manually!"
+  },
+  {
+    "title": "Post from JSON",
+    "content": "This content is loaded from a shared JSON file in the repo so everyone can see it."
+  }
+]
 
