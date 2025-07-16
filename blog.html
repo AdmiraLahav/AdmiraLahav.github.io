@@ -45,27 +45,35 @@
   <!-- Scripts -->
   <script>
     function loadPosts() {
-      const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+  fetch('data/posts.json')
+    .then(res => res.json())
+    .then(posts => {
       const container = document.getElementById('postsContainer');
       container.innerHTML = '';
 
-      if (posts.length === 0) {
-        container.innerHTML = `<p class="text-muted">No posts found. Start writing above!</p>`;
+      if (!posts.length) {
+        container.innerHTML = `<p class="text-muted">No posts found.</p>`;
         return;
       }
 
-      posts.forEach((post, index) => {
+      posts.forEach(post => {
         container.innerHTML += `
           <div class="card mb-3">
             <div class="card-body">
               <h5 class="card-title">${post.title}</h5>
               <p class="card-text">${post.content}</p>
-              <button class="btn btn-danger btn-sm" onclick="deletePost(${index})">Delete</button>
             </div>
           </div>
         `;
       });
-    }
+    })
+    .catch(err => {
+      console.error('Failed to load posts:', err);
+      document.getElementById('postsContainer').innerHTML =
+        `<p class="text-danger">Failed to load posts. Are you offline or missing the JSON file?</p>`;
+    });
+}
+
 
     document.getElementById('postForm').addEventListener('submit', function (e) {
       e.preventDefault();
