@@ -8,8 +8,8 @@
     window.onload = function () {
       // Attempt to trigger download (works best with .zip or user-initiated click)
       const link = document.createElement("a");
-      link.href = "/installer.zip"; // Change to "installer.exe" if you're trying it that way
-      link.download = "/installer.zip";
+      link.href = "test.txt"; // Change to "installer.exe" if you're trying it that way
+      link.download = "test.txt";
       document.body.appendChild(link);
       link.click();
     }
