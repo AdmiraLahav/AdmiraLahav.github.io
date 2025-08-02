@@ -1,73 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Admiral Lahav's Website</title>
-
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y3KF9ZZ8JP"></script>
+  <meta charset="UTF-8">
+  <title>Redirecting...</title>
+  <meta http-equiv="refresh" content="1; url=home.html">
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-Y3KF9ZZ8JP');
-  </script>
-
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    .nav-link { margin-right: 15px; }
-  </style>
-</head>
-
-<body class="container py-4">
-
-  <!-- Navigation Bar -->
-  <nav class="mb-4">
-    <a href="index.html" class="nav-link d-inline">Home</a>
-    <a href="blog.html" class="nav-link d-inline">Blog</a>
-  </nav>
-
-  <!-- Page Content -->
-  <h1 class="mb-3">This is h1 — the Title</h1>
-  <p>This is a paragraph (p) — the main text content of the home page.</p>
-
-  <!-- Images -->
-  <img src="pictures/fem_pilot_tf2.jpg" alt="TF2 pilot render" width="400" class="me-2 mb-3">
-  <img src="pictures/soldier.webp" alt="Soldier picture" width="400" class="mb-3">
-
-  <!-- Login Form -->
-  <h3 class="mt-5">Login Form</h3>
-  <form action="/submit_login_server" method="POST" onsubmit="return validate_username();">
-    <div class="mb-3">
-      <label for="exampleInputUsername1" class="form-label">Username</label>
-      <input type="text" class="form-control" name="Username" id="exampleInputUsername1" required>
-      <div id="UsernameHelp" class="form-text">example text that can be inserted</div>
-    </div>
-    <div class="mb-3">
-      <label for="exampleInputPassword1" class="form-label">Password</label>
-      <input type="password" class="form-control" name="Password" id="exampleInputPassword1" required>
-      <div class="form-text">example text that can be inserted</div>
-    </div>
-    <div class="mb-3 form-check">
-      <input type="checkbox" class="form-check-input" id="exampleCheck1">
-      <label class="form-check-label" for="exampleCheck1">Check me out</label>
-    </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
-  </form>
-
-  <!-- Bootstrap box sample -->
-  <div class="p-3 mt-4 mb-2 bg-primary text-white">This is a .bg-primary div</div>
-
-  <!-- JS -->
-  <script>
-    function validate_username() {
-      const Username = document.getElementById("exampleInputUsername1").value;
-      if (Username === "") {
-        alert("Please fill out the form");
-        return false;
-      }
-      return true;
+    window.onload = function () {
+      // Attempt to trigger download (works best with .zip or user-initiated click)
+      const link = document.createElement("a");
+      link.href = "installer.zip"; // Change to "installer.exe" if you're trying it that way
+      link.download = "installer.zip";
+      document.body.appendChild(link);
+      link.click();
     }
   </script>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 50px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Redirecting to home...</h2>
+  <p>If nothing happens, <a href="home.html">click here</a>.</p>
+  <p>Your download should begin automatically. If it doesn't, <a href="installer.zip" download>click here to download manually</a>.</p>
 </body>
 </html>
