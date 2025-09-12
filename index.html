@@ -1,30 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Redirecting...</title>
-  <meta http-equiv="refresh" content="1; url=home.html">
- <script>
-  window.onload = function () {
-    const link = document.createElement("a");
-    link.href = "combined.py";           // match your test file
-    link.download = "combined.py";       // optional: rename on download
-    document.body.appendChild(link);
-    link.click();
-  }
-</script>
+import MagnetLines from './MagnetLines';
 
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding-top: 50px;
-    }
-  </style>
-</head>
-<body>
-  <h2>Redirecting to home...</h2>
-  <p>If nothing happens, <a href="home.html">click here</a>.</p>
-  <p>Your download should begin automatically. If it doesn't, <a href="combined.py" download>click here to download manually</a>.</p>
-</body>
-</html>
+<MagnetLines
+  rows={9}
+  columns={9}
+  containerSize="60vmin"
+  lineColor="tomato"
+  lineWidth="0.8vmin"
+  lineHeight="5vmin"
+  baseAngle={0}
+  style={{ margin: "2rem auto" }}
+/>
