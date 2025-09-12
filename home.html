@@ -1,133 +1,80 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admiral Lahav's Website</title>
+import { useRef, useEffect } from 'react';
+import './MagnetLines.css';
 
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y3KF9ZZ8JP"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-Y3KF9ZZ8JP');
-  </script>
+export default function MagnetLines({
+  rows = 9,
+  columns = 9,
+  containerSize = '80vmin',
+  lineColor = '#efefef',
+  lineWidth = '1vmin',
+  lineHeight = '6vmin',
+  baseAngle = -10,
+  className = '',
+  style = {}
+}) {
+  const containerRef = useRef(null);
 
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    .nav-link { margin-right: 15px; }
-    :root{
-      --bg: #fafafa;
-      --ink: #0e0e0e;
-      --border: #111;
-      --gap: 24px;
-      --radius: 14px;
-      --maxw: 1200px;
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const items = container.querySelectorAll('span');
+
+    const onPointerMove = pointer => {
+      items.forEach(item => {
+        const rect = item.getBoundingClientRect();
+        const centerX = rect.x + rect.width / 2;
+        const centerY = rect.y + rect.height / 2;
+
+        const b = pointer.x - centerX;
+        const a = pointer.y - centerY;
+        const c = Math.sqrt(a * a + b * b) || 1;
+        const r = ((Math.acos(b / c) * 180) / Math.PI) * (pointer.y > centerY ? 1 : -1);
+
+        item.style.setProperty('--rotate', `${r}deg`);
+      });
+    };
+
+    window.addEventListener('pointermove', onPointerMove);
+
+    if (items.length) {
+      const middleIndex = Math.floor(items.length / 2);
+      const rect = items[middleIndex].getBoundingClientRect();
+      onPointerMove({ x: rect.x, y: rect.y });
     }
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body{
-      margin: 0;
-      font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-      color: var(--ink);
-      background: var(--bg);
-    }
+    return () => {
+      window.removeEventListener('pointermove', onPointerMove);
+    };
+  }, []);
 
-    .wrap{
-      max-width: var(--maxw);
-      margin: 48px auto;
-      padding: 0 20px;
-    }
+  const total = rows * columns;
+  const spans = Array.from({ length: total }, (_, i) => (
+    <span
+      key={i}
+      style={{
+        '--rotate': `${baseAngle}deg`,
+        backgroundColor: lineColor,
+        width: lineWidth,
+        height: lineHeight
+      }}
+    />
+  ));
 
-    .grid{
-      display: grid;
-      gap: var(--gap);
-      grid-template-columns: 1fr 1fr 2fr;
-      grid-template-areas:
-        "img1 img2 main"
-        "desc desc main";
-      align-items: start;
-    }
-
-    .card{
-      border: 4px solid var(--border);
-      border-radius: var(--radius);
-      background: white;
-      overflow: hidden;
-      box-shadow: 0 1px 0 rgba(0,0,0,0.02);
-    }
-
-    .image1 { grid-area: img1; }
-    .image2 { grid-area: img2; }
-    .main   { grid-area: main; min-height: 540px; display: flex; }
-    .desc   { grid-area: desc; min-height: 220px; display: flex; }
-
-    .media{
-      width: 100%;
-      display: grid;
-      place-items: center;
-      font-weight: 600;
-      color: #555;
-      background:
-        repeating-linear-gradient(45deg, #f2f2f2 0 12px, #e9e9e9 12px 24px);
-    }
-    .image1 .media { aspect-ratio: 1 / 1; }
-    .image2 .media { aspect-ratio: 4 / 5; }
-
-    .pad{
-      padding: 28px;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-    .pad p{
-      margin: 0;
-      max-width: 46ch;
-      font-size: clamp(18px, 2vw, 24px);
-      line-height: 1.35;
-    }
-
-    @media (max-width: 960px){
-      .grid{
-        grid-template-columns: 1fr;
-        grid-template-areas:
-          "img1"
-          "img2"
-          "desc"
-          "main";
-      }
-      .main{ min-height: 420px; }
-    }
-  </style>
-</head>
-<body>
-  <main class="wrap">
-    <section class="grid">
-      <figure class="card image1">
-        <div class="media" aria-label="Picture placeholder">picture</div>
-      </figure>
-
-      <figure class="card image2">
-        <div class="media" aria-label="Picture placeholder">picture</div>
-      </figure>
-
-      <section class="card main">
-        <div class="pad">
-          <p>text</p>
-        </div>
-      </section>
-
-      <section class="card desc">
-        <div class="pad">
-          <p>text</p>
-        </div>
-      </section>
-    </section>
-  </main>
-</body>
-</html>
+  return (
+    <div
+      ref={containerRef}
+      className={`magnetLines-container ${className}`}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: `repeat(${columns}, 1fr)`,
+        gridTemplateRows: `repeat(${rows}, 1fr)`,
+        width: containerSize,
+        height: containerSize,
+        ...style
+      }}
+    >
+      {spans}
+    </div>
+  );
+}
