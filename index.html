@@ -12,23 +12,48 @@
     }
     canvas {
       display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+    /* Text box container */
+    .textbox {
+      position: absolute;
+      top: 50px;
+      left: 50px;
+      min-width: 200px;
+      max-width: 400px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 16px;
+      color: #00ccff;
+      background: rgba(0, 0, 64, 0.6); /* semi-transparent dark blue */
+      border: 1px solid #00ccff;
+      border-radius: 6px;
+      resize: none;
+      outline: none;
+      overflow: hidden; /* hide scrollbars */
+      z-index: 10; /* above canvas */
     }
   </style>
 </head>
 <body>
   <canvas id="matrix"></canvas>
-  <h1>hello</h1>
+
+  <!-- Text box -->
+  <textarea class="textbox" placeholder="Type here..."></textarea>
+
   <script>
+    // Matrix effect
     const canvas = document.getElementById("matrix");
     const ctx = canvas.getContext("2d");
-
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
     const letters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const fontSize = 18;
     const columns = canvas.width / fontSize;
-
     const drops = Array(Math.floor(columns)).fill(1);
 
     function draw() {
@@ -48,14 +73,19 @@
         drops[i]++;
       }
     }
-
     setInterval(draw, 33);
 
     window.addEventListener("resize", () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     });
+
+    // Auto-resizing text box
+    const textarea = document.querySelector(".textbox");
+    textarea.addEventListener("input", () => {
+      textarea.style.height = "auto"; // reset
+      textarea.style.height = textarea.scrollHeight + "px"; // set new height
+    });
   </script>
 </body>
 </html>
-
