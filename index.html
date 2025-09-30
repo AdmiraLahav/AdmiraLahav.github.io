@@ -38,7 +38,7 @@
       pointer-events: none;
     }
 
-    /* Text boxes sized by absolute pixel values */
+    /* Text boxes sized by pixel values */
     .textbox {
       position: absolute;
       color: var(--panel-fg);
@@ -56,7 +56,6 @@
       -webkit-backdrop-filter: blur(2px);
     }
 
-    /* Optional small label */
     .textbox::before {
       content: attr(data-title);
       display: block;
@@ -66,42 +65,56 @@
       letter-spacing: 0.04em;
     }
 
-    /* Wrapper for scroll effect */
+    /* Content wrapper to control scroll */
     .content {
       position: relative;
-      margin-top: 100vh; /* push content below first viewport */
-      padding-bottom: 200vh; /* ensure there's scroll room */
+      margin-top: 100vh; /* push first content below screen */
+      padding-bottom: 200vh; /* control total scroll length */
     }
 
-    /* Example navbar (commented for later use) */
-    /*
+    /* Navbar (hidden by default, appears after scrolling X pixels) */
     .navbar {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 50px;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0, 0, 0, 0.8);
       border-bottom: 1px solid var(--panel-border);
       display: flex;
       align-items: center;
       padding: 0 20px;
       z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
     }
+
+    .navbar.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
     .navbar a {
       color: var(--panel-fg);
       margin-right: 15px;
       text-decoration: none;
     }
-    */
   </style>
 </head>
 <body>
   <canvas id="matrix-blur"></canvas>
   <canvas id="matrix"></canvas>
 
+  <!-- Navigation bar (appears after scrolling) -->
+  <div class="navbar" id="navbar">
+    <a href="#">Home</a>
+    <a href="#">About</a>
+    <a href="#">Projects</a>
+  </div>
+
   <div class="content">
-    <!-- ✅ Example Textbox -->
+    <!-- Example Textbox -->
     <div
       class="textbox"
       data-title="SYSTEM MESSAGE"
@@ -115,7 +128,7 @@ I am ██ years old.
     <div
       class="textbox"
       data-title="Test Logo"
-      style="top: 400px; left: 200px; width: 700px; height: 400px;"
+      style="top: 400px; left: 200px; width: 550px; height: 250px;"
     >
 .:::          :::     :;+;.       :::  :::.         
 .&&&&        &&&&  X&&&&&&&&&;   ;&&&  &&&x         
@@ -135,7 +148,6 @@ I am ██ years old.
     /* ========== MATRIX RAIN ========== */
     const canvas = document.getElementById("matrix");
     const ctx = canvas.getContext("2d");
-
     const canvasBlur = document.getElementById("matrix-blur");
     const ctxBlur = canvasBlur.getContext("2d");
 
@@ -177,11 +189,22 @@ I am ██ years old.
 
     setInterval(render, 33);
 
-    /* ========== HANDLE RESIZE SAFELY ========== */
     window.addEventListener("resize", () => {
       resizeCanvas();
       columns = Math.floor(window.innerWidth / fontSize);
       drops = Array(columns).fill(1);
+    });
+
+    /* ===== Navbar appears after scrolling X pixels ===== */
+    const navbar = document.getElementById("navbar");
+    const showAfter = 400; // ← change this value to control when navbar appears
+
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > showAfter) {
+        navbar.classList.add("visible");
+      } else {
+        navbar.classList.remove("visible");
+      }
     });
   </script>
 </body>
