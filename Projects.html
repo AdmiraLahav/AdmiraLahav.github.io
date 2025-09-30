@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Projects</title>
+  <!-- SEO + PWA polish -->
+  <meta name="description" content="Projects by AdmiraLahav — cyber‑terminal themed showcase." />
+  <meta name="theme-color" content="#00ccff" />
+  <link rel="icon" href="icon.png" />
   <style>
     :root {
       --navbar-height: 50px;
@@ -11,6 +15,8 @@
       --panel-fg: #00ccff;
       --panel-border: #00ccff;
     }
+
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
@@ -20,26 +26,11 @@
       color: var(--panel-fg);
     }
 
-    /* Matrix canvas */
-    canvas#matrix {
-      position: fixed;
-      inset: 0;
-      display: block;
-      z-index: 0;
-    }
+    /* Background canvases */
+    canvas#matrix { position: fixed; inset: 0; display: block; z-index: 0; }
+    canvas#matrix-blur { position: fixed; inset: 0; display: block; z-index: -1; filter: blur(60px) brightness(0.4); transform: scale(1.1); pointer-events: none; }
 
-    /* Blurred background clone */
-    canvas#matrix-blur {
-      position: fixed;
-      inset: 0;
-      display: block;
-      z-index: -1;
-      filter: blur(60px) brightness(0.4);
-      transform: scale(1.1);
-      pointer-events: none;
-    }
-
-    /* Text boxes sized by pixel values */
+    /* Text boxes (pixel sizing); scroll-margin-top prevents anchor hiding under navbar */
     .textbox {
       position: absolute;
       scroll-margin-top: var(--navbar-height);
@@ -56,139 +47,77 @@
       box-shadow: 0 0 12px rgba(0, 128, 255, 0.25);
       backdrop-filter: blur(2px);
       -webkit-backdrop-filter: blur(2px);
+      opacity: 0; /* for fade-in */
+      transform: translateY(40px);
+      transition: opacity 1s ease, transform 1s ease;
     }
+    .textbox.visible { opacity: 1; transform: translateY(0); }
+    .textbox::before { content: attr(data-title); display: block; font-size: 11px; opacity: 0.7; margin-bottom: 4px; letter-spacing: 0.04em; }
 
-    .textbox::before {
-      content: attr(data-title);
-      display: block;
-      font-size: 11px;
-      opacity: 0.7;
-      margin-bottom: 4px;
-      letter-spacing: 0.04em;
-    }
+    /* Scroll layout: first screen shows matrix only, then content */
+    .content { position: relative; margin-top: 100vh; padding-bottom: 200vh; }
 
-    /* Content wrapper to control scroll */
-    .content {
-      position: relative;
-      margin-top: 100vh; /* push first content below screen */
-      padding-bottom: 0vh; /* control total scroll length */
-    }
-
-    /* Navbar (hidden by default, appears after scrolling X pixels) */
+    /* Navbar shown after scroll */
     .navbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 50px;
-      background: rgba(0, 0, 0, 0.8);
-      border-bottom: 1px solid var(--panel-border);
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      z-index: 20;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease;
+      position: fixed; top: 0; left: 0; width: 100%; height: var(--navbar-height);
+      background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--panel-border);
+      display: flex; align-items: center; padding: 0 20px; z-index: 20;
+      opacity: 0; pointer-events: none; transition: opacity .4s ease;
     }
+    .navbar.visible { opacity: 1; pointer-events: auto; }
+    .navbar a { color: var(--panel-fg); margin-right: 15px; text-decoration: none; }
 
-    .navbar.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .navbar a {
-      color: var(--panel-fg);
-      margin-right: 15px;
-      text-decoration: none;
+    /* Mobile rescue */
+    @media (max-width: 800px) {
+      .textbox { width: 90vw !important; left: 5vw !important; top: auto !important; position: relative; margin: 20px 0; }
     }
   </style>
 </head>
 <body>
+  <!-- Background -->
   <canvas id="matrix-blur"></canvas>
   <canvas id="matrix"></canvas>
 
-  <!-- Navigation bar (appears after scrolling) -->
+  <!-- Navbar (appears after first screen) -->
   <div class="navbar" id="navbar">
-    <a href="#">Home</a>
-    <a href="https://github.com/AdmiraLahav">Github</a>
-    <a href="#about">About</a>
+    <!-- Use relative links so we don't reload the whole site unnecessarily -->
+    <a href="index.html">Home</a>
+    <a href="index.html#about">About</a>
     <a href="#">Projects</a>
+    <a href="https://github.com/AdmiraLahav" target="_blank">GitHub</a>
   </div>
 
+  <!-- Content -->
   <div class="content">
-    <!-- Textbox -->
-    <div
-      id="Steganography"
-      class="textbox"
-      data-title="Steganography"
-      style="top: 120px; left: 150px; width: 500px; height: 200px;"
-    >
+    <!-- Example project card; copy/paste to add more projects without touching JS/CSS -->
+    <div id="Steganography" class="textbox" data-title="Steganography" style="top: 120px; left: 150px; width: 500px; height: 200px;">
 Steganography - the process of hiding data inside a picture
 <a href="https://github.com/AdmiraLahav/Lahav_Steganography" target="_blank">Link to the repository</a>
     </div>
+
+    <!-- More projects go here ... -->
+  </div>
+
+  <!-- Shared matrix engine; keeps background logic in one place across pages -->
+  <script src="matrix.js"></script>
+
   <script>
-    /* ========== MATRIX RAIN ========== */
-    const canvas = document.getElementById("matrix");
-    const ctx = canvas.getContext("2d");
-    const canvasBlur = document.getElementById("matrix-blur");
-    const ctxBlur = canvasBlur.getContext("2d");
+    // Navbar reveal logic; appears after you scroll past the first viewport height
+    (function(){
+      const navbar = document.getElementById('navbar');
+      const showAfter = window.innerHeight - 50; // keep in sync with --navbar-height
+      function onScroll(){ if (window.scrollY > showAfter) navbar.classList.add('visible'); else navbar.classList.remove('visible'); }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
 
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      canvasBlur.width = window.innerWidth;
-      canvasBlur.height = window.innerHeight;
-    }
-    resizeCanvas();
-
-    const letters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const fontSize = 18;
-    let columns = Math.floor(window.innerWidth / fontSize);
-    let drops = Array(columns).fill(1);
-
-    function drawMatrix(context) {
-      context.fillStyle = "rgba(0, 0, 0, 0.05)";
-      context.fillRect(0, 0, window.innerWidth, window.innerHeight);
-
-      context.fillStyle = "#0080ff";
-      context.font = fontSize + "px monospace";
-
-      for (let i = 0; i < drops.length; i++) {
-        const text = letters[Math.floor(Math.random() * letters.length)];
-        context.fillText(text, i * fontSize, drops[i] * fontSize);
-
-        if (drops[i] * fontSize > window.innerHeight && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
-        drops[i]++;
-      }
-    }
-
-    function render() {
-      drawMatrix(ctx);
-      drawMatrix(ctxBlur);
-    }
-
-    setInterval(render, 33);
-
-    window.addEventListener("resize", () => {
-      resizeCanvas();
-      columns = Math.floor(window.innerWidth / fontSize);
-      drops = Array(columns).fill(1);
-    });
-
-    /* ===== Navbar appears after scrolling X pixels ===== */
-    const navbar = document.getElementById("navbar");
-    const showAfter = 0; // ← change this value to control when navbar appears
-
-    window.addEventListener("scroll", () => {
-      if (window.scrollY > showAfter) {
-        navbar.classList.add("visible");
-      } else {
-        navbar.classList.remove("visible");
-      }
-    });
+    // Fade-in textboxes when they come into view (progressive reveal)
+    (function(){
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+      }, { threshold: 0.2 });
+      document.querySelectorAll('.textbox').forEach(box => observer.observe(box));
+    })();
   </script>
 </body>
 </html>
