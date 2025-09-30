@@ -9,15 +9,14 @@
       --panel-bg: rgba(0, 16, 64, 0.65);
       --panel-fg: #00ccff;
       --panel-border: #00ccff;
-      --standard-width: 1920;
-      --standard-height: 1080;
     }
 
     body {
       margin: 0;
-      overflow: hidden;
+      overflow-x: hidden;
       background: black;
       font-family: ui-monospace, monospace;
+      color: var(--panel-fg);
     }
 
     /* Matrix canvas */
@@ -39,14 +38,14 @@
       pointer-events: none;
     }
 
-    /* Text boxes sized by viewport (editable by hand) */
+    /* Text boxes sized by absolute pixel values */
     .textbox {
       position: absolute;
       color: var(--panel-fg);
       background: var(--panel-bg);
       border: 1px solid var(--panel-border);
       border-radius: 8px;
-      padding: 1.2vh 1.5vw;
+      padding: 12px 18px;
       box-sizing: border-box;
       white-space: pre-wrap;
       word-break: break-word;
@@ -61,33 +60,63 @@
     .textbox::before {
       content: attr(data-title);
       display: block;
-      font-size: 1.2vh;
+      font-size: 11px;
       opacity: 0.7;
-      margin-bottom: 0.5vh;
+      margin-bottom: 4px;
       letter-spacing: 0.04em;
     }
+
+    /* Wrapper for scroll effect */
+    .content {
+      position: relative;
+      margin-top: 100vh; /* push content below first viewport */
+      padding-bottom: 200vh; /* ensure there's scroll room */
+    }
+
+    /* Example navbar (commented for later use) */
+    /*
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50px;
+      background: rgba(0,0,0,0.8);
+      border-bottom: 1px solid var(--panel-border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 20;
+    }
+    .navbar a {
+      color: var(--panel-fg);
+      margin-right: 15px;
+      text-decoration: none;
+    }
+    */
   </style>
 </head>
 <body>
   <canvas id="matrix-blur"></canvas>
   <canvas id="matrix"></canvas>
 
-  <!-- ✅ Edit size/position with viewport units -->
-  <div
-    class="textbox"
-    data-title="SYSTEM MESSAGE"
-    style="top: 5vh; right: 12vw; width: 35vw; height: 25vh;"
-  >
+  <div class="content">
+    <!-- ✅ Example Textbox -->
+    <div
+      class="textbox"
+      data-title="SYSTEM MESSAGE"
+      style="top: 120px; left: 150px; width: 500px; height: 200px;"
+    >
 Hello,
 This is AdmiraLahav's website.
 I am ██ years old.
-  </div>
+    </div>
 
-  <div
-    class="textbox"
-    data-title="Test Logo"
-    style="top: 5vh; left: 5vw; width: 37vw; height: 35vh;"
-  >
+    <div
+      class="textbox"
+      data-title="Test Logo"
+      style="top: 400px; left: 200px; width: 550px; height: 250px;"
+    >
 .:::          :::     :;+;.       :::  :::.         
 .&&&&        &&&&  X&&&&&&&&&;   ;&&&  &&&x         
  +&&&;      +&&&  &&&&;  .$&&&X  ;&&&  &&&x         
@@ -99,24 +128,9 @@ I am ██ years old.
      +&&&&&&.    :&&&&    .&&&&  ;&&&  &&&x .&&&&:  
       &&&&&+      .&&&&&&&&&&$   ;&&&  &&&x   X&&&$ 
        xXXX         .X&&&&&+     :XXx  XXX;    .XXXX
+    </div>
   </div>
-  <!--
-  <img 
-  src="logo.png" 
-  alt="Insignia"
-  style="
-    position: absolute;
-    top: 5vh;
-    left: 5vw;
-    width: 45vw;
-    height: auto;
-    z-index: 10;
-    border: 2px solid #00ccff;
-    border-radius: 8px;
-    box-shadow: 0 0 15px rgba(0, 128, 255, 0.4);
-  "
->
--->
+
   <script>
     /* ========== MATRIX RAIN ========== */
     const canvas = document.getElementById("matrix");
