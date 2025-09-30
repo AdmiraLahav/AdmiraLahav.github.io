@@ -59,11 +59,22 @@
 
     /* Navbar shown after scroll */
     .navbar {
-      position: fixed; top: 0; left: 0; width: 100%; height: var(--navbar-height);
-      background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--panel-border);
-      display: flex; align-items: center; padding: 0 20px; z-index: 20;
-      opacity: 0; pointer-events: none; transition: opacity .4s ease;
-    }
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--navbar-height);
+  background: rgba(0, 0, 0, 0.8);
+  border-bottom: 1px solid var(--panel-border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 20;
+  opacity: 1;              /* ✅ always visible */
+  pointer-events: auto;    /* ✅ clickable */
+  transition: none;        /* ✅ no fade needed */
+}
+
     .navbar.visible { opacity: 1; pointer-events: auto; }
     .navbar a { color: var(--panel-fg); margin-right: 15px; text-decoration: none; }
 
@@ -120,13 +131,7 @@ Steganography - the process of hiding data inside a picture
 
   <script>
     // Navbar reveal logic; appears after you scroll past the first viewport height
-    (function(){
-      const navbar = document.getElementById('navbar');
-      const showAfter = window.innerHeight - 50; // keep in sync with --navbar-height
-      function onScroll(){ if (window.scrollY > showAfter) navbar.classList.add('visible'); else navbar.classList.remove('visible'); }
-      window.addEventListener('scroll', onScroll, { passive: true });
-      onScroll();
-    })();
+    
 
     // Fade-in textboxes when they come into view (progressive reveal)
     (function(){
