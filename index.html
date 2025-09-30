@@ -6,6 +6,7 @@
   <title>Cyber Terminal</title>
   <style>
     :root {
+      --navbar-height: 50px;
       --panel-bg: rgba(0, 16, 64, 0.65);
       --panel-fg: #00ccff;
       --panel-border: #00ccff;
@@ -41,6 +42,7 @@
     /* Text boxes sized by pixel values */
     .textbox {
       position: absolute;
+      scroll-margin-top: var(--navbar-height);
       color: var(--panel-fg);
       background: var(--panel-bg);
       border: 1px solid var(--panel-border);
