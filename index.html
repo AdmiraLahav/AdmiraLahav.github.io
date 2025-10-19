@@ -1,286 +1,95 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Fake Linux Terminal — GitHub Pages</title>
-<style>
-  :root{--bg:#0b0f12;--panel:#071018;--text:#cfe8ff;--muted:#88a0b3;--accent:#66d9ef}
-  html,body{height:100%;margin:0;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;background:linear-gradient(180deg,#030506 0%, #071018 100%);color:var(--text)}
-  /* ly-style login panel */
-  .login-wrap{height:100%;display:flex;align-items:center;justify-content:center}
-  .login{width:420px;padding:28px;border-radius:8px;background:rgba(255,255,255,0.02);box-shadow:0 6px 30px rgba(0,0,0,0.6);backdrop-filter:blur(4px)}
-  .login h1{margin:0 0 10px;font-size:20px;color:var(--accent)}
-  .login label{display:block;font-size:12px;color:var(--muted);margin-top:12px}
-  .login input{width:100%;padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:rgba(255,255,255,0.02);color:var(--text);outline:none}
-  .btn{margin-top:14px;padding:10px;border-radius:6px;border:none;width:100%;cursor:pointer;background:var(--accent);color:#02131a;font-weight:700}
-  .small{font-size:12px;color:var(--muted);margin-top:8px}
-
-  /* terminal */
-  .term-wrap{height:100%;display:flex;flex-direction:column}
-  .term-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-bottom:1px solid rgba(255,255,255,0.02)}
-  .dots{display:flex;gap:8px}
-  .dot{width:12px;height:12px;border-radius:50%}
-  .d-1{background:#ff5f56}
-  .d-2{background:#ffbd2e}
-  .d-3{background:#27c93f}
-  .term{flex:1;padding:18px;overflow:auto;background:linear-gradient(180deg,#071018,#02060a);}
-  .prompt{display:flex;gap:8px;align-items:flex-start}
-  .prompt .pw{color:var(--muted);min-width:220px}
-  .inputline{flex:1}
-  .cmdline{outline:none;border:none;background:transparent;color:var(--text);font:inherit}
-  .line{white-space:pre-wrap}
-  .muted{color:var(--muted)}
-  .accent{color:var(--accent)}
-  ::selection{background:rgba(102,217,239,0.15)}
-
-  /* small responsive */
-  @media (max-width:480px){.login{width:92%}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ly login</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-
-<!--
-  INDEX.HTML for a fake terminal website ready for GitHub Pages.
-  Instructions:
-  1) Place this file as index.html in your repo root or gh-pages branch.
-  2) Create a file named creds.json in the repo root with the following plaintext content (example):
-     {
-       "username": "admiral",
-       "password": "hunter2",
-       "whoami": "admiral"
-     }
-  3) Optional: create a /files/ directory with text files you want to expose to the fake filesystem.
-     e.g. /files/README.txt
-
-  WARNING: This login is intentionally insecure. creds.json is plaintext and served publicly on GitHub Pages.
--->
-
-<div id="app">
-  <!-- Login screen -->
-  <div id="login" class="login-wrap">
-    <div class="login">
-      <h1>login</h1>
-      <div class="small">Simple ly-style login. Credentials read from <code>/creds.json</code> if present.</div>
-      <label>username</label>
-      <input id="u" autocomplete="username" value="admiral" />
-      <label>password</label>
-      <input id="p" autocomplete="current-password" />
-      <button id="btnLogin" class="btn">Sign in</button>
-      <div class="small">Not secure. Plaintext credentials allowed for your repo convenience.</div>
-    </div>
-  </div>
-
-  <!-- Terminal screen (hidden until login) -->
-  <div id="terminal-screen" style="display:none;height:100%" class="term-wrap">
-    <div class="term-header">
-      <div class="dots"><div class="dot d-1"></div><div class="dot d-2"></div><div class="dot d-3"></div></div>
-      <div class="muted">fake-linux — <span id="whoamiHeader">guest</span>@github-pages</div>
-    </div>
-    <div id="term" class="term" tabindex="0"></div>
-    <div style="padding:8px;background:rgba(0,0,0,0.04);border-top:1px solid rgba(255,255,255,0.01)">
-      <div class="prompt">
-        <div class="pw muted" id="pw">guest@github:~/</div>
-        <div class="inputline"><input id="cmd" class="cmdline" autocomplete="off" spellcheck="false" /></div>
+<body class="page-bg">
+  <main class="login-wrap">
+    <form id="loginForm" class="ly-login" autocomplete="off">
+      <h1 class="ly-title">login</h1>
+      <label class="field">username
+        <input id="user" name="user" value="admin" />
+      </label>
+      <label class="field">password
+        <input id="pass" name="pass" type="password" value="password" />
+      </label>
+      <div class="login-actions">
+        <button type="submit" class="btn no-focus">login</button>
+        <button type="button" id="showCreds" class="btn no-focus">show creds file</button>
       </div>
+      <p id="msg" class="msg"></p>
+    </form>
+  </main>
+
+  <script>
+    // insecure intentionally. reads creds.json from same repo.
+    async function loadCreds(){
+      try{
+        const r = await fetch('creds.json');
+        return await r.json();
+      }catch(e){
+        return {username:'admin', password:'password'};
+      }
+    }
+
+    (async ()=>{
+      const creds = await loadCreds();
+      const form = document.getElementById('loginForm');
+      const msg = document.getElementById('msg');
+      document.getElementById('showCreds').addEventListener('click', async ()=>{
+        const c = await loadCreds();
+        alert('creds.json contents:\n' + JSON.stringify(c, null, 2));
+      });
+
+      form.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        if(u === creds.username && p === creds.password){
+          // pass username via query for simple personalization
+          location.href = 'index.html?user=' + encodeURIComponent(u);
+        }else{
+          msg.textContent = 'login failed';
+          msg.style.color = 'var(--accent)';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
+
+====== index.html ======
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fake Terminal</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-bg">
+  <div class="terminal-container" id="terminal" tabindex="0">
+    <header class="term-header">
+      <div class="term-title">tty.github ~</div>
+      <div class="term-controls no-focus">
+        <button class="btn no-focus" id="btn-help">HELP</button>
+        <button class="btn no-focus" id="btn-clear">CLEAR</button>
+      </div>
+    </header>
+
+    <div class="term-body" id="termBody">
+      <div id="output" class="output"></div>
+    </div>
+
+    <div class="term-input-wrap">
+      <span id="prompt" class="prompt"></span>
+      <input id="cmdline" class="cmdline" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
   </div>
-</div>
 
-<script>
-// --- CONFIG / Template ---
-const DEFAULT_CREDS = { username: 'admiral', password: 'hunter2', whoami: 'admiral' };
-const FILES_BASE = '/files/'; // optional folder in repo for additional files
-
-// --- State ---
-let CREDS = DEFAULT_CREDS;
-let currentUser = 'guest';
-let cwd = '/';
-let uptimeStart = Date.now();
-
-// minimal fake filesystem. If you add files under /files/, cat will attempt to fetch them.
-const FS = {
-  '/': { type: 'dir', entries: ['home', 'etc', 'README.txt'] },
-  '/home': { type: 'dir', entries: ['readme.md'] },
-  '/home/readme.md': { type: 'file', content: '# Welcome\nThis is a fake terminal on GitHub Pages.' },
-  '/etc': { type: 'dir', entries: ['motd'] },
-  '/etc/motd': { type: 'file', content: 'Be advised. This is not secure. Files in /files/ are served if present.' },
-  '/README.txt': { type: 'file', content: 'Fake terminal v1. Put files into /files/ to expose them.' }
-};
-
-// --- DOM ---
-const loginWrap = document.getElementById('login');
-const termScreen = document.getElementById('terminal-screen');
-const term = document.getElementById('term');
-const cmdInput = document.getElementById('cmd');
-const whoamiHeader = document.getElementById('whoamiHeader');
-const pwLabel = document.getElementById('pw');
-
-// load creds from /creds.json if available
-async function loadCreds(){
-  try{
-    const res = await fetch('/creds.json', {cache: 'no-store'});
-    if(!res.ok) throw new Error('no creds');
-    const j = await res.json();
-    // basic validation
-    if(j.username && j.password) CREDS = j;
-  }catch(e){ /* fallback to default creds */ }
-}
-
-// login handler (insecure by design)
-async function attemptLogin(){
-  const u = document.getElementById('u').value.trim();
-  const p = document.getElementById('p').value;
-  if(u === CREDS.username && p === CREDS.password){
-    currentUser = CREDS.whoami || CREDS.username;
-    showTerminal();
-  } else {
-    alert('invalid credentials');
-  }
-}
-
-document.getElementById('btnLogin').addEventListener('click', attemptLogin);
-document.getElementById('p').addEventListener('keyup', e => { if(e.key==='Enter') attemptLogin(); });
-
-function showTerminal(){
-  loginWrap.style.display = 'none';
-  termScreen.style.display = 'flex';
-  whoamiHeader.textContent = currentUser;
-  pwLabel.textContent = `${currentUser}@github:~${cwd}`;
-  cmdInput.focus();
-  printLine(`Welcome, ${currentUser}. Type 'help' for commands.`);
-}
-
-// terminal printing
-function printLine(text, cls='line'){ const el=document.createElement('div'); el.className=cls; el.textContent = text; term.appendChild(el); term.scrollTop = term.scrollHeight; }
-function printError(text){ printLine(text,'line muted'); }
-
-// command handling
-cmdInput.addEventListener('keydown', async (e)=>{
-  if(e.key==='Enter'){
-    const raw = cmdInput.value.trim();
-    if(!raw) { cmdInput.value=''; return; }
-    printLine(`${currentUser}@github:${cwd}$ ${raw}`, 'line accent');
-    await handleCommand(raw);
-    cmdInput.value='';
-  } else if(e.key==='Tab'){
-    e.preventDefault();
-    // simple autocomplete: not implemented fully
-  }
-});
-
-async function handleCommand(raw){
-  const parts = raw.split(' ').filter(Boolean);
-  const cmd = parts[0].toLowerCase();
-  const args = parts.slice(1);
-  switch(cmd){
-    case 'help':
-      printLine("Available: help ls cd pwd cat clear echo whoami whoami-set date uptime fetchfile open filetree pwd");
-      break;
-    case 'ls':
-      {
-        const path = resolvePath(args[0]||cwd);
-        const node = FS[path];
-        if(node && node.type==='dir') printLine(node.entries.join('  '));
-        else printError('ls: no such directory');
-      }
-      break;
-    case 'pwd': printLine(cwd); break;
-    case 'cd':
-      {
-        const target = args[0] ? resolvePath(args[0]) : '/';
-        if(FS[target] && FS[target].type==='dir') { cwd = target; pwLabel.textContent = `${currentUser}@github:~${cwd}`; }
-        else printError('cd: no such directory');
-      }
-      break;
-    case 'cat':
-      if(!args[0]) { printError('cat: missing file'); break; }
-      await catCommand(resolvePath(args[0]));
-      break;
-    case 'clear': term.innerHTML=''; break;
-    case 'echo': printLine(args.join(' ')); break;
-    case 'whoami': printLine(currentUser); break;
-    case 'whoami-set':
-      CREDS.whoami = args.join(' ') || CREDS.whoami; printLine('whoami set to '+CREDS.whoami); break;
-    case 'date': printLine(new Date().toString()); break;
-    case 'uptime': printLine(((Date.now()-uptimeStart)/1000).toFixed(1)+' seconds'); break;
-    case 'fetchfile':
-      if(!args[0]) { printError('fetchfile: provide filename in /files/'); break; }
-      await fetchFileFromRepo(args[0]);
-      break;
-    case 'filetree': printFileTree('/'); break;
-    case 'open':
-      if(!args[0]) { printError('open: filename'); break; }
-      window.open(args[0], '_blank');
-      break;
-    default:
-      printError('command not found: '+cmd);
-  }
-}
-
-function resolvePath(input){
-  if(!input) return cwd;
-  if(input.startsWith('/')) return input.replace(/\/+/g,'/');
-  const combined = (cwd.endsWith('/')?cwd:cwd+'/') + input;
-  const normalized = combined.split('/').reduce((acc,part)=>{
-    if(part===''||part==='.') return acc;
-    if(part==='..') acc.pop(); else acc.push(part);
-    return acc;
-  },[]);
-  return '/' + normalized.join('/');
-}
-
-async function catCommand(path){
-  // first try internal FS
-  if(FS[path] && FS[path].type==='file'){ printLine(FS[path].content); return; }
-  // then try files served from repo under /files/
-  const name = path.startsWith('/')? path.slice(1): path;
-  try{
-    const res = await fetch(FILES_BASE + name, {cache: 'no-store'});
-    if(!res.ok) throw new Error('not found');
-    const txt = await res.text();
-    printLine(txt);
-  }catch(e){ printError('cat: file not found locally or in /files/'); }
-}
-
-async function fetchFileFromRepo(name){
-  try{
-    const res = await fetch(FILES_BASE+name, {cache:'no-store'});
-    if(!res.ok) throw new Error('not found');
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href=url; a.download = name; a.click();
-    printLine('download started: '+name);
-  }catch(e){ printError('fetchfile: not found'); }
-}
-
-function printFileTree(path, indent=''){
-  const node = FS[path];
-  if(!node) { printError('filetree: path missing'); return; }
-  if(node.type==='file'){ printLine(indent + path.split('/').pop()); return; }
-  printLine(indent + path);
-  (node.entries||[]).forEach(e=>{
-    const child = path === '/'? ('/' + e) : (path + '/' + e);
-    printFileTree(child, indent + '  ');
-  });
-}
-
-// load creds on start
-loadCreds();
-
-// focus behavior
-term.addEventListener('click', ()=>cmdInput.focus());
-window.addEventListener('keydown', (e)=>{ if(e.key==='/' && (e.ctrlKey||e.metaKey)===false){ cmdInput.focus(); } });
-
-/*
-  NOTES and Upgrade ideas (template-friendly):
-  - Add a real JSON file browser under /files/ and populate FS dynamically from a manifest file.
-  - Add command history (arrow up/down) and tab-complete.
-  - Add syntax highlighting for certain file types.
-  - Replace alerts with in-terminal notifications.
-  - Add optional passwordless login via query string for demos (?user=admiral).
-  - Create a small server-side script to allow editing creds.json via a protected admin page if desired (not implemented here).
-*/
-</script>
+  <script src="terminal.js"></script>
 </body>
 </html>
