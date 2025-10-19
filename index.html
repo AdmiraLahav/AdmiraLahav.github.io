@@ -358,9 +358,9 @@ document.addEventListener('click',(ev)=>{
   }
 });
 
-/* --- Init --- */
-await loadFilesJson();
-await loadCreds();
+loadFilesJson().then(() => {
+  loadCreds();
+});
 
 </script>
 </body>
