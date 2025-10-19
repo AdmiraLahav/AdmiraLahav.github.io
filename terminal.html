@@ -1,0 +1,25 @@
+
+<!-- terminal.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>terminal • AdmiraLahav</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="terminal-page">
+  <div class="status-bar">
+    <div class="left">user: <span id="status-user">...</span></div>
+    <div class="right" id="cwd">/home</div>
+  </div>
+  <main class="terminal" id="terminal" tabindex="0">
+    <div id="output"></div>
+    <div class="prompt-line">
+      <span class="prompt" id="prompt">$</span>
+      <input id="cmdline" autofocus autocomplete="off" spellcheck="false" />
+    </div>
+  </main>
+  <script src="terminal.js"></script>
+</body>
+</html>
