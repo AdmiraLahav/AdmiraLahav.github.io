@@ -73,14 +73,19 @@ let uptimeStart = Date.now();
 let suState = { active:false, buffer:'', lineEl:null }; // S2 masked input
 
 /* Fake FS */
-const FS = {
-  '/':{type:'dir',entries:['home','etc','README.txt']},
-  '/home':{type:'dir',entries:['readme.md']},
-  '/home/readme.md':{type:'file',content:'# Welcome\nThis is a fake terminal on GitHub Pages.'},
-  '/etc':{type:'dir',entries:['motd']},
-  '/etc/motd':{type:'file',content:'This is not a secure system.'},
-  '/README.txt':{type:'file',content:'Fake terminal v1. Put files into /files/ to expose them.'}
-};
+let FS = null;
+
+async function loadFilesJson() {
+  try {
+    const r = await fetch('/files.json', { cache:'no-store' });
+    if(!r.ok) throw new Error();
+    FS = await r.json();
+  } catch(e) {
+    printLine("filesystem error: files.json missing or invalid", "muted");
+    throw e;
+  }
+}
+
 
 /* --- DOM --- */
 const loginWrap = document.getElementById('login');
@@ -184,25 +189,31 @@ async function handleCommand(raw){
       printLine("help ls cd pwd cat clear echo whoami date uptime filetree open fetchfile su exit");
       break;
 
-    case 'ls':{
-      const path = resolvePath(args[0]||cwd);
-      const node = FS[path];
-      if(node?.type==='dir') printLine(node.entries.join('  '));
-      else printLine('ls: no such directory','muted');
-    } break;
+    case 'ls': {
+  const dir = resolvePath(args[0] || cwd);
+  if(Array.isArray(FS[dir])) printLine(FS[dir].join('  '));
+  else printLine('ls: not a directory','muted');
+} break;
+
 
     case 'pwd': printLine(cwd); break;
 
-    case 'cd':{
-      const target = resolvePath(args[0]||'/');
-      if(FS[target]?.type==='dir'){ cwd = target; }
-      else printLine('cd: no such directory','muted');
-    } break;
+    case 'cd': {
+  const target = resolvePath(args[0] || '/');
+  if(Array.isArray(FS[target])) cwd = target;
+  else printLine('cd: no such directory','muted');
+} break;
+
 
     case 'cat':
-      if(!args[0]) printLine('cat: missing file','muted');
-      else await catCommand(resolvePath(args[0]));
-      break;
+  if(!args[0]) printLine('cat: missing file','muted');
+  else {
+    const path = resolvePath(args[0]);
+    if(typeof FS[path] === 'string') printLine(FS[path]);
+    else printLine('cat: no such file','muted');
+  }
+  break;
+
 
     case 'clear': term.innerHTML=''; break;
 
@@ -214,7 +225,10 @@ async function handleCommand(raw){
 
     case 'uptime': printLine(((Date.now()-uptimeStart)/1000).toFixed(1)+' seconds'); break;
 
-    case 'filetree': printFileTree('/'); break;
+    case 'filetree':
+  printTree('/');
+  break;
+
 
     case 'open':
       if(!args[0]) printLine('open: filename','muted');
@@ -241,6 +255,16 @@ async function handleCommand(raw){
 
     case '':
       break;
+      
+      function printTree(path, indent='') {
+  if(Array.isArray(FS[path])) {
+    printLine(indent + path);
+    FS[path].forEach(p => printTree((path==='/'?'/':path+'/')+p, indent+'  '));
+  } else if(typeof FS[path] === 'string') {
+    printLine(indent + path.split('/').pop());
+  }
+}
+
 
     default:
       printLine('command not found: '+cmd,'muted');
@@ -335,7 +359,9 @@ document.addEventListener('click',(ev)=>{
 });
 
 /* --- Init --- */
-loadCreds();
+await loadFilesJson();
+await loadCreds();
+
 </script>
 </body>
 </html>
