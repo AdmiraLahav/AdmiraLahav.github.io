@@ -5,24 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Fake Linux Terminal — GitHub Pages</title>
 <style>
-  :root {
-    --bg:#0b0f12;
-    --panel:#071018;
-    --text:#cfe8ff;
-    --muted:#88a0b3;
-    --accent:#66d9ef;
-    --green:#27ff27;
-    --blue:#3ea6ff;
-    --white:#ffffff;
-    --red:#ff4c4c;
+  :root{
+    --bg:#0b0f12;--panel:#071018;--text:#cfe8ff;--muted:#88a0b3;--accent:#66d9ef;
+    --green:#27ff27;--blue:#3ea6ff;--white:#ffffff;--red:#ff4c4c
   }
-  html,body {
-    height:100%; margin:0;
-    font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
-    background:linear-gradient(180deg,#030506 0%, #071018 100%);
-    color:var(--text);
-  }
-
+  html,body{height:100%;margin:0;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono","Courier New",monospace;background:linear-gradient(180deg,#030506 0%, #071018 100%);color:var(--text)}
   .login-wrap{height:100%;display:flex;align-items:center;justify-content:center}
   .login{width:420px;padding:28px;border-radius:8px;background:rgba(255,255,255,0.02);box-shadow:0 6px 30px rgba(0,0,0,0.6);backdrop-filter:blur(4px)}
   .login h1{margin:0 0 10px;font-size:20px;color:var(--accent)}
@@ -32,22 +19,21 @@
   .small{font-size:12px;color:var(--muted);margin-top:8px}
 
   .term-wrap{height:100%;display:flex;flex-direction:column}
-  .term{flex:1;padding:18px;overflow:auto;background:linear-gradient(180deg,#071018,#02060a);}
+  .term{flex:1;padding:18px;overflow:auto;background:linear-gradient(180deg,#071018,#02060a)}
   .line{white-space:pre-wrap}
-  .promptline { display:flex; }
-  .prompttext { white-space:pre; }
-  .cmdline {
-    outline:none;border:none;background:transparent;color:var(--text);font:inherit;flex:1;
-    caret-color:var(--white); /* C1 choice */
-  }
   .muted{color:var(--muted)}
   .accent{color:var(--accent)}
-  ::selection{background:rgba(102,217,239,0.15)}
+
+  .promptbar{padding:8px;background:rgba(0,0,0,0.08);border-top:1px solid rgba(255,255,255,0.04)}
+  .promptline{display:flex}
+  .prompttext{white-space:pre}
+  .cmdline{outline:none;border:none;background:transparent;color:var(--text);font:inherit;flex:1;caret-color:var(--white)}
 </style>
 </head>
 <body>
 
 <div id="app">
+  <!-- Login -->
   <div id="login" class="login-wrap">
     <div class="login">
       <h1>login</h1>
@@ -57,13 +43,14 @@
       <label>password</label>
       <input id="p" autocomplete="current-password" />
       <button id="btnLogin" class="btn">Sign in</button>
-      <div class="small">Not secure. For aesthetic only.</div>
+      <div class="small">Intentionally insecure. For aesthetics only.</div>
     </div>
   </div>
 
+  <!-- Terminal -->
   <div id="terminal-screen" style="display:none;height:100%" class="term-wrap">
     <div id="term" class="term" tabindex="0"></div>
-    <div style="padding:8px;background:rgba(0,0,0,0.08);border-top:1px solid rgba(255,255,255,0.04)">
+    <div class="promptbar">
       <div class="promptline">
         <span id="prompt" class="prompttext"></span>
         <input id="cmd" class="cmdline" autocomplete="off" spellcheck="false" />
@@ -73,47 +60,57 @@
 </div>
 
 <script>
+/* --- Config --- */
 const DEFAULT_CREDS = { username:'admiral', password:'hunter2', whoami:'admiral' };
 const FILES_BASE = '/files/';
+
+/* --- State --- */
 let CREDS = {...DEFAULT_CREDS};
 let currentUser = 'guest';
+let normalUser = 'guest';
 let cwd = '/';
 let uptimeStart = Date.now();
+let suState = { active:false, buffer:'', lineEl:null }; // S2 masked input
 
+/* Fake FS */
 const FS = {
   '/':{type:'dir',entries:['home','etc','README.txt']},
   '/home':{type:'dir',entries:['readme.md']},
-  '/home/readme.md':{type:'file',content:'# Welcome\\nThis is a fake terminal.'},
+  '/home/readme.md':{type:'file',content:'# Welcome\nThis is a fake terminal on GitHub Pages.'},
   '/etc':{type:'dir',entries:['motd']},
   '/etc/motd':{type:'file',content:'This is not a secure system.'},
-  '/README.txt':{type:'file',content:'Fake terminal v1.'}
+  '/README.txt':{type:'file',content:'Fake terminal v1. Put files into /files/ to expose them.'}
 };
 
-// DOM
-const loginWrap=document.getElementById('login');
-const termScreen=document.getElementById('terminal-screen');
-const term=document.getElementById('term');
-const cmdInput=document.getElementById('cmd');
-const promptEl=document.getElementById('prompt');
+/* --- DOM --- */
+const loginWrap = document.getElementById('login');
+const termScreen = document.getElementById('terminal-screen');
+const term = document.getElementById('term');
+const cmdInput = document.getElementById('cmd');
+const promptEl = document.getElementById('prompt');
+const uEl = document.getElementById('u');
+const pEl = document.getElementById('p');
+const btnLogin = document.getElementById('btnLogin');
 
-// Load creds.json
+/* --- Creds --- */
 async function loadCreds(){
   try{
-    const res=await fetch('/creds.json',{cache:'no-store'});
-    if(!res.ok)throw new Error();
-    const j=await res.json();
-    if(j.username&&j.password) CREDS=j;
-  }catch(e){CREDS={...DEFAULT_CREDS};}
-  document.getElementById('u').value=CREDS.username;
-  document.getElementById('p').value=CREDS.password;
+    const r = await fetch('/creds.json',{cache:'no-store'});
+    if(!r.ok) throw new Error();
+    const j = await r.json();
+    if(j.username && j.password){ CREDS = {...DEFAULT_CREDS, ...j}; }
+  }catch{ CREDS = {...DEFAULT_CREDS}; }
+  uEl.value = CREDS.username || DEFAULT_CREDS.username;
+  pEl.value = CREDS.password || '';
 }
 
+/* --- Prompt --- */
 function setPrompt(){
-  const isRoot = (currentUser==='root');
-  const userColor = isRoot?'var(--red)':'var(--green)';
+  const isRoot = (currentUser === 'root');
+  const userColor = isRoot ? 'var(--red)' : 'var(--green)';
   const pathColor = 'var(--blue)';
-  const symColor  = isRoot?'var(--red)':'var(--white)';
-  const symbol = isRoot?'#':'$';
+  const symColor  = isRoot ? 'var(--red)' : 'var(--white)';
+  const symbol = isRoot ? '#' : '$';
   promptEl.innerHTML =
     `<span style="color:${userColor}">${currentUser}</span>`+
     `@github:`+
@@ -121,93 +118,223 @@ function setPrompt(){
     ` <span style="color:${symColor}">${symbol}</span> `;
 }
 
-async function attemptLogin(){
-  const u=document.getElementById('u').value.trim();
-  const p=document.getElementById('p').value;
-  if(u===CREDS.username && p===CREDS.password){
-    currentUser = CREDS.whoami||CREDS.username;
-    showTerminal();
-  } else {
-    printLine('invalid credentials','line muted');
-  }
+/* --- Terminal IO --- */
+function printLine(text, cls='line'){
+  const el = document.createElement('div');
+  el.className = cls;
+  el.textContent = text;
+  term.appendChild(el);
+  term.scrollTop = term.scrollHeight;
+  return el;
 }
 
+/* --- Login --- */
+async function attemptLogin(){
+  const inU = uEl.value.trim();
+  const inP = pEl.value;
+  if(inU === CREDS.username && inP === CREDS.password){
+    normalUser = CREDS.whoami || CREDS.username;
+    currentUser = normalUser;
+    showTerminal();
+  } else {
+    printLine('invalid credentials','muted');
+  }
+}
+btnLogin.addEventListener('click', attemptLogin);
+pEl.addEventListener('keyup', e=>{ if(e.key==='Enter') attemptLogin(); });
+
 function showTerminal(){
-  loginWrap.style.display='none';
-  termScreen.style.display='flex';
+  loginWrap.style.display = 'none';
+  termScreen.style.display = 'flex';
   printLine(`Welcome, ${currentUser}. Type 'help' for commands.`);
   setPrompt();
+  cmdInput.value = '';
   cmdInput.focus();
 }
 
-function printLine(text,cls='line'){
-  const el=document.createElement('div'); el.className=cls; el.textContent=text;
-  term.appendChild(el); term.scrollTop=term.scrollHeight;
-}
-
+/* --- Command handling --- */
 cmdInput.addEventListener('keydown', async (e)=>{
-  if(e.key==='Enter'){
-    const raw=cmdInput.value.trim();
-    printLine(promptEl.textContent+raw,'accent');
+  if(suState.active){
+    // Block normal input while in su password mode
+    e.preventDefault();
+    if(e.key.length === 1){ suState.buffer += e.key; suState.lineEl.textContent = 'Password: ' + '*'.repeat(suState.buffer.length); }
+    else if(e.key === 'Backspace'){ suState.buffer = suState.buffer.slice(0,-1); suState.lineEl.textContent = 'Password: ' + '*'.repeat(suState.buffer.length); }
+    else if(e.key === 'Enter'){ await finishSu(); }
+    else if(e.key === 'Escape'){ cancelSu(); }
+    return;
+  }
+
+  if(e.key === 'Enter'){
+    const raw = cmdInput.value.trim();
+    // echo the full prompt + command in accent
+    printLine(promptEl.textContent + raw, 'accent');
     await handleCommand(raw);
-    cmdInput.value='';
+    cmdInput.value = '';
     setPrompt();
   }
 });
 
 async function handleCommand(raw){
-  const parts=raw.split(' ').filter(Boolean);
-  const cmd=parts[0]?.toLowerCase()||'';
-  const args=parts.slice(1);
+  const parts = raw.split(' ').filter(Boolean);
+  const cmd = parts[0]?.toLowerCase() || '';
+  const args = parts.slice(1);
+
   switch(cmd){
-    case 'help': printLine("help ls cd pwd cat clear echo whoami date uptime filetree"); break;
-    case 'ls': {
-      const path=resolvePath(args[0]||cwd);
-      if(FS[path]?.type==='dir') printLine(FS[path].entries.join('  '));
+    case 'help':
+      printLine("help ls cd pwd cat clear echo whoami date uptime filetree open fetchfile su exit");
+      break;
+
+    case 'ls':{
+      const path = resolvePath(args[0]||cwd);
+      const node = FS[path];
+      if(node?.type==='dir') printLine(node.entries.join('  '));
       else printLine('ls: no such directory','muted');
     } break;
+
     case 'pwd': printLine(cwd); break;
-    case 'cd': {
-      const target=resolvePath(args[0]||'/');
-      if(FS[target]?.type==='dir'){cwd=target;} else printLine('cd: no such directory','muted');
+
+    case 'cd':{
+      const target = resolvePath(args[0]||'/');
+      if(FS[target]?.type==='dir'){ cwd = target; }
+      else printLine('cd: no such directory','muted');
     } break;
-    case 'cat': if(!args[0]) printLine('cat: missing file','muted'); else await catCommand(resolvePath(args[0])); break;
+
+    case 'cat':
+      if(!args[0]) printLine('cat: missing file','muted');
+      else await catCommand(resolvePath(args[0]));
+      break;
+
     case 'clear': term.innerHTML=''; break;
+
     case 'echo': printLine(args.join(' ')); break;
+
     case 'whoami': printLine(currentUser); break;
+
     case 'date': printLine(new Date().toString()); break;
+
     case 'uptime': printLine(((Date.now()-uptimeStart)/1000).toFixed(1)+' seconds'); break;
-    default: if(cmd) printLine('command not found: '+cmd,'muted');
+
+    case 'filetree': printFileTree('/'); break;
+
+    case 'open':
+      if(!args[0]) printLine('open: filename','muted');
+      else window.open(args[0],'_blank');
+      break;
+
+    case 'fetchfile':
+      if(!args[0]) printLine('fetchfile: provide filename in /files/','muted');
+      else await fetchFileFromRepo(args[0]);
+      break;
+
+    case 'su':
+      startSu(); // S2 masked
+      break;
+
+    case 'exit':
+      if(currentUser === 'root'){
+        currentUser = normalUser;
+        printLine('exit');
+      } else {
+        printLine('logout');
+      }
+      break;
+
+    case '':
+      break;
+
+    default:
+      printLine('command not found: '+cmd,'muted');
   }
 }
 
+/* --- su password flow (S2: show *) --- */
+function startSu(){
+  if(suState.active) return;
+  suState.active = true;
+  suState.buffer = '';
+  suState.lineEl = printLine('Password: ');
+  cmdInput.blur(); // prevent caret distraction
+}
+async function finishSu(){
+  const ok = (suState.buffer === (CREDS.password||''));
+  if(ok){
+    currentUser = 'root';
+    printLine(''); // newline after success
+  } else {
+    printLine('su: authentication failure','muted');
+  }
+  cancelSu(false);
+  setPrompt();
+  cmdInput.focus();
+}
+function cancelSu(clearLine=true){
+  if(clearLine && suState.lineEl){ suState.lineEl.textContent = ''; }
+  suState.active = false;
+  suState.buffer = '';
+  suState.lineEl = null;
+}
+
+/* --- Utils --- */
 function resolvePath(input){
   if(!input) return cwd;
-  if(input.startsWith('/')) return input.replace(/\\/+/g,'/')||'/';
-  const combined=(cwd.endsWith('/')?cwd:cwd+'/')+input;
-  const normalized=combined.split('/').reduce((a,p)=>{if(p===''||p==='.')return a;if(p==='..')a.pop();else a.push(p);return a;},[]);
-  return '/'+normalized.join('/');
+  if(input.startsWith('/')) return input.replace(/\/+/g,'/') || '/';
+  const combined = (cwd.endsWith('/')?cwd:cwd+'/') + input;
+  const normalized = combined.split('/').reduce((acc,part)=>{
+    if(part===''||part==='.') return acc;
+    if(part==='..') acc.pop(); else acc.push(part);
+    return acc;
+  },[]);
+  return '/' + normalized.join('/');
 }
 
 async function catCommand(path){
-  if(FS[path]?.type==='file'){printLine(FS[path].content);return;}
-  const name=path.startsWith('/')?path.slice(1):path;
+  if(FS[path]?.type==='file'){ printLine(FS[path].content); return; }
+  const name = path.startsWith('/')? path.slice(1): path;
   try{
-    const r=await fetch(FILES_BASE+name,{cache:'no-store'});
-    if(!r.ok)throw new Error(); printLine(await r.text());
-  }catch{printLine('cat: file not found','muted');}
+    const r = await fetch(FILES_BASE+name,{cache:'no-store'});
+    if(!r.ok) throw new Error();
+    const txt = await r.text();
+    printLine(txt);
+  }catch(e){ printLine('cat: file not found locally or in /files/','muted'); }
 }
 
-// focus on click
+function printFileTree(path, indent=''){
+  const node = FS[path];
+  if(!node){ printLine('filetree: path missing','muted'); return; }
+  if(node.type==='file'){ printLine(indent + path.split('/').pop()); return; }
+  printLine(indent + path);
+  (node.entries||[]).forEach(e=>{
+    const child = path === '/'? ('/' + e) : (path + '/' + e);
+    printFileTree(child, indent + '  ');
+  });
+}
+
+async function fetchFileFromRepo(name){
+  try{
+    const res = await fetch(FILES_BASE+name,{cache:'no-store'});
+    if(!res.ok) throw new Error();
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = name; a.click();
+    printLine('download started: '+name);
+  }catch{ printLine('fetchfile: not found','muted'); }
+}
+
+/* --- Focus behavior --- */
 document.addEventListener('click',(ev)=>{
-  if(getComputedStyle(termScreen).display!=='none' &&
-     !ev.target.closest('input') &&
-     !ev.target.closest('button')
-  ){
-    cmdInput.focus();
+  // If login visible and click inside login, let it be
+  if(getComputedStyle(loginWrap).display !== 'none'){
+    if(ev.target.closest('.login')) return;
+  }
+  // If su password capture active, keep focus off the input
+  if(suState.active) return;
+  if(getComputedStyle(termScreen).display !== 'none'){
+    if(!ev.target.closest('input') && !ev.target.closest('button')) cmdInput.focus();
   }
 });
 
+/* --- Init --- */
 loadCreds();
 </script>
 </body>
