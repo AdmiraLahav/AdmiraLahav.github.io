@@ -1,133 +1,111 @@
-<!DOCTYPE html>
+<!--
+Project: Linux Terminal-style GitHub Pages
+Files included (copy each to your repo as named):
+- index.html        -> Login page (ly-style fake login)
+- terminal.html     -> Terminal UI and command handling
+- styles.css        -> Shared styles (ly-like minimal greeter)
+- terminal.js       -> Terminal logic and virtual filesystem (files.json embedded)
+- files.json        -> (optional external) virtual filesystem data (also embedded in JS)
+
+Usage: put files at repo root. Open index.html or set GitHub Pages to serve root. This is intentionally insecure and purely aesthetic.
+-->
+
+<!-- index.html -->
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cyber Terminal</title>
-  <meta name="description" content="AdmiraLahav - Cyber-style personal website with projects, tools, and more." />
-  <meta name="theme-color" content="#00ccff" />
-  <link rel="icon" href="icon.png" />
-  <style>
-    :root {
-      --navbar-height: 50px;
-      --panel-bg: rgba(0, 16, 64, 0.65);
-      --panel-fg: #00ccff;
-      --panel-border: #00ccff;
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      margin: 0;
-      overflow-x: hidden;
-      background: black;
-      font-family: ui-monospace, monospace;
-      color: var(--panel-fg);
-    }
-
-    canvas#matrix { position: fixed; inset: 0; display: block; z-index: 0; }
-    canvas#matrix-blur { position: fixed; inset: 0; display: block; z-index: -1; filter: blur(60px) brightness(0.4); transform: scale(1.1); pointer-events: none; }
-
-    .textbox {
-      position: absolute;
-      scroll-margin-top: var(--navbar-height);
-      color: var(--panel-fg);
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
-      border-radius: 8px;
-      padding: 12px 18px;
-      box-sizing: border-box;
-      white-space: pre-wrap;
-      word-break: break-word;
-      line-height: 1.4;
-      z-index: 10;
-      box-shadow: 0 0 12px rgba(0, 128, 255, 0.25);
-      backdrop-filter: blur(2px);
-      -webkit-backdrop-filter: blur(2px);
-      opacity: 0;
-      transform: translateY(40px);
-      transition: opacity 1s ease, transform 1s ease;
-    }
-    .textbox.visible { opacity: 1; transform: translateY(0); }
-
-    .textbox::before { content: attr(data-title); display: block; font-size: 11px; opacity: 0.7; margin-bottom: 4px; letter-spacing: 0.04em; }
-
-    .content { position: relative; margin-top: 100vh; padding-bottom: 200vh; }
-
-    .navbar {
-      position: fixed; top: 0; left: 0; width: 100%; height: var(--navbar-height);
-      background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--panel-border);
-      display: flex; align-items: center; padding: 0 20px; z-index: 20;
-      opacity: 0; pointer-events: none; transition: opacity .4s ease;
-    }
-    .navbar.visible { opacity: 1; pointer-events: auto; }
-    .navbar a { color: var(--panel-fg); margin-right: 15px; text-decoration: none; }
-
-    @media (max-width: 800px) {
-      .textbox { width: 90vw !important; left: 5vw !important; top: auto !important; position: relative; margin: 20px 0; }
-    }
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ly-login • AdmiraLahav</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <canvas id="matrix-blur"></canvas>
-  <canvas id="matrix"></canvas>
-
-  <div class="navbar" id="navbar">
-    <a href="#">Home</a>
-    <a href="#about">About</a>
-    <a href="Projects.html">Projects</a>
-    <a href="https://admiralahav.github.io/files/welcome.html">Files</a>
-    <a href="https://github.com/AdmiraLahav" target="_blank">GitHub</a>
+<body class="greeter">
+  <div class="login-box">
+    <div class="host">Welcome to AdmiraLahav</div>
+    <form id="loginForm" class="login-form">
+      <label class="login-label">login:</label>
+      <input id="user" value="lahav" />
+      <label class="login-label">password:</label>
+      <input id="pass" type="password" value="hunter2" />
+      <div class="login-controls">
+        <button type="submit">Login</button>
+        <button type="button" id="guest">Guest</button>
+      </div>
+    </form>
+    <div class="hint">type any username. not secure. press Enter.</div>
   </div>
-
-  <div class="content">
-    <div id="about" class="textbox" data-title="SYSTEM MESSAGE" style="top: 120px; left: 150px; width: 500px; height: 200px;">
-Hello,
-This is AdmiraLahav's website.
-I am ██ years old.
-    </div>
-
-    <div id="logo" class="textbox" data-title="Test Logo" style="top: 400px; left: 200px; width: 500px; height: 320px;">
-.:::          :::     :;+;.       :::  :::.         
-.&&&&        &&&&  X&&&&&&&&&;   ;&&&  &&&x         
- +&&&;      +&&&  &&&&;  .$&&&X  ;&&&  &&&x         
-  $&&&     .&&&x X&&&     &&&&&. ;&&&  &&&x   .&&&& 
-  .&&&$    $&&&  &&&+   X&&$&&&x ;&&&  &&&x  &&&&:  
-   ;&&&.  ;&&&:  &&&; :&&&: &&&X ;&&&  &&&x+&&&x    
-    &&&&  &&&+   &&&+&&&$   &&&x ;&&&  &&&&&&&:     
-     &&&xx&&&    $&&&&&     &&&: ;&&&  &&&xx&&&$    
-     +&&&&&&.    :&&&&    .&&&&  ;&&&  &&&x .&&&&:  
-      &&&&&+      .&&&&&&&&&&$   ;&&&  &&&x   X&&&$ 
-       xXXX         .X&&&&&+     :XXx  XXX;    .XXXX
-    </div>
-  </div>
-
-  <!-- Shared matrix background engine -->
-  <script src="matrix.js"></script>
 
   <script>
-    const navbar = document.getElementById("navbar");
-    const showAfter = window.innerHeight - 50;
-
-    window.addEventListener("scroll", () => {
-      if (window.scrollY > showAfter) {
-        navbar.classList.add("visible");
-      } else {
-        navbar.classList.remove("visible");
-      }
+    document.getElementById('loginForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const user = document.getElementById('user').value || 'guest';
+      // store fake session in localStorage
+      localStorage.setItem('term_user', user);
+      location.href = 'terminal.html';
     });
-
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("visible");
-        }
-      });
-    }, { threshold: 0.2 });
-
-    document.querySelectorAll('.textbox').forEach(box => {
-      observer.observe(box);
+    document.getElementById('guest').addEventListener('click', ()=>{
+      localStorage.setItem('term_user','guest');
+      location.href = 'terminal.html';
     });
   </script>
 </body>
 </html>
+
+<!-- terminal.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>terminal • AdmiraLahav</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="terminal-page">
+  <div class="status-bar">
+    <div class="left">user: <span id="status-user">...</span></div>
+    <div class="right" id="cwd">/home</div>
+  </div>
+  <main class="terminal" id="terminal" tabindex="0">
+    <div id="output"></div>
+    <div class="prompt-line">
+      <span class="prompt" id="prompt">$</span>
+      <input id="cmdline" autofocus autocomplete="off" spellcheck="false" />
+    </div>
+  </main>
+  <script src="terminal.js"></script>
+</body>
+</html>
+
+<!-- styles.css -->
+:root{
+  --bg:#0b0f10; --panel:#0f1415; --text:#b6f2d6; --muted:#6b766f;
+  --accent:#7ad1ff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#071011);color:var(--text)}
+.greeter{display:flex;align-items:center;justify-content:center;height:100%}
+.login-box{width:420px;padding:28px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);backdrop-filter:blur(6px)}
+.login-box .host{font-size:18px;color:var(--accent);margin-bottom:12px}
+.login-form{display:flex;flex-direction:column;gap:8px}
+.login-label{font-size:12px;color:var(--muted)}
+.login-form input{padding:8px;border-radius:4px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)}
+.login-controls{display:flex;gap:8px;justify-content:flex-end}
+.login-controls button{padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text);cursor:pointer}
+.hint{font-size:12px;color:var(--muted);margin-top:10px}
+
+.terminal-page{display:flex;flex-direction:column;height:100vh}
+.status-bar{display:flex;justify-content:space-between;padding:10px 14px;background:rgba(0,0,0,0.25);border-bottom:1px solid rgba(255,255,255,0.03)}
+.terminal{flex:1;padding:18px;overflow:auto}
+#output{white-space:pre-wrap;font-size:14px;line-height:1.35}
+.prompt-line{display:flex;gap:8px;align-items:center;margin-top:6px}
+.prompt{color:var(--accent);min-width:36px}
+#cmdline{flex:1;background:transparent;border:none;outline:none;color:var(--text);font:inherit}
+
+/* small responsive */
+@media(max-width:600px){.login-box{width:92%}}
+
+/* faux cursor caret */
+#cmdline::placeholder{opacity:0.5}
+
+<!-- terminal.js -->
