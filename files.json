@@ -1,0 +1,9 @@
+{
+  "/": ["home", "etc", "README.md"],
+  "/home": ["notes.txt", "readme.md"],
+  "/etc": ["motd"],
+  "/README.md": "Welcome to my terminal",
+  "/home/notes.txt": "These are my notes",
+  "/home/readme.md": "Home readme",
+  "/etc/motd": "Message of the day"
+}
