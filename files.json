@@ -1,5 +1,6 @@
 {
   "/": ["users", "etc", "README.md"],
+  "/files": ["welcome.html","ncat.exe","wordlist.txt","combined.py"],
   "/users": ["AdmiraLahav", "README.md"],
   "/users/AdmiraLahav": ["home","desktop","downloads","README.md"],
   "/users/AdmiraLahav/home": ["notes.txt", "README.md"],
