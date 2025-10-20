@@ -1,9 +1,17 @@
 {
-  "/": ["home", "etc", "README.md"],
-  "/home": ["notes.txt", "README.md"],
+  "/": ["users", "etc", "README.md"],
+  "/users": ["AdmiraLahav", "README.md"],
+  "/users/AdmiraLahav": ["home","desktop","downloads","README.md"],
+  "/users/AdmiraLahav/home": ["notes.txt", "README.md"],
+  "/users/AdmiraLahav/downloads": ["README.md"],
+  "/users/AdmiraLahav/desktop": ["README.md"],
   "/etc": ["motd.txt"],
   "/README.md": "Welcome to my terminal",
-  "/home/notes.txt": "These are my notes\n bla bla bla",
-  "/home/readme.md": "Home readme",
+  "/users/README.md": "users folder",
+  "/users/AdmiraLahav/README.md": "AdmiraLahav user folder",
+  "/users/AdmiraLahav/home/README.md": "home folder",
+  "/users/AdmiraLahav/home/notes.txt": "These are my notes\n bla bla bla",
+  "/users/AdmiraLahav/downloads/README.md": "downloads folder",
+  "/users/AdmiraLahav/desktop/README.md": "desktop folder",
   "/etc/motd.txt": "Message of the day"
 }
