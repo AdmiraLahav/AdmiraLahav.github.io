@@ -1,6 +1,6 @@
 {
   "accounts": [
-    { "username": "admiral", "password": "1234", "whoami": "admiral" },
+    { "username": "AdmiraLahav", "password": "1234", "whoami": "AdmiraLahav" },
     { "username": "v0lk", "password": "1234", "whoami": "v0lk" }
   ]
 }
