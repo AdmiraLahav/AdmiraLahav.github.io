@@ -66,6 +66,8 @@ const FILES_BASE = '/files/';
 
 /* --- State --- */
 let ACCOUNTS = [...DEFAULT_ACCOUNTS];
+window.ACCOUNTS = ACCOUNTS;
+
 let currentUser = 'guest';
 let normalUser = 'guest';
 let cwd = '/';
