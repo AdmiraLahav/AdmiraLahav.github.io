@@ -265,6 +265,12 @@ async function handleCommand(raw){
   }
 }
 
+      // Auto-run files
+if(RUN_FILES[cmd]) {
+  await runInstructionFile(RUN_FILES[cmd]);
+  return;
+}
+
 
     default:
       printLine('command not found: '+cmd,'muted');
@@ -333,6 +339,22 @@ function printFileTree(path, indent=''){
   });
 }
 
+  async function runInstructionFile(filename){
+  try {
+    const res = await fetch('/' + filename, { cache: 'no-store' });
+    if(!res.ok) throw new Error();
+    const data = await res.json();
+    const steps = data.steps || [];
+    for (const line of steps) {
+      printLine('$ ' + line, 'muted');
+      await handleCommand(line);
+    }
+  } catch {
+    printLine('run: failed to load instruction file ' + filename, 'muted');
+  }
+}
+
+
 async function fetchFileFromRepo(name){
   try{
     const res = await fetch(FILES_BASE+name,{cache:'no-store'});
@@ -360,6 +382,18 @@ document.addEventListener('click',(ev)=>{
 
 loadFilesJson().then(() => {
   loadCreds();
+  
+  let RUN_FILES = {};
+
+async function loadRunFiles(){
+  try {
+    const r = await fetch('/run_files.json', { cache: 'no-store' });
+    if(!r.ok) throw new Error();
+    RUN_FILES = await r.json();
+  } catch {
+    printLine('run_files.json missing or invalid', 'muted');
+  }
+}
 });
 
 </script>
