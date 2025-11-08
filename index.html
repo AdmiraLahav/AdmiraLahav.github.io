@@ -198,30 +198,66 @@ cmdInput.addEventListener('keydown', async (e)=>{
     setPrompt();
   }
 });
-const COMMANDS = {};
 
-function registerCommand(name, handler) {
-  COMMANDS[name.toLowerCase()] = handler;
-}
-
-async function handleCommand(raw) {
+async function handleCommand(raw){
   const parts = raw.split(' ').filter(Boolean);
   const cmd = parts[0]?.toLowerCase() || '';
   const args = parts.slice(1);
 
-  if (!cmd) return;
+  switch(cmd){
+    case 'help':
+      printLine("help ls cd pwd cat clear echo whoami date uptime filetree open fetchfile su exit");
+      break;
 
-  if (COMMANDS[cmd]) {
-    try {
-      await COMMANDS[cmd](args);
-    } catch (err) {
-      printLine(`error in ${cmd}: ${err.message}`, 'muted');
-    }
-  } else {
-    printLine(`command not found: ${cmd}`, 'muted');
+    case 'ls': {
+      const dir = resolvePath(args[0] || cwd);
+      if(Array.isArray(FS[dir])) printLine(FS[dir].join('  '));
+      else printLine('ls: not a directory','muted');
+    } break;
+
+    case 'pwd': printLine(cwd); break;
+
+    case 'cd': {
+      const target = resolvePath(args[0] || '/');
+      if(Array.isArray(FS[target])) cwd = target;
+      else printLine('cd: no such directory','muted');
+    } break;
+
+    case 'cat':
+      if(!args[0]) printLine('cat: missing file','muted');
+      else {
+        const path = resolvePath(args[0]);
+        if(typeof FS[path] === 'string') printLine(FS[path]);
+        else printLine('cat: no such file','muted');
+      }
+      break;
+
+
+    case 'clear': term.innerHTML=''; break;
+    case 'echo': printLine(args.join(' ')); break;
+    case 'whoami': printLine(currentUser); break;
+    case 'date': printLine(new Date().toString()); break;
+    case 'uptime': printLine(((Date.now()-uptimeStart)/1000).toFixed(1)+' seconds'); break;
+    case 'filetree': printTree('/'); break;
+    case 'open': if(!args[0]) printLine('open: filename','muted'); else window.open(args[0],'_blank'); break;
+    case 'fetchfile': if(!args[0]) printLine('fetchfile: provide filename in /files/','muted'); else await fetchFileFromRepo(args[0]); break;
+
+    case 'su':
+      startSu(args[0]);
+      break;
+
+    case 'exit':
+      if(currentUser === 'root'){
+        currentUser = normalUser;
+        cwd = `/users/${normalUser}/home`;
+        printLine('exit');
+      } else {
+        printLine('logout');
+      }
+      break;
+    case '': break;
+    default: printLine('command not found: '+cmd,'muted');
   }
-}
-
 
   function printTree(path, indent='') {
     if(Array.isArray(FS[path])) {
@@ -330,6 +366,5 @@ document.addEventListener('click',(ev)=>{
 
 loadFilesJson().then(loadCreds);
 </script>
-  <script src="commands.js"></script>
 </body>
 </html>
