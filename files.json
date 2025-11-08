@@ -1,7 +1,7 @@
 {
   "/": ["files","users","etc","README.md"],
   "/files": ["welcome.html","ncat.exe","wordlist.txt","combined.py"],
-  "/users": ["AdmiraLahav","Wolf","README.md"],
+  "/users": ["AdmiraLahav","v0lk","README.md"],
 
   "/users/AdmiraLahav": ["home","desktop","downloads","README.md"],
   "/users/AdmiraLahav/home": ["notes.txt","README.md"],
@@ -9,16 +9,28 @@
   "/users/AdmiraLahav/desktop": ["README.md"],
 
   "/users/v0lk": ["home","desktop","downloads","README.md"],
-  "/users/v0lk/home": ["v0lknotes.txt","README.md"],
+  "/users/v0lk/home": ["notes.txt","README.md"],
   "/users/v0lk/downloads": ["README.md"],
   "/users/v0lk/desktop": ["README.md"],
 
   "/etc": ["motd.txt"],
   "/README.md": "Welcome to my terminal",
   "/users/README.md": "users folder",
+  
   "/users/AdmiraLahav/README.md": "AdmiraLahav user folder",
-  "/users/Wolf/README.md": "v0lk user folder",
-  "/users/AdmiraLahav/home/notes.txt": "These are my notes\n bla bla bla",
-  "/users/Wolf/home/wolfnotes.txt": "v0lk’s personal notes\n stay out!",
+  "/users/v0lk/README.md": "v0lk user folder",
+  
+  "/users/AdmiraLahav/home/notes.txt": "These are my notes\nbla bla bla",
+  "/users/v0lk/home/notes.txt": "v0lk’s personal notes\nstay out!",
+
+  "/users/AdmiraLahav/home/README.md": "Home folder for AdmiraLahav",
+  "/users/v0lk/home/README.md": "Home folder for v0lk",
+
+  "/users/AdmiraLahav/downloads/README.md": "Downloads folder for AdmiraLahav",
+  "/users/v0lk/downloads/README.md": "Downloads folder for v0lk",
+
+  "/users/AdmiraLahav/desktop/README.md": "Desktop folder for AdmiraLahav",
+  "/users/v0lk/downloads/README.md": "Downloads folder for v0lk",
+  
   "/etc/motd.txt": "Message of the day"
 }
