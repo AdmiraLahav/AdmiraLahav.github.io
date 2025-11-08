@@ -8,17 +8,17 @@
   "/users/AdmiraLahav/downloads": ["README.md"],
   "/users/AdmiraLahav/desktop": ["README.md"],
 
-  "/users/Wolf": ["home","desktop","downloads","README.md"],
-  "/users/Wolf/home": ["wolfnotes.txt","README.md"],
-  "/users/Wolf/downloads": ["README.md"],
-  "/users/Wolf/desktop": ["README.md"],
+  "/users/v0lk": ["home","desktop","downloads","README.md"],
+  "/users/v0lk/home": ["v0lknotes.txt","README.md"],
+  "/users/v0lk/downloads": ["README.md"],
+  "/users/v0lk/desktop": ["README.md"],
 
   "/etc": ["motd.txt"],
   "/README.md": "Welcome to my terminal",
   "/users/README.md": "users folder",
   "/users/AdmiraLahav/README.md": "AdmiraLahav user folder",
-  "/users/Wolf/README.md": "Wolf user folder",
+  "/users/Wolf/README.md": "v0lk user folder",
   "/users/AdmiraLahav/home/notes.txt": "These are my notes\n bla bla bla",
-  "/users/Wolf/home/wolfnotes.txt": "Wolf’s personal notes\n stay out!",
+  "/users/Wolf/home/wolfnotes.txt": "v0lk’s personal notes\n stay out!",
   "/etc/motd.txt": "Message of the day"
 }
