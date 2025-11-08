@@ -175,9 +175,6 @@ async function attemptLogin(){
 btnLogin.addEventListener('click', attemptLogin);
 pEl.addEventListener('keyup', e => { if(e.key === 'Enter') attemptLogin(); });
 
-btnLogin.addEventListener('click', attemptLogin);
-pEl.addEventListener('keyup', e=>{ if(e.key==='Enter') attemptLogin(); });
-
 function showTerminal(){
   loginWrap.style.display = 'none';
   termScreen.style.display = 'flex';
