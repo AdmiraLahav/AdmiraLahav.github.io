@@ -17,13 +17,11 @@
   .login input{width:100%;padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:rgba(255,255,255,0.02);color:var(--text);outline:none}
   .btn{margin-top:14px;padding:10px;border-radius:6px;border:none;width:100%;cursor:pointer;background:var(--accent);color:#02131a;font-weight:700}
   .small{font-size:12px;color:var(--muted);margin-top:8px}
-
   .term-wrap{height:100%;display:flex;flex-direction:column}
   .term{flex:1;padding:18px;overflow:auto;background:linear-gradient(180deg,#071018,#02060a)}
   .line{white-space:pre-wrap}
   .muted{color:var(--muted)}
   .accent{color:var(--accent)}
-
   .promptbar{padding:8px;background:rgba(0,0,0,0.08);border-top:1px solid rgba(255,255,255,0.04)}
   .promptline{display:flex}
   .prompttext{white-space:pre}
@@ -74,6 +72,12 @@ let cwd = '/';
 let uptimeStart = Date.now();
 let suState = { active:false, buffer:'', lineEl:null, target:null };
 let FS = null;
+let COMMANDS = {}; // command registry
+
+/* --- Command registration --- */
+function registerCommand(name, handler) {
+  COMMANDS[name.toLowerCase()] = handler;
+}
 
 /* --- File loading --- */
 async function loadFilesJson() {
@@ -173,7 +177,7 @@ function showTerminal(){
   loginWrap.style.display = 'none';
   termScreen.style.display = 'flex';
   printLine(`Welcome, ${currentUser}. Type 'help' for commands.`);
-  printMOTD();                 // <<< show motd on login
+  printMOTD();
   setPrompt();
   cmdInput.value = '';
   cmdInput.focus();
@@ -192,6 +196,7 @@ cmdInput.addEventListener('keydown', async (e)=>{
 
   if(e.key === 'Enter'){
     const raw = cmdInput.value.trim();
+    if(!raw) return;
     printLine(promptEl.textContent + raw, 'accent');
     await handleCommand(raw);
     cmdInput.value = '';
@@ -204,68 +209,11 @@ async function handleCommand(raw){
   const cmd = parts[0]?.toLowerCase() || '';
   const args = parts.slice(1);
 
-  switch(cmd){
-    case 'help':
-      printLine("help ls cd pwd cat clear echo whoami date uptime filetree open fetchfile su exit");
-      break;
-
-    case 'ls': {
-      const dir = resolvePath(args[0] || cwd);
-      if(Array.isArray(FS[dir])) printLine(FS[dir].join('  '));
-      else printLine('ls: not a directory','muted');
-    } break;
-
-    case 'pwd': printLine(cwd); break;
-
-    case 'cd': {
-      const target = resolvePath(args[0] || '/');
-      if(Array.isArray(FS[target])) cwd = target;
-      else printLine('cd: no such directory','muted');
-    } break;
-
-    case 'cat':
-      if(!args[0]) printLine('cat: missing file','muted');
-      else {
-        const path = resolvePath(args[0]);
-        if(typeof FS[path] === 'string') printLine(FS[path]);
-        else printLine('cat: no such file','muted');
-      }
-      break;
-
-
-    case 'clear': term.innerHTML=''; break;
-    case 'echo': printLine(args.join(' ')); break;
-    case 'whoami': printLine(currentUser); break;
-    case 'date': printLine(new Date().toString()); break;
-    case 'uptime': printLine(((Date.now()-uptimeStart)/1000).toFixed(1)+' seconds'); break;
-    case 'filetree': printTree('/'); break;
-    case 'open': if(!args[0]) printLine('open: filename','muted'); else window.open(args[0],'_blank'); break;
-    case 'fetchfile': if(!args[0]) printLine('fetchfile: provide filename in /files/','muted'); else await fetchFileFromRepo(args[0]); break;
-
-    case 'su':
-      startSu(args[0]);
-      break;
-
-    case 'exit':
-      if(currentUser === 'root'){
-        currentUser = normalUser;
-        cwd = `/users/${normalUser}/home`;
-        printLine('exit');
-      } else {
-        printLine('logout');
-      }
-      break;
-    case '': break;
-    default: printLine('command not found: '+cmd,'muted');
-  }
-
-  function printTree(path, indent='') {
-    if(Array.isArray(FS[path])) {
-      printLine(indent + path);
-      FS[path].forEach(p => printTree((path==='/'?'/':path+'/')+p, indent+'  '));
-    } else if(typeof FS[path] === 'string') {
-      printLine(indent + path.split('/').pop());
-    }
+  if (COMMANDS[cmd]) {
+    try { await COMMANDS[cmd](args); }
+    catch (err) { printLine(`error in ${cmd}: ${err.message}`,'muted'); }
+  } else {
+    printLine('command not found: ' + cmd,'muted');
   }
 }
 
@@ -284,12 +232,12 @@ async function finishSu(){
     currentUser = match.whoami;
     cwd = `/users/${match.whoami}/home`;
     printLine(`Switched to user ${currentUser}`);
-    printMOTD();           // <<< show motd after successful su->user
+    printMOTD();
   } else if(suState.target === 'root' && ACCOUNTS.some(a => a.password === suState.buffer)){
     currentUser = 'root';
     cwd = '/';
     printLine('root access granted');
-    printMOTD();           // <<< root also sees motd
+    printMOTD();
   } else {
     printLine('su: authentication failure','muted');
   }
@@ -305,29 +253,17 @@ function cancelSu(clearLine=true){
   suState.target = null;
 }
 
-// --- Restrict users to their own home directories ---
+/* --- Restrict users to their own home directories --- */
 function isAllowedPath(path) {
-  // root has full access
   if (currentUser === 'root') return true;
-
-  // resolve the actual user folder (handles case-insensitive matching)
-  const folder = fsUserFolder(currentUser);
+  const folder = currentUser;
   const base = `/users/${folder}/`;
-
-  // normalize trailing slash for accurate prefix match
   const norm = path.endsWith('/') ? path : path + '/';
-
-  // allow any path inside the user’s folder
   if (norm.startsWith(base)) return true;
-
-  // allow the user’s home itself
   if (path === `/users/${folder}` || path === `/users/${folder}/home`) return true;
-
-  // everything else denied
   return false;
 }
 
-  
 /* --- Utils --- */
 function resolvePath(input){
   if(!input) return cwd;
@@ -366,5 +302,9 @@ document.addEventListener('click',(ev)=>{
 
 loadFilesJson().then(loadCreds);
 </script>
+
+<!-- external commands -->
+<script src="commands.js"></script>
+
 </body>
 </html>
