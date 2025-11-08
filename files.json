@@ -1,18 +1,24 @@
 {
-  "/": ["files","users", "etc", "README.md"],
+  "/": ["files","users","etc","README.md"],
   "/files": ["welcome.html","ncat.exe","wordlist.txt","combined.py"],
-  "/users": ["AdmiraLahav", "README.md"],
+  "/users": ["AdmiraLahav","Wolf","README.md"],
+
   "/users/AdmiraLahav": ["home","desktop","downloads","README.md"],
-  "/users/AdmiraLahav/home": ["notes.txt", "README.md"],
+  "/users/AdmiraLahav/home": ["notes.txt","README.md"],
   "/users/AdmiraLahav/downloads": ["README.md"],
   "/users/AdmiraLahav/desktop": ["README.md"],
+
+  "/users/Wolf": ["home","desktop","downloads","README.md"],
+  "/users/Wolf/home": ["wolfnotes.txt","README.md"],
+  "/users/Wolf/downloads": ["README.md"],
+  "/users/Wolf/desktop": ["README.md"],
+
   "/etc": ["motd.txt"],
   "/README.md": "Welcome to my terminal",
   "/users/README.md": "users folder",
   "/users/AdmiraLahav/README.md": "AdmiraLahav user folder",
-  "/users/AdmiraLahav/home/README.md": "home folder",
+  "/users/Wolf/README.md": "Wolf user folder",
   "/users/AdmiraLahav/home/notes.txt": "These are my notes\n bla bla bla",
-  "/users/AdmiraLahav/downloads/README.md": "downloads folder",
-  "/users/AdmiraLahav/desktop/README.md": "desktop folder",
+  "/users/Wolf/home/wolfnotes.txt": "Wolf’s personal notes\n stay out!",
   "/etc/motd.txt": "Message of the day"
 }
