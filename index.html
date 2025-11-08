@@ -61,20 +61,21 @@
 
 <script>
 /* --- Config --- */
-const DEFAULT_CREDS = { username:'admiral', password:'hunter2', whoami:'admiral' };
+const DEFAULT_ACCOUNTS = [
+  { username:'admiral', password:'hunter2', whoami:'AdmiraLahav' }
+];
 const FILES_BASE = '/files/';
 
 /* --- State --- */
-let CREDS = {...DEFAULT_CREDS};
+let ACCOUNTS = [...DEFAULT_ACCOUNTS];
 let currentUser = 'guest';
 let normalUser = 'guest';
 let cwd = '/';
 let uptimeStart = Date.now();
-let suState = { active:false, buffer:'', lineEl:null }; // S2 masked input
-
-/* Fake FS */
+let suState = { active:false, buffer:'', lineEl:null, target:null };
 let FS = null;
 
+/* --- File loading --- */
 async function loadFilesJson() {
   try {
     const r = await fetch('/files.json', { cache:'no-store' });
@@ -86,8 +87,7 @@ async function loadFilesJson() {
   }
 }
 
-
-/* --- DOM --- */
+/* --- DOM refs --- */
 const loginWrap = document.getElementById('login');
 const termScreen = document.getElementById('terminal-screen');
 const term = document.getElementById('term');
@@ -100,13 +100,23 @@ const btnLogin = document.getElementById('btnLogin');
 /* --- Creds --- */
 async function loadCreds(){
   try{
-    const r = await fetch('/creds.json',{cache:'no-store'});
+    const r = await fetch('creds.json',{cache:'no-store'});
     if(!r.ok) throw new Error();
     const j = await r.json();
-    if(j.username && j.password){ CREDS = {...DEFAULT_CREDS, ...j}; }
-  }catch{ CREDS = {...DEFAULT_CREDS}; }
-  uEl.value = CREDS.username || DEFAULT_CREDS.username;
-  pEl.value = CREDS.password || '';
+    if(Array.isArray(j.accounts)) {
+      ACCOUNTS = j.accounts.map(a => ({
+        username: String(a.username),
+        password: String(a.password),
+        whoami: a.whoami || a.username
+      }));
+    } else if(j.username && j.password){
+      ACCOUNTS = [{ username:String(j.username), password:String(j.password), whoami:j.whoami || j.username }];
+    }
+  }catch{
+    ACCOUNTS = [...DEFAULT_ACCOUNTS];
+  }
+  uEl.value = ACCOUNTS[0].username;
+  pEl.value = '';
 }
 
 /* --- Prompt --- */
@@ -123,7 +133,7 @@ function setPrompt(){
     ` <span style="color:${symColor}">${symbol}</span> `;
 }
 
-/* --- Terminal IO --- */
+/* --- Terminal output --- */
 function printLine(text, cls='line'){
   const el = document.createElement('div');
   el.className = cls;
@@ -133,13 +143,24 @@ function printLine(text, cls='line'){
   return el;
 }
 
+/* --- Print MOTD --- */
+function printMOTD(){
+  try {
+    if(!FS) return;
+    const motd = FS['/etc/motd.txt'];
+    if(motd) printLine(motd, 'muted');
+  } catch(e){}
+}
+
 /* --- Login --- */
 async function attemptLogin(){
   const inU = uEl.value.trim();
   const inP = pEl.value;
-  if(inU === CREDS.username && inP === CREDS.password){
-    normalUser = CREDS.whoami || CREDS.username;
+  const match = ACCOUNTS.find(a => a.username === inU && a.password === inP);
+  if(match){
+    normalUser = match.whoami;
     currentUser = normalUser;
+    cwd = `/users/${normalUser}/home`;
     showTerminal();
   } else {
     printLine('invalid credentials','muted');
@@ -152,18 +173,18 @@ function showTerminal(){
   loginWrap.style.display = 'none';
   termScreen.style.display = 'flex';
   printLine(`Welcome, ${currentUser}. Type 'help' for commands.`);
+  printMOTD();                 // <<< show motd on login
   setPrompt();
   cmdInput.value = '';
   cmdInput.focus();
 }
 
-/* --- Command handling --- */
+/* --- Command handler --- */
 cmdInput.addEventListener('keydown', async (e)=>{
   if(suState.active){
-    // Block normal input while in su password mode
     e.preventDefault();
-    if(e.key.length === 1){ suState.buffer += e.key; suState.lineEl.textContent = 'Password: ' + '*'.repeat(suState.buffer.length); }
-    else if(e.key === 'Backspace'){ suState.buffer = suState.buffer.slice(0,-1); suState.lineEl.textContent = 'Password: ' + '*'.repeat(suState.buffer.length); }
+    if(e.key.length === 1){ suState.buffer += e.key; suState.lineEl.textContent = `Password for ${suState.target}: ` + '*'.repeat(suState.buffer.length); }
+    else if(e.key === 'Backspace'){ suState.buffer = suState.buffer.slice(0,-1); suState.lineEl.textContent = `Password for ${suState.target}: ` + '*'.repeat(suState.buffer.length); }
     else if(e.key === 'Enter'){ await finishSu(); }
     else if(e.key === 'Escape'){ cancelSu(); }
     return;
@@ -171,7 +192,6 @@ cmdInput.addEventListener('keydown', async (e)=>{
 
   if(e.key === 'Enter'){
     const raw = cmdInput.value.trim();
-    // echo the full prompt + command in accent
     printLine(promptEl.textContent + raw, 'accent');
     await handleCommand(raw);
     cmdInput.value = '';
@@ -190,100 +210,85 @@ async function handleCommand(raw){
       break;
 
     case 'ls': {
-  const dir = resolvePath(args[0] || cwd);
-  if(Array.isArray(FS[dir])) printLine(FS[dir].join('  '));
-  else printLine('ls: not a directory','muted');
-} break;
-
+      const dir = resolvePath(args[0] || cwd);
+      if(Array.isArray(FS[dir])) printLine(FS[dir].join('  '));
+      else printLine('ls: not a directory','muted');
+    } break;
 
     case 'pwd': printLine(cwd); break;
 
     case 'cd': {
-  const target = resolvePath(args[0] || '/');
-  if(Array.isArray(FS[target])) cwd = target;
-  else printLine('cd: no such directory','muted');
-} break;
-
+      const target = resolvePath(args[0] || '/');
+      if(Array.isArray(FS[target])) cwd = target;
+      else printLine('cd: no such directory','muted');
+    } break;
 
     case 'cat':
-  if(!args[0]) printLine('cat: missing file','muted');
-  else {
-    const path = resolvePath(args[0]);
-    if(typeof FS[path] === 'string') printLine(FS[path]);
-    else printLine('cat: no such file','muted');
-  }
-  break;
-
+      if(!args[0]) printLine('cat: missing file','muted');
+      else {
+        const path = resolvePath(args[0]);
+        if(typeof FS[path] === 'string') printLine(FS[path]);
+        else printLine('cat: no such file','muted');
+      }
+      break;
 
     case 'clear': term.innerHTML=''; break;
-
     case 'echo': printLine(args.join(' ')); break;
-
     case 'whoami': printLine(currentUser); break;
-
     case 'date': printLine(new Date().toString()); break;
-
     case 'uptime': printLine(((Date.now()-uptimeStart)/1000).toFixed(1)+' seconds'); break;
-
-    case 'filetree':
-  printTree('/');
-  break;
-
-
-    case 'open':
-      if(!args[0]) printLine('open: filename','muted');
-      else window.open(args[0],'_blank');
-      break;
-
-    case 'fetchfile':
-      if(!args[0]) printLine('fetchfile: provide filename in /files/','muted');
-      else await fetchFileFromRepo(args[0]);
-      break;
+    case 'filetree': printTree('/'); break;
+    case 'open': if(!args[0]) printLine('open: filename','muted'); else window.open(args[0],'_blank'); break;
+    case 'fetchfile': if(!args[0]) printLine('fetchfile: provide filename in /files/','muted'); else await fetchFileFromRepo(args[0]); break;
 
     case 'su':
-      startSu(); // S2 masked
+      startSu(args[0]);
       break;
 
     case 'exit':
       if(currentUser === 'root'){
         currentUser = normalUser;
+        cwd = `/users/${normalUser}/home`;
         printLine('exit');
       } else {
         printLine('logout');
       }
       break;
+    case '': break;
+    default: printLine('command not found: '+cmd,'muted');
+  }
 
-    case '':
-      break;
-      
-      function printTree(path, indent='') {
-  if(Array.isArray(FS[path])) {
-    printLine(indent + path);
-    FS[path].forEach(p => printTree((path==='/'?'/':path+'/')+p, indent+'  '));
-  } else if(typeof FS[path] === 'string') {
-    printLine(indent + path.split('/').pop());
+  function printTree(path, indent='') {
+    if(Array.isArray(FS[path])) {
+      printLine(indent + path);
+      FS[path].forEach(p => printTree((path==='/'?'/':path+'/')+p, indent+'  '));
+    } else if(typeof FS[path] === 'string') {
+      printLine(indent + path.split('/').pop());
+    }
   }
 }
 
-
-    default:
-      printLine('command not found: '+cmd,'muted');
-  }
-}
-
-/* --- su password flow (S2: show *) --- */
-function startSu(){
+/* --- su password flow --- */
+function startSu(targetUser){
   if(suState.active) return;
   suState.active = true;
   suState.buffer = '';
-  suState.lineEl = printLine('Password: ');
-  cmdInput.blur(); // prevent caret distraction
+  suState.target = targetUser || 'root';
+  suState.lineEl = printLine(`Password for ${suState.target}: `);
+  cmdInput.blur();
 }
 async function finishSu(){
-  const ok = (suState.buffer === (CREDS.password||''));
-  if(ok){
+  const match = ACCOUNTS.find(a => a.username.toLowerCase() === suState.target.toLowerCase() && a.password === suState.buffer);
+  if(match){
+    currentUser = match.whoami;
+    cwd = `/users/${match.whoami}/home`;
+    printLine(`Switched to user ${currentUser}`);
+    printMOTD();           // <<< show motd after successful su->user
+  } else if(suState.target === 'root' && ACCOUNTS.some(a => a.password === suState.buffer)){
     currentUser = 'root';
-    printLine(''); // newline after success
+    cwd = '/';
+    printLine('root access granted');
+    printMOTD();           // <<< root also sees motd
   } else {
     printLine('su: authentication failure','muted');
   }
@@ -296,6 +301,7 @@ function cancelSu(clearLine=true){
   suState.active = false;
   suState.buffer = '';
   suState.lineEl = null;
+  suState.target = null;
 }
 
 /* --- Utils --- */
@@ -309,28 +315,6 @@ function resolvePath(input){
     return acc;
   },[]);
   return '/' + normalized.join('/');
-}
-
-async function catCommand(path){
-  if(FS[path]?.type==='file'){ printLine(FS[path].content); return; }
-  const name = path.startsWith('/')? path.slice(1): path;
-  try{
-    const r = await fetch(FILES_BASE+name,{cache:'no-store'});
-    if(!r.ok) throw new Error();
-    const txt = await r.text();
-    printLine(txt);
-  }catch(e){ printLine('cat: file not found locally or in /files/','muted'); }
-}
-
-function printFileTree(path, indent=''){
-  const node = FS[path];
-  if(!node){ printLine('filetree: path missing','muted'); return; }
-  if(node.type==='file'){ printLine(indent + path.split('/').pop()); return; }
-  printLine(indent + path);
-  (node.entries||[]).forEach(e=>{
-    const child = path === '/'? ('/' + e) : (path + '/' + e);
-    printFileTree(child, indent + '  ');
-  });
 }
 
 async function fetchFileFromRepo(name){
@@ -347,21 +331,16 @@ async function fetchFileFromRepo(name){
 
 /* --- Focus behavior --- */
 document.addEventListener('click',(ev)=>{
-  // If login visible and click inside login, let it be
   if(getComputedStyle(loginWrap).display !== 'none'){
     if(ev.target.closest('.login')) return;
   }
-  // If su password capture active, keep focus off the input
   if(suState.active) return;
   if(getComputedStyle(termScreen).display !== 'none'){
     if(!ev.target.closest('input') && !ev.target.closest('button')) cmdInput.focus();
   }
 });
 
-loadFilesJson().then(() => {
-  loadCreds();
-});
-
+loadFilesJson().then(loadCreds);
 </script>
 </body>
 </html>
