@@ -1,4 +1,5 @@
 {
-  "username":"admiral",
-  "password":1234
+  "username": "admiral",
+  "password": "1234",
+  "whoami": "admiral"
 }
