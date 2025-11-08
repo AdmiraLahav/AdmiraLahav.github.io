@@ -224,13 +224,13 @@ async function handleCommand(raw){
     } break;
 
     case 'cat':
-      if(!args[0]) printLine('cat: missing file','muted');
-      else {
-        const path = resolvePath(args[0]);
-        if(typeof FS[path] === 'string') printLine(FS[path]);
-        else printLine('cat: no such file','muted');
-      }
-      break;
+  if (!args[0]) return printLine('cat: missing file','muted');
+  const path = resolvePath(args[0]);
+  if (!isAllowedPath(path)) return printLine('permission denied','muted');
+  if (typeof FS[path] === 'string') printLine(FS[path]);
+  else printLine('cat: no such file','muted');
+  break;
+
 
     case 'clear': term.innerHTML=''; break;
     case 'echo': printLine(args.join(' ')); break;
