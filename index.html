@@ -157,19 +157,24 @@ function printMOTD(){
 }
 
 /* --- Login --- */
+/* --- Login --- */
 async function attemptLogin(){
-  const inU = uEl.value.trim();
+  const inU = uEl.value.trim().toLowerCase();
   const inP = pEl.value;
-  const match = ACCOUNTS.find(a => a.username === inU && a.password === inP);
+  const match = ACCOUNTS.find(a => a.username.toLowerCase() === inU && a.password === inP);
+
   if(match){
     normalUser = match.whoami;
     currentUser = normalUser;
     cwd = `/users/${normalUser}/home`;
     showTerminal();
   } else {
-    printLine('invalid credentials','muted');
+    alert('Invalid username or password.');
   }
 }
+btnLogin.addEventListener('click', attemptLogin);
+pEl.addEventListener('keyup', e => { if(e.key === 'Enter') attemptLogin(); });
+
 btnLogin.addEventListener('click', attemptLogin);
 pEl.addEventListener('keyup', e=>{ if(e.key==='Enter') attemptLogin(); });
 
