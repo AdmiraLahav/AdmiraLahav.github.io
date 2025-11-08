@@ -304,6 +304,29 @@ function cancelSu(clearLine=true){
   suState.target = null;
 }
 
+// --- Restrict users to their own home directories ---
+function isAllowedPath(path) {
+  // root has full access
+  if (currentUser === 'root') return true;
+
+  // resolve the actual user folder (handles case-insensitive matching)
+  const folder = fsUserFolder(currentUser);
+  const base = `/users/${folder}/`;
+
+  // normalize trailing slash for accurate prefix match
+  const norm = path.endsWith('/') ? path : path + '/';
+
+  // allow any path inside the user’s folder
+  if (norm.startsWith(base)) return true;
+
+  // allow the user’s home itself
+  if (path === `/users/${folder}` || path === `/users/${folder}/home`) return true;
+
+  // everything else denied
+  return false;
+}
+
+  
 /* --- Utils --- */
 function resolvePath(input){
   if(!input) return cwd;
