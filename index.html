@@ -1,356 +1,44 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Fake Linux Terminal — GitHub Pages</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AdmiraLahav Hub</title>
 <style>
-  :root{
-    --bg:#0b0f12;--panel:#071018;--text:#cfe8ff;--muted:#88a0b3;--accent:#66d9ef;
-    --green:#27ff27;--blue:#3ea6ff;--white:#ffffff;--red:#ff4c4c
+  :root {
+    --bg:#0b0f12; --panel:#071018; --text:#cfe8ff; --muted:#88a0b3; --accent:#66d9ef;
   }
-  html,body{height:100%;margin:0;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono","Courier New",monospace;background:linear-gradient(180deg,#030506 0%, #071018 100%);color:var(--text)}
-  .login-wrap{height:100%;display:flex;align-items:center;justify-content:center}
-  .login{width:420px;padding:28px;border-radius:8px;background:rgba(255,255,255,0.02);box-shadow:0 6px 30px rgba(0,0,0,0.6);backdrop-filter:blur(4px)}
-  .login h1{margin:0 0 10px;font-size:20px;color:var(--accent)}
-  .login label{display:block;font-size:12px;color:var(--muted);margin-top:12px}
-  .login input{width:100%;padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:rgba(255,255,255,0.02);color:var(--text);outline:none}
-  .btn{margin-top:14px;padding:10px;border-radius:6px;border:none;width:100%;cursor:pointer;background:var(--accent);color:#02131a;font-weight:700}
-  .small{font-size:12px;color:var(--muted);margin-top:8px}
-  .term-wrap{height:100%;display:flex;flex-direction:column}
-  .term{flex:1;padding:18px;overflow:auto;background:linear-gradient(180deg,#071018,#02060a)}
-  .line{white-space:pre-wrap}
-  .muted{color:var(--muted)}
-  .accent{color:var(--accent)}
-  .promptbar{padding:8px;background:rgba(0,0,0,0.08);border-top:1px solid rgba(255,255,255,0.04)}
-  .promptline{display:flex}
-  .prompttext{white-space:pre}
-  .cmdline{outline:none;border:none;background:transparent;color:var(--text);font:inherit;flex:1;caret-color:var(--white)}
+  html,body {
+    margin:0; height:100%; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono","Courier New",monospace;
+    background:linear-gradient(180deg,#030506 0%, #071018 100%);
+    color:var(--text); display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  h1 { color:var(--accent); margin-bottom:24px; font-size:22px; }
+  .hub-links {
+    display:grid; gap:12px; width:260px;
+  }
+  a {
+    display:block; text-align:center; padding:10px 0; text-decoration:none;
+    color:var(--text); background:rgba(255,255,255,0.04); border-radius:8px;
+    border:1px solid rgba(255,255,255,0.05); transition:0.2s;
+  }
+  a:hover {
+    background:var(--accent); color:#02131a; font-weight:700;
+  }
+  .muted { margin-top:16px; font-size:12px; color:var(--muted); }
 </style>
 </head>
 <body>
 
-<div id="app">
-  <!-- Login -->
-  <div id="login" class="login-wrap">
-    <div class="login">
-      <h1>login</h1>
-      <div class="small">Credentials read from <code>creds.json</code> if present.</div>
-      <label>username</label>
-      <input id="u" autocomplete="username" value="admiral" />
-      <label>password</label>
-      <input id="p" autocomplete="current-password" />
-      <button id="btnLogin" class="btn">Sign in</button>
-      <div class="small">Intentionally insecure. For aesthetics only.</div>
-    </div>
+  <h1>AdmiraLahav Hub</h1>
+  <div class="hub-links">
+    <a href="Terminal/Terminal.html">💻 Terminal</a>
+    <a href="files.html">📁 Files Browser</a>
+    <a href="files/welcome.html">👋 Welcome Page</a>
+    <a href="README.md">📜 README</a>
   </div>
 
-  <!-- Terminal -->
-  <div id="terminal-screen" style="display:none;height:100%" class="term-wrap">
-    <div id="term" class="term" tabindex="0"></div>
-    <div class="promptbar">
-      <div class="promptline">
-        <span id="prompt" class="prompttext"></span>
-        <input id="cmd" class="cmdline" autocomplete="off" spellcheck="false" />
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-/* --- Config --- */
-const DEFAULT_ACCOUNTS = [
-  { username:'admiral', password:'hunter2', whoami:'AdmiraLahav' }
-];
-const FILES_BASE = '/files/';
-
-/* --- State --- */
-var ACCOUNTS = [...DEFAULT_ACCOUNTS];
-window.ACCOUNTS = ACCOUNTS;
-
-let currentUser = 'guest';
-let normalUser = 'guest';
-let cwd = '/';
-let uptimeStart = Date.now();
-let suState = { active:false, buffer:'', lineEl:null, target:null };
-let FS = null;
-let COMMANDS = {}; // command registry
-
-/* --- Command registration --- */
-function registerCommand(name, handler) {
-  COMMANDS[name.toLowerCase()] = handler;
-}
-
-/* --- File loading --- */
-async function loadFilesJson() {
-  try {
-    const r = await fetch('/files.json', { cache:'no-store' });
-    if(!r.ok) throw new Error();
-    FS = await r.json();
-  } catch(e) {
-    printLine("filesystem error: files.json missing or invalid", "muted");
-    throw e;
-  }
-}
-
-/* --- DOM refs --- */
-const loginWrap = document.getElementById('login');
-const termScreen = document.getElementById('terminal-screen');
-const term = document.getElementById('term');
-const cmdInput = document.getElementById('cmd');
-const promptEl = document.getElementById('prompt');
-const uEl = document.getElementById('u');
-const pEl = document.getElementById('p');
-const btnLogin = document.getElementById('btnLogin');
-
-/* --- Creds --- */
-async function loadCreds(){
-  try{
-    const r = await fetch('creds.json',{cache:'no-store'});
-    if(!r.ok) throw new Error();
-    const j = await r.json();
-    if(Array.isArray(j.accounts)) {
-      ACCOUNTS = j.accounts.map(a => ({
-        username: String(a.username),
-        password: String(a.password),
-        whoami: a.whoami || a.username
-      }));
-    } else if(j.username && j.password){
-      ACCOUNTS = [{ username:String(j.username), password:String(j.password), whoami:j.whoami || j.username }];
-    }
-  }catch{
-    ACCOUNTS = [...DEFAULT_ACCOUNTS];
-  }
-  uEl.value = ACCOUNTS[0].username;
-  pEl.value = '';
-}
-
-/* --- Prompt --- */
-function setPrompt(){
-  const isRoot = (currentUser === 'root');
-  const userColor = isRoot ? 'var(--red)' : 'var(--green)';
-  const pathColor = 'var(--blue)';
-  const symColor  = isRoot ? 'var(--red)' : 'var(--white)';
-  const symbol = isRoot ? '#' : '$';
-  promptEl.innerHTML =
-    `<span style="color:${userColor}">${currentUser}</span>`+
-    `@github:`+
-    `<span style="color:${pathColor}">${cwd}</span>`+
-    ` <span style="color:${symColor}">${symbol}</span> `;
-}
-
-/* --- Terminal output --- */
-function printLine(text, cls='line'){
-  const el = document.createElement('div');
-  el.className = cls;
-  el.textContent = text;
-  term.appendChild(el);
-  term.scrollTop = term.scrollHeight;
-  return el;
-}
-
-/* --- Print MOTD --- */
-function printMOTD(){
-  try {
-    if(!FS) return;
-    const motd = FS['/etc/motd.txt'];
-    if(motd) printLine(motd, 'muted');
-  } catch(e){}
-}
-
-/* --- Login --- */
-/* --- Login --- */
-async function attemptLogin(){
-  const inU = uEl.value.trim().toLowerCase();
-  const inP = pEl.value;
-  const match = ACCOUNTS.find(a => a.username.toLowerCase() === inU && a.password === inP);
-
-  if(match){
-    normalUser = match.whoami;
-    currentUser = normalUser;
-    cwd = `/users/${normalUser}/home`;
-    showTerminal();
-  } else {
-    alert('Invalid username or password.');
-  }
-}
-btnLogin.addEventListener('click', attemptLogin);
-pEl.addEventListener('keyup', e => { if(e.key === 'Enter') attemptLogin(); });
-
-function showTerminal(){
-  loginWrap.style.display = 'none';
-  termScreen.style.display = 'flex';
-  printLine(`Welcome, ${currentUser}. Type 'help' for commands.`);
-  printMOTD();
-  setPrompt();
-  cmdInput.value = '';
-  cmdInput.focus();
-}
-
-/* --- Command handler --- */
-cmdInput.addEventListener('keydown', async (e)=>{
-  if(suState.active){
-    e.preventDefault();
-    if(e.key.length === 1){ suState.buffer += e.key; suState.lineEl.textContent = `Password for ${suState.target}: ` + '*'.repeat(suState.buffer.length); }
-    else if(e.key === 'Backspace'){ suState.buffer = suState.buffer.slice(0,-1); suState.lineEl.textContent = `Password for ${suState.target}: ` + '*'.repeat(suState.buffer.length); }
-    else if(e.key === 'Enter'){ await finishSu(); }
-    else if(e.key === 'Escape'){ cancelSu(); }
-    return;
-  }
-
-  /* --- Command history --- */
-let commandHistory = [];
-let historyIndex = -1;
-
-cmdInput.addEventListener('keydown', (e) => {
-  // Only handle when not in su mode
-  if (suState.active) return;
-
-  if (e.key === 'ArrowUp') {
-    if (historyIndex > 0) {
-      historyIndex--;
-      cmdInput.value = commandHistory[historyIndex];
-    } else if (historyIndex === -1 && commandHistory.length > 0) {
-      historyIndex = commandHistory.length - 1;
-      cmdInput.value = commandHistory[historyIndex];
-    }
-    e.preventDefault();
-  }
-
-  if (e.key === 'ArrowDown') {
-    if (historyIndex < commandHistory.length - 1) {
-      historyIndex++;
-      cmdInput.value = commandHistory[historyIndex];
-    } else {
-      historyIndex = -1;
-      cmdInput.value = '';
-    }
-    e.preventDefault();
-  }
-});
-
-// Extend Enter handler to save commands
-const originalHandler = handleCommand;
-handleCommand = async function (raw) {
-  if (raw && commandHistory[commandHistory.length - 1] !== raw) {
-    commandHistory.push(raw);
-  }
-  historyIndex = -1;
-  await originalHandler(raw);
-};
-
-
-  if(e.key === 'Enter'){
-    const raw = cmdInput.value.trim();
-    if(!raw) return;
-    printLine(promptEl.textContent + raw, 'accent');
-    await handleCommand(raw);
-    cmdInput.value = '';
-    setPrompt();
-  }
-});
-
-async function handleCommand(raw){
-  const parts = raw.split(' ').filter(Boolean);
-  const cmd = parts[0]?.toLowerCase() || '';
-  const args = parts.slice(1);
-
-  if (COMMANDS[cmd]) {
-    try { await COMMANDS[cmd](args); }
-    catch (err) { printLine(`error in ${cmd}: ${err.message}`,'muted'); }
-  } else {
-    printLine('command not found: ' + cmd,'muted');
-  }
-}
-
-/* --- su password flow --- */
-function startSu(targetUser){
-  if(suState.active) return;
-  suState.active = true;
-  suState.buffer = '';
-  suState.target = targetUser || 'root';
-  suState.lineEl = printLine(`Password for ${suState.target}: `);
-  cmdInput.blur();
-}
-async function finishSu(){
-  const match = ACCOUNTS.find(a => a.username.toLowerCase() === suState.target.toLowerCase() && a.password === suState.buffer);
-  if(match){
-    currentUser = match.whoami;
-    cwd = `/users/${match.whoami}/home`;
-    printLine(`Switched to user ${currentUser}`);
-    printMOTD();
-  } else if(suState.target === 'root' && ACCOUNTS.some(a => a.password === suState.buffer)){
-    currentUser = 'root';
-    cwd = '/';
-    printLine('root access granted');
-    printMOTD();
-  } else {
-    printLine('su: authentication failure','muted');
-  }
-  cancelSu(false);
-  setPrompt();
-  cmdInput.focus();
-}
-function cancelSu(clearLine=true){
-  if(clearLine && suState.lineEl){ suState.lineEl.textContent = ''; }
-  suState.active = false;
-  suState.buffer = '';
-  suState.lineEl = null;
-  suState.target = null;
-}
-
-/* --- Restrict users to their own home directories --- */
-function isAllowedPath(path) {
-  if (currentUser === 'root') return true;
-  const folder = currentUser;
-  const base = `/users/${folder}/`;
-  const norm = path.endsWith('/') ? path : path + '/';
-  if (norm.startsWith(base)) return true;
-  if (path === `/users/${folder}` || path === `/users/${folder}/home`) return true;
-  return false;
-}
-
-/* --- Utils --- */
-function resolvePath(input){
-  if(!input) return cwd;
-  if(input.startsWith('/')) return input.replace(/\/+/g,'/') || '/';
-  const combined = (cwd.endsWith('/')?cwd:cwd+'/') + input;
-  const normalized = combined.split('/').reduce((acc,part)=>{
-    if(part===''||part==='.') return acc;
-    if(part==='..') acc.pop(); else acc.push(part);
-    return acc;
-  },[]);
-  return '/' + normalized.join('/');
-}
-
-async function fetchFileFromRepo(name){
-  try{
-    const res = await fetch(FILES_BASE+name,{cache:'no-store'});
-    if(!res.ok) throw new Error();
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = name; a.click();
-    printLine('download started: '+name);
-  }catch{ printLine('fetchfile: not found','muted'); }
-}
-
-/* --- Focus behavior --- */
-document.addEventListener('click',(ev)=>{
-  if(getComputedStyle(loginWrap).display !== 'none'){
-    if(ev.target.closest('.login')) return;
-  }
-  if(suState.active) return;
-  if(getComputedStyle(termScreen).display !== 'none'){
-    if(!ev.target.closest('input') && !ev.target.closest('button')) cmdInput.focus();
-  }
-});
-
-loadFilesJson().then(loadCreds);
-</script>
-
-<!-- external commands -->
-<script src="commands.js"></script>
+  <div class="muted">v1.0 — Redirect hub for GitHub Pages</div>
 
 </body>
 </html>
