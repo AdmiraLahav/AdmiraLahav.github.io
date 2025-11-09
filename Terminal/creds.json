@@ -2,6 +2,5 @@
   "accounts": [
     { "username": "AdmiraLahav", "password": "1234", "whoami": "AdmiraLahav" },
     { "username": "v0lk", "password": "1234", "whoami": "v0lk" }
-    { "username": "root", "password": "root_pw", "whoami": "root" }
   ]
 }
