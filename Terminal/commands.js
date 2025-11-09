@@ -1,5 +1,4 @@
 // commands.js — external command definitions for Fake Linux Terminal
-
 // Utility shortcuts (all global objects already exist in main file)
 function cmdPrint(t, c) { return printLine(t, c); }
 function pathOf(arg) { return resolvePath(arg || cwd); }
