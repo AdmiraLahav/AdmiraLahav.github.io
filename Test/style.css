@@ -70,3 +70,10 @@ footer {
   opacity: 0.8;
   font-size: 0.9rem;
 }
+
+second {
+  text-align: center;
+  padding: 10px 10px;
+  cursor: grab;
+  background: rgba(255,255,255,0.05);
+}
