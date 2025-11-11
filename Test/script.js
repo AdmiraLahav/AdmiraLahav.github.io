@@ -1,10 +1,22 @@
-document.getElementById("submitBtn").addEventListener("click", () => {
-  const input = document.getElementById("userInput").value;
-  const output = document.getElementById("outputArea");
+// Restored alert button behavior (original)
+const learnBtn = document.getElementById("learnBtn");
+if (learnBtn) {
+  learnBtn.addEventListener("click", () => {
+    alert("You’re officially learning web design, AdmiraLahav!");
+  });
+}
 
-  // ❗ UNSAFE DEMONSTRATION — DO NOT USE IN REAL PROJECTS
-  output.innerHTML = input; 
+// XSS demo (unsafe) — educational only
+const submitBtn = document.getElementById("submitBtn");
+if (submitBtn) {
+  submitBtn.addEventListener("click", () => {
+    const input = document.getElementById("userInput").value;
+    const output = document.getElementById("outputArea");
 
-  // In a real site, this should be:
-  // output.textContent = input; // to prevent XSS
-});
+    // ❗ UNSAFE DEMONSTRATION — DO NOT USE IN REAL PROJECTS
+    output.innerHTML = input;
+
+    // Safe alternative:
+    // output.textContent = input;
+  });
+}
