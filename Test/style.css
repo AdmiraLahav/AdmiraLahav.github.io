@@ -20,7 +20,7 @@ body {
 header {
   text-align: center;
   padding: 3rem 1rem 1.5rem;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 h1 { color: var(--accent); }
 
@@ -35,7 +35,7 @@ h1 { color: var(--accent); }
 
 /* Left Side Panel */
 .side-panel {
-  background: rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.03);
   border-radius: 12px;
   padding: 20px;
   display: flex;
@@ -46,25 +46,42 @@ h1 { color: var(--accent); }
 
 /* Right / Main Panel */
 .main-panel {
-  background: rgba(255,255,255,0.03);
+  background: rgba(255,255,255,0.02);
   border-radius: 12px;
   padding: 20px;
   backdrop-filter: blur(10px);
 }
 
+/* Generic section spacing */
 section {
   margin-bottom: 2rem;
 }
 
 h2 {
   color: var(--accent);
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
   padding-bottom: 0.5rem;
   margin-bottom: 1rem;
 }
 
-/* Input Demo */
-.xss-demo {
+/* Hover card (restored original .intro hover behavior) */
+.hover-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 1.25rem;
+  border-radius: 14px;
+  text-align: center;
+  width: 320px;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+  display: inline-block;
+}
+.hover-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--accent);
+}
+
+/* XSS demo card (kept separate styling) */
+.xss-section .xss-demo {
   margin-top: 1rem;
   background: rgba(0,0,0,0.4);
   padding: 1rem;
@@ -75,7 +92,7 @@ input {
   width: 80%;
   padding: 8px;
   margin: 0.5rem 0;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 6px;
   background: #0e141b;
   color: var(--text);
@@ -88,7 +105,7 @@ button {
   padding: 8px 16px;
   border-radius: 6px;
   cursor: pointer;
-  transition: 0.3s;
+  transition: 0.2s;
 }
 button:hover { background: #0090e0; }
 
@@ -98,7 +115,7 @@ button:hover { background: #0090e0; }
   padding: 0.75rem;
   border-radius: 8px;
   min-height: 30px;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.06);
 }
 
 /* Footer */
