@@ -35,9 +35,17 @@
 
     <!-- Main Content Area -->
     <main class="main-panel">
-      <section class="intro">
-        <h2>Interactive Demo</h2>
-        <p>Below is an example of **unsafe input handling**. It's for <strong>educational purposes</strong> — to show how XSS works conceptually.</p>
+
+      <!-- Restored hover section with alert button -->
+      <section class="intro hover-card">
+        <h2>Interactive Welcome</h2>
+        <p>This section keeps the hover lift effect from the original template.</p>
+        <button id="learnBtn">Click Me</button>
+      </section>
+
+      <section class="intro xss-section">
+        <h2>Interactive Demo (XSS)</h2>
+        <p>Below is an example of <strong>unsafe input handling</strong>. For educational purposes only.</p>
 
         <div class="xss-demo">
           <label for="userInput">Enter some text (try HTML tags):</label><br>
