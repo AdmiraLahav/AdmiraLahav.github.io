@@ -3,34 +3,66 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AdmiraLahav | Portfolio</title>
-  <link rel="stylesheet" href="./style.css" />
+  <title>Cyber Layout Demo — AdmiraLahav</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
   <header>
-    <h1>Welcome to My Cyber-Themed Site</h1>
-    <p>Learning web design like a pro.</p>
+    <h1>🧠 Cyber Demo Interface</h1>
+    <p>Exploring HTML structure & security concepts.</p>
   </header>
 
-  <main>
-    <section class="intro">
-      <h2>About Me</h2>
-      <p>I’m learning how to build sleek, modern web pages with code.</p>
-      <button id="learnBtn">Click Me</button>
-    </section>
-    <!--
-    <section class="second">
-      <h2>Second section</h2>
-      <p>Test Test</p>
-      <button id="testBtn">TestBtn</button>
-    </section>
-    -->
-  </main>
+  <div class="grid-container">
+
+    <!-- Left Side Panel -->
+    <div class="side-panel">
+      <section class="profile">
+        <h2>Profile</h2>
+        <p>Name: AdmiraLahav</p>
+        <p>Role: Cybersecurity Teacher</p>
+      </section>
+
+      <section class="topics">
+        <h2>Topics</h2>
+        <ul>
+          <li>HTML Structure</li>
+          <li>CSS Layouts</li>
+          <li>XSS Demonstrations</li>
+        </ul>
+      </section>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="main-panel">
+      <section class="intro">
+        <h2>Interactive Demo</h2>
+        <p>Below is an example of **unsafe input handling**. It's for <strong>educational purposes</strong> — to show how XSS works conceptually.</p>
+
+        <div class="xss-demo">
+          <label for="userInput">Enter some text (try HTML tags):</label><br>
+          <input type="text" id="userInput" placeholder="Type something..." />
+          <button id="submitBtn">Submit</button>
+
+          <div id="outputArea" class="output"></div>
+        </div>
+      </section>
+
+      <section class="content">
+        <h2>Behind the Scenes</h2>
+        <p>
+          Normally, web apps <em>sanitize</em> input to prevent malicious code execution.  
+          Here, the text is directly injected into the page using <code>innerHTML</code> — a classic XSS scenario.
+        </p>
+      </section>
+    </main>
+
+  </div>
 
   <footer>
-    <p>© 2025 AdmiraLahav</p>
+    <p>© 2025 AdmiraLahav — For educational cybersecurity demonstrations only.</p>
   </footer>
 
-  <script src="./script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
