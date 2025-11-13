@@ -20,6 +20,7 @@ if (submitBtn) {
     // output.textContent = input;
   });
 }
+
 function play_song() {
     // Create audio object
     const audio = new Audio("03 - Beginning In The End.mp3");  // change to your file path
