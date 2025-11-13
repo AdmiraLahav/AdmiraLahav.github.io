@@ -20,3 +20,8 @@ if (submitBtn) {
     // output.textContent = input;
   });
 }
+
+function play_song() {
+  const audio = new Audio('./beggining_in_the_end.mp3');
+  audio.play();
+}
