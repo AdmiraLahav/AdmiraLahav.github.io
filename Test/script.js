@@ -21,13 +21,20 @@ if (submitBtn) {
   });
 }
 
+// One persistent audio object
 const audio = new Audio("03 - Beginning In The End.mp3");
 
 function play_song() {
-    // Always reset before playing again
+    // Stop current playback immediately
+    audio.pause();
     audio.currentTime = 0;
 
+    // Start from the beginning each time
     audio.play()
-        .catch(err => console.error("Audio playback failed:", err));
+        .catch(err => console.error("Playback error:", err));
+}
+
+function stop_song() {
+    audio.pause()
 }
 
