@@ -20,8 +20,15 @@ if (submitBtn) {
     // output.textContent = input;
   });
 }
-
 function play_song() {
-  const audio = new Audio('./beggining_in_the_end.mp3');
-  audio.play();
+    // Create audio object
+    const audio = new Audio("song.mp3");  // change to your file path
+
+    // Reset playback in case it's clicked again
+    audio.currentTime = 0;
+
+    // Play it
+    audio.play()
+        .catch(err => console.error("Audio playback failed:", err));
 }
+
