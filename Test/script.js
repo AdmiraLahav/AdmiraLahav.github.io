@@ -21,14 +21,12 @@ if (submitBtn) {
   });
 }
 
-function play_song() {
-    // Create audio object
-    const audio = new Audio("03 - Beginning In The End.mp3");  // change to your file path
+const audio = new Audio("03 - Beginning In The End.mp3");
 
-    // Reset playback in case it's clicked again
+function play_song() {
+    // Always reset before playing again
     audio.currentTime = 0;
 
-    // Play it
     audio.play()
         .catch(err => console.error("Audio playback failed:", err));
 }
