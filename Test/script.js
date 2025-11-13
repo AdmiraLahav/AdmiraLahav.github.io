@@ -22,7 +22,7 @@ if (submitBtn) {
 }
 function play_song() {
     // Create audio object
-    const audio = new Audio("./beggining_in_the_end.mp3");  // change to your file path
+    const audio = new Audio("03 - Beginning In The End.mp3");  // change to your file path
 
     // Reset playback in case it's clicked again
     audio.currentTime = 0;
