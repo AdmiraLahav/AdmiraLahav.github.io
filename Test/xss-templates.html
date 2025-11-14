@@ -72,6 +72,30 @@
     .return-btn:hover {
       background: #dd2f3d;
     }
+    /* Override main layout for this page */
+.grid-container {
+  display: flex !important;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Make the main panel narrower & centered */
+.main-panel {
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+}
+
+/* Make payload items expand properly */
+.payload-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.payload-item {
+  width: 96%;
+}
   </style>
 </head>
 
