@@ -65,6 +65,24 @@
           Here, the text is directly injected into the page using <code>innerHTML</code> — a classic XSS scenario.
         </p>
       </section>
+      <section class="xss-tools">
+  <h2>XSS Tools</h2>
+
+  <button id="genPayloadBtn">Generate Random Payload</button>
+  <button id="corruptBtn">Corrupt Site</button>
+
+  <div id="payloadBox" style="
+    margin-top:15px;
+    padding:10px;
+    background:#111;
+    border:1px solid #0f0;
+    color:#0f0;
+    font-family:monospace;
+    white-space:pre-wrap;">
+    <strong>Payload Output:</strong>
+  </div>
+</section>
+
     </main>
 
   </div>
