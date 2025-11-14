@@ -5,21 +5,29 @@ if (learnBtn) {
     alert("You’re officially learning web design, AdmiraLahav!");
   });
 }
-
-// XSS demo (unsafe) — educational only
+// XSS demo (unsafe, scripts allowed)
 const submitBtn = document.getElementById("submitBtn");
 if (submitBtn) {
   submitBtn.addEventListener("click", () => {
     const input = document.getElementById("userInput").value;
     const output = document.getElementById("outputArea");
 
-    // ❗ UNSAFE DEMONSTRATION — DO NOT USE IN REAL PROJECTS
+    // Inject HTML normally
     output.innerHTML = input;
 
-    // Safe alternative:
-    // output.textContent = input;
+    // Now execute any <script> tags inside the input
+    const scripts = output.querySelectorAll("script");
+
+    scripts.forEach(oldScript => {
+      const newScript = document.createElement("script");
+      // Copy inline JS
+      newScript.textContent = oldScript.textContent;
+      // Replace it in the DOM (this makes the browser *execute* it)
+      oldScript.parentNode.replaceChild(newScript, oldScript);
+    });
   });
 }
+
 
 // One persistent audio object
 const audio = new Audio("03 - Beginning In The End.mp3");
