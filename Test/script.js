@@ -47,75 +47,109 @@ function stop_song() {
 }
 
 /* ================================
-   XSS PAYLOAD LIBRARY
+   XSS PAYLOAD LIBRARY (BLUE THEME)
 ================================ */
 
 const payloads = [
 
-  // 1 — Matrix theme
+  // 1 — Matrix Blue Theme
   `<script>
-  document.body.style.background = "black";
-  document.body.style.color = "#0f0";
-  document.body.innerHTML += "<h1>Matrix Override</h1>";
+  document.body.style.background = "#090d12";
+  document.body.style.color = "#00aaff";
+  document.body.style.textShadow = "0 0 6px #0090e0";
+  document.body.innerHTML += "<h1 style='text-align:center;color:#00aaff;'>Matrix Blue Mode Activated</h1>";
   </script>`,
 
-  // 2 — Fake login popup
+  // 2 — Fake Login Popup (Blue UI)
   `<script>
   document.body.innerHTML += \`
-  <div style="position:fixed;top:0;left:0;width:100%;height:100%;
-  backdrop-filter:blur(5px);background:#0009;display:flex;
-  align-items:center;justify-content:center;color:#0f0;font-family:monospace;">
-    <div style='padding:25px;border:2px solid #0f0;background:#000'>
-      <h2>Session Expired</h2>
-      <input placeholder="Username" style="margin:5px;"><br>
-      <input type="password" placeholder="Password" style="margin:5px;"><br>
-      <button>Login</button>
+  <div style="
+    position:fixed;top:0;left:0;width:100%;height:100%;
+    backdrop-filter:blur(6px);
+    background:rgba(0,0,0,0.65);
+    display:flex;align-items:center;justify-content:center;
+    font-family:Poppins,sans-serif;color:#e0f0ff;
+  ">
+    <div style="
+      background:#101820;
+      padding:30px;
+      border:2px solid #00aaff;
+      border-radius:10px;
+      width:320px;
+      text-align:center;
+      box-shadow:0 0 12px #00aaff;
+    ">
+      <h2 style="color:#00aaff;">Authentication Required</h2>
+      <input placeholder="Username" style="
+        width:90%;padding:10px;margin:10px 0;
+        border:1px solid #00aaff;background:#0e141b;color:#e0f0ff;
+      ">
+      <input type="password" placeholder="Password" style="
+        width:90%;padding:10px;margin:10px 0;
+        border:1px solid #00aaff;background:#0e141b;color:#e0f0ff;
+      ">
+      <button style="
+        background:#00aaff;border:none;color:white;
+        padding:10px 22px;border-radius:6px;cursor:pointer;
+      ">Login</button>
     </div>
   </div>\`;
   </script>`,
 
-  // 3 — Word replacement
+  // 3 — Word Replacement (Blue Alert)
   `<script>
+  const replaceWith = "⚠ SYSTEM BREACHED ⚠";
   document.querySelectorAll("*").forEach(el=>{
-    if(el.childNodes.length===1 && el.childNodes[0].nodeType===3)
-      el.textContent = "⚠ BREACHED ⚠";
+    if(el.childNodes.length===1 && el.childNodes[0].nodeType===3){
+      el.style.color = "#00aaff";
+      el.textContent = replaceWith;
+    }
   });
   </script>`,
 
-  // 4 — Infinite rotation
+  // 4 — Infinite Rotation (Blue)
   `<script>
-  document.body.style.animation = "spin 4s linear infinite";
+  document.body.style.animation = "spin 6s linear infinite";
   document.body.innerHTML += "<style>@keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }</style>";
   </script>`,
 
-  // 5 — Bouncing buttons
+  // 5 — Bouncing Buttons (Blue Theme)
   `<script>
   for(let i=0;i<100;i++){
     const b = document.createElement("button");
-    b.textContent = "??";
+    b.textContent = "Click";
     b.style.position="fixed";
     b.style.left=Math.random()*100+"vw";
     b.style.top=Math.random()*100+"vh";
     b.style.transition="0.2s";
-    b.onmouseover=()=>{ b.style.left=Math.random()*100+"vw"; b.style.top=Math.random()*100+"vh"; };
+    b.style.background="#00aaff";
+    b.style.color="#fff";
+    b.style.border="none";
+    b.style.padding="8px 16px";
+    b.style.borderRadius="6px";
+    b.style.cursor="pointer";
+    b.onmouseover=()=>{ 
+      b.style.left=Math.random()*100+"vw"; 
+      b.style.top=Math.random()*100+"vh"; 
+    };
     document.body.appendChild(b);
   }
   </script>`,
 
-  // 6 — Screen shake
+  // 6 — Screen Shake (Blue UI stays intact)
   `<script>
   setInterval(()=>{
     document.body.style.transform = 
-      "translate(" + (Math.random()*20-10) + "px," + (Math.random()*20-10) + "px)";
-  }, 50);
+      "translate(" + (Math.random()*15-7) + "px," + (Math.random()*15-7) + "px)";
+  }, 60);
   </script>`,
 
-  // 7 — Neon cyber glow
+  // 7 — Neon Cyber Glow (Blue)
   `<script>
-  document.body.style.background="#000";
+  document.body.style.background="#090d12";
   document.querySelectorAll("*").forEach(el=>{
-    el.style.color="#0ff";
-    el.style.textShadow="0 0 8px #0ff";
+    el.style.color="#e0f0ff";
+    el.style.textShadow="0 0 10px #00aaff";
   });
   </script>`
 ];
@@ -126,37 +160,38 @@ const payloads = [
 ================================ */
 
 function generateRandomPayload() {
-  const box = document.getElementById("payloadBox");
   const index = Math.floor(Math.random() * payloads.length);
   const payload = payloads[index];
 
-  box.innerText = payload;
+  // Write in pretty box
+  document.getElementById("payloadContent").innerText = payload;
 
-  // Auto-insert for convenience:
+  // Auto-insert to XSS field
   document.getElementById("userInput").value = payload;
 }
 
 
 /* ================================
-   SITE CORRUPTOR (max chaos)
+   SITE CORRUPTOR (Blue Themed Chaos)
 ================================ */
 
 function corruptSite() {
   const payload = `
-  <script>
-    document.body.innerHTML = "";
-    let chaos = setInterval(()=>{
-      const d = document.createElement("div");
-      d.textContent = "💀";
-      d.style.position="fixed";
-      d.style.left=Math.random()*100+"vw";
-      d.style.top=Math.random()*100+"vh";
-      d.style.fontSize=(Math.random()*80+20)+"px";
-      document.body.appendChild(d);
-    }, 50);
-  </script>`;
+<script>
+  document.body.innerHTML = "";
+  setInterval(()=>{
+    const d=document.createElement("div");
+    d.textContent="💀";
+    d.style.position="fixed";
+    d.style.left=Math.random()*100+"vw";
+    d.style.top=Math.random()*100+"vh";
+    d.style.fontSize=(Math.random()*80+20)+"px";
+    d.style.color="#00aaff";
+    document.body.appendChild(d);
+  },50);
+</script>`;
 
-  document.getElementById("payloadBox").innerText = payload;
+  document.getElementById("payloadContent").innerText = payload;
   document.getElementById("userInput").value = payload;
 }
 
@@ -167,3 +202,4 @@ function corruptSite() {
 
 document.getElementById("genPayloadBtn").addEventListener("click", generateRandomPayload);
 document.getElementById("corruptBtn").addEventListener("click", corruptSite);
+
