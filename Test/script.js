@@ -28,7 +28,6 @@ if (submitBtn) {
   });
 }
 
-
 // One persistent audio object
 const audio = new Audio("03 - Beginning In The End.mp3");
 
