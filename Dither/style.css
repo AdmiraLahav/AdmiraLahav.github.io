@@ -134,3 +134,26 @@ canvas {
   border-radius: 8px;
   border: 1px solid #1e2b3b;
 }
+
+.slider-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  width: 100%;
+}
+
+.slider-group label {
+  display: flex;
+  flex-direction: column;
+  background: #0b1623;
+  padding: 0.8rem;
+  border-radius: 10px;
+  border: 1px solid #1e2b3b;
+  font-size: 0.85rem;
+}
+
+.slider-group input[type="range"] {
+  width: 100%;
+  margin-top: 6px;
+}
+
