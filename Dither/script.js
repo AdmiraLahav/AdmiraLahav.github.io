@@ -1,5 +1,6 @@
 // ============================================================
-//  Image Dither Lab (Ditherboy-style controls)
+//  Image Dither Lab (Advanced Version)
+//  Fixed: Black/White point + dynamic threshold
 // ============================================================
 
 // DOM elements
@@ -27,7 +28,7 @@ const scaleSlider = document.getElementById("scale");
 const blackSlider = document.getElementById("blackPoint");
 const whiteSlider = document.getElementById("whitePoint");
 
-// Slider value labels
+// Labels
 const brightnessVal = document.getElementById("brightnessVal");
 const contrastVal = document.getElementById("contrastVal");
 const gammaVal = document.getElementById("gammaVal");
@@ -44,447 +45,358 @@ const bgColorInput = document.getElementById("bgColor");
 const zoomSlider = document.getElementById("zoomSlider");
 const zoomVal = document.getElementById("zoomVal");
 
-// State
 let loadedImage = null;
 
-// ============================================================
-// Utility: debug logger
-// ============================================================
+// Logging
 function debug(msg) {
-  const time = new Date().toLocaleTimeString();
-  if (debugLog.textContent === "(No logs yet)") {
-    debugLog.textContent = `[${time}] ${msg}\n`;
-  } else {
-    debugLog.textContent += `[${time}] ${msg}\n`;
-  }
-  debugLog.scrollTop = debugLog.scrollHeight;
+    const time = new Date().toLocaleTimeString();
+    if (debugLog.textContent === "(No logs yet)") {
+        debugLog.textContent = `[${time}] ${msg}\n`;
+    } else {
+        debugLog.textContent += `[${time}] ${msg}\n`;
+    }
+    debugLog.scrollTop = debugLog.scrollHeight;
 }
 
-// Utility: parse #rrggbb
+// Parse "#rrggbb"
 function parseHexColor(hex) {
-  if (!hex || hex[0] !== "#" || (hex.length !== 7)) {
-    return { r: 255, g: 255, b: 255 };
-  }
-  const r = parseInt(hex.slice(1, 3), 16) || 0;
-  const g = parseInt(hex.slice(3, 5), 16) || 0;
-  const b = parseInt(hex.slice(5, 7), 16) || 0;
-  return { r, g, b };
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return { r, g, b };
 }
 
-// ============================================================
-// Image loading (file input + drag & drop)
-// ============================================================
-function loadImageFile(file) {
-  if (!file || !file.type.startsWith("image/")) {
-    debug("Dropped file is not an image.");
-    return;
-  }
+// ------------------------------------------------------------
+// Load Image from file or drop
+// ------------------------------------------------------------
+imageInput.addEventListener("change", e => {
+    if (e.target.files.length) handleFileDrop(e.target.files[0]);
+});
 
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    const img = new Image();
-    img.onload = () => {
-      loadedImage = img;
+document.addEventListener("dragover", e => e.preventDefault());
+document.addEventListener("drop", e => {
+    e.preventDefault();
+    if (e.dataTransfer.files.length) handleFileDrop(e.dataTransfer.files[0]);
+});
 
-      originalCanvas.width = img.width;
-      originalCanvas.height = img.height;
-      ditheredCanvas.width = img.width;
-      ditheredCanvas.height = img.height;
-
-      originalCtx.clearRect(0, 0, img.width, img.height);
-      originalCtx.drawImage(img, 0, 0);
-
-      // Preview canvas is fixed-ish size
-      const maxPreview = 260;
-      const scale = Math.min(1, maxPreview / img.width, maxPreview / img.height);
-      previewCanvas.width = Math.max(1, Math.floor(img.width * scale));
-      previewCanvas.height = Math.max(1, Math.floor(img.height * scale));
-      previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-
-      debug(`Image loaded: ${img.width}×${img.height} (${file.name})`);
-      applyDither(methodSelect.value, modeSelect.value, /*forPreviewOnly*/ true);
+function handleFileDrop(file) {
+    if (!file.type.startsWith("image/")) return debug("Not an image.");
+    const reader = new FileReader();
+    reader.onload = ev => {
+        const img = new Image();
+        img.onload = () => loadImage(img, file.name);
+        img.src = ev.target.result;
     };
-    img.onerror = () => debug("Error decoding image.");
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
+    reader.readAsDataURL(file);
 }
 
-imageInput.addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  loadImageFile(file);
-});
+function loadImage(img, name) {
+    loadedImage = img;
 
-// Drag & drop anywhere
-document.addEventListener("dragover", (e) => {
-  e.preventDefault();
-});
+    originalCanvas.width = img.width;
+    originalCanvas.height = img.height;
 
-document.addEventListener("drop", (e) => {
-  e.preventDefault();
-  const file = e.dataTransfer.files && e.dataTransfer.files[0];
-  if (file) {
-    debug("File dropped.");
-    loadImageFile(file);
-  }
-});
+    ditheredCanvas.width = img.width;
+    ditheredCanvas.height = img.height;
 
-// ============================================================
-// Zoom controls for dithered canvas
-// ============================================================
-function updateZoom() {
-  const z = Number(zoomSlider.value);
-  zoomVal.textContent = `${z.toFixed(1)}×`;
-  ditheredCanvas.style.transform = `scale(${z})`;
-}
-zoomSlider.addEventListener("input", updateZoom);
-updateZoom();
+    originalCtx.drawImage(img, 0, 0);
 
-// ============================================================
-// Sliders → live update
-// ============================================================
-function refreshSliderLabels() {
-  brightnessVal.textContent = brightnessSlider.value;
-  contrastVal.textContent = contrastSlider.value;
-  gammaVal.textContent = gammaSlider.value;
-  thresholdVal.textContent = thresholdSlider.value;
-  scaleVal.textContent = scaleSlider.value;
-  blackVal.textContent = blackSlider.value;
-  whiteVal.textContent = whiteSlider.value;
-}
+    const s = Math.min(1, 260 / img.width, 260 / img.height);
+    previewCanvas.width = Math.floor(img.width * s);
+    previewCanvas.height = Math.floor(img.height * s);
 
-function slidersChanged() {
-  refreshSliderLabels();
-  if (loadedImage) {
-    // Fast feedback: recompute and update preview + dithered
+    debug(`Loaded image: ${name} (${img.width}×${img.height})`);
     applyDither(methodSelect.value, modeSelect.value, true);
-  }
+}
+
+// ------------------------------------------------------------
+// Zoom
+// ------------------------------------------------------------
+zoomSlider.addEventListener("input", () => {
+    const z = Number(zoomSlider.value);
+    zoomVal.textContent = `${z}×`;
+    ditheredCanvas.style.transform = `scale(${z})`;
+});
+zoomSlider.dispatchEvent(new Event("input"));
+
+// ------------------------------------------------------------
+// Slider updates
+// ------------------------------------------------------------
+function updateSliderLabels() {
+    brightnessVal.textContent = brightnessSlider.value;
+    contrastVal.textContent = contrastSlider.value;
+    gammaVal.textContent = gammaSlider.value;
+    thresholdVal.textContent = thresholdSlider.value;
+    scaleVal.textContent = scaleSlider.value;
+    blackVal.textContent = blackSlider.value;
+    whiteVal.textContent = whiteSlider.value;
+}
+
+function sliderChanged() {
+    updateSliderLabels();
+    if (loadedImage) applyDither(methodSelect.value, modeSelect.value, true);
 }
 
 [
-  brightnessSlider,
-  contrastSlider,
-  gammaSlider,
-  thresholdSlider,
-  scaleSlider,
-  blackSlider,
-  whiteSlider,
-  methodSelect,
-  modeSelect,
-  fgColorInput,
-  bgColorInput
-].forEach(el => {
-  el.addEventListener("input", slidersChanged);
-});
+    brightnessSlider, contrastSlider, gammaSlider,
+    thresholdSlider, scaleSlider, blackSlider, whiteSlider,
+    methodSelect, modeSelect, fgColorInput, bgColorInput
+].forEach(el => el.addEventListener("input", sliderChanged));
 
-refreshSliderLabels();
+updateSliderLabels();
 
-// ============================================================
-// Dithering pipeline
-// ============================================================
+// ------------------------------------------------------------
+// Dithering Pipeline
+// ------------------------------------------------------------
 ditherBtn.addEventListener("click", () => {
-  if (!loadedImage) {
-    debug("Cannot dither: no image loaded.");
-    return;
-  }
-  applyDither(methodSelect.value, modeSelect.value, false);
+    if (!loadedImage) return;
+    applyDither(methodSelect.value, modeSelect.value, false);
 });
 
-function applyDither(method, mode, forPreviewOnly) {
-  if (!loadedImage) return;
+function applyDither(method, mode, previewOnly) {
+    if (!loadedImage) return;
 
-  const w = loadedImage.width;
-  const h = loadedImage.height;
+    const w = loadedImage.width, h = loadedImage.height;
+    const workCanvas = document.createElement("canvas");
+    workCanvas.width = w; workCanvas.height = h;
+    const workCtx = workCanvas.getContext("2d");
+    workCtx.drawImage(loadedImage, 0, 0);
 
-  // Work canvas for sampling
-  const workCanvas = document.createElement("canvas");
-  const workCtx = workCanvas.getContext("2d");
-  workCanvas.width = w;
-  workCanvas.height = h;
-  workCtx.drawImage(loadedImage, 0, 0, w, h);
+    const imgData = workCtx.getImageData(0, 0, w, h);
+    const src = imgData.data;
 
-  const srcData = workCtx.getImageData(0, 0, w, h);
-  const src = srcData.data;
-
-  // 1. Convert to grayscale luminance
-  let lum = new Float32Array(w * h);
-  for (let i = 0, j = 0; i < src.length; i += 4, j++) {
-    const r = src[i];
-    const g = src[i + 1];
-    const b = src[i + 2];
-    lum[j] = 0.299 * r + 0.587 * g + 0.114 * b;
-  }
-
-  // 2. Downscale based on "scale" slider
-  const scalePct = Number(scaleSlider.value) / 100;
-  const dw = Math.max(1, Math.floor(w * scalePct));
-  const dh = Math.max(1, Math.floor(h * scalePct));
-
-  let lumSmall = new Float32Array(dw * dh);
-  for (let y = 0; y < dh; y++) {
-    for (let x = 0; x < dw; x++) {
-      const sx = Math.floor((x / dw) * w);
-      const sy = Math.floor((y / dh) * h);
-      lumSmall[y * dw + x] = lum[sy * w + sx];
+    // Grayscale buffer
+    let lum = new Float32Array(w * h);
+    for (let i = 0, j = 0; i < src.length; i += 4, j++) {
+        lum[j] = 0.299 * src[i] + 0.587 * src[i + 1] + 0.114 * src[i + 2];
     }
-  }
 
-  // 3. Apply brightness / contrast / gamma / threshold offset / levels
-  const B = Number(brightnessSlider.value);       // -100..100
-  const C = Number(contrastSlider.value) / 100;   // 0..3
-  const G = Number(gammaSlider.value);           // 0.1..3
-  const T = Number(thresholdSlider.value);       // -128..128
-  const BP = Number(blackSlider.value);          // 0..127
-  const WP = Number(whiteSlider.value);          // 128..255
-  const eps = 1e-3;
-  const levelsRange = Math.max(eps, WP - BP);
+    // Downsample
+    const scalePct = Number(scaleSlider.value) / 100;
+    const dw = Math.max(1, Math.floor(w * scalePct));
+    const dh = Math.max(1, Math.floor(h * scalePct));
 
-  for (let i = 0; i < lumSmall.length; i++) {
-    let v = lumSmall[i];
+    let lumSmall = new Float32Array(dw * dh);
+    for (let y = 0; y < dh; y++)
+        for (let x = 0; x < dw; x++)
+            lumSmall[y * dw + x] = lum[Math.floor((y / dh) * h) * w + Math.floor((x / dw) * w)];
 
-    v += B;                        // brightness
-    v = ((v - 128) * C) + 128;     // contrast
-    v = 255 * Math.pow(v / 255, 1 / G); // gamma
-    v += T;                        // threshold offset
+    // Pre-correction sliders
+    let B = Number(brightnessSlider.value);
+    let C = Number(contrastSlider.value) / 100;
+    let G = Number(gammaSlider.value);
+    let T = Number(thresholdSlider.value);
 
-    // Levels mapping
-    v = (v - BP) * (255 / levelsRange);
+    // Black/White points
+    let BP = Number(blackSlider.value);
+    let WP = Number(whiteSlider.value);
+    let range = Math.max(1, WP - BP);
 
-    v = Math.min(255, Math.max(0, v));
-    lumSmall[i] = v;
-  }
-
-  // 4. Create output buffer for small image
-  let tinyData = new Uint8ClampedArray(dw * dh * 4);
-
-  if (mode === "gray") {
-    // Grayscale only, no dithering
     for (let i = 0; i < lumSmall.length; i++) {
-      const L = lumSmall[i];
-      const p = i * 4;
-      tinyData[p] = L;
-      tinyData[p + 1] = L;
-      tinyData[p + 2] = L;
-      tinyData[p + 3] = 255;
+        let v = lumSmall[i];
+
+        v += B;
+        v = ((v - 128) * C) + 128;
+        v = 255 * Math.pow(v / 255, 1 / G);
+        v += T;
+
+        // REAL WORKING LEVELS FIX
+        v = (v - BP) * (255 / range);
+
+        lumSmall[i] = Math.min(255, Math.max(0, v));
     }
-  } else {
+
+    // Dynamic threshold (REAL FIX)
+    const customThreshold = 128 * (255 / range);
+
+    // Output small buffer
+    let tinyData = new Uint8ClampedArray(dw * dh * 4);
+
+    // Palette
     const fg = parseHexColor(fgColorInput.value);
     const bg = parseHexColor(bgColorInput.value);
     const usePalette = (mode === "palette");
 
-    switch (method) {
-      case "floyd":
-        ditherFloyd(lumSmall, tinyData, dw, dh, usePalette, fg, bg);
-        break;
-      case "ordered":
-        ditherOrdered(lumSmall, tinyData, dw, dh, usePalette, fg, bg);
-        break;
-      case "atkinson":
-        ditherAtkinson(lumSmall, tinyData, dw, dh, usePalette, fg, bg);
-        break;
-      case "sierra":
-        ditherSierraLite(lumSmall, tinyData, dw, dh, usePalette, fg, bg);
-        break;
-      case "burkes":
-        ditherBurkes(lumSmall, tinyData, dw, dh, usePalette, fg, bg);
-        break;
-      default:
-        ditherFloyd(lumSmall, tinyData, dw, dh, usePalette, fg, bg);
-        break;
-    }
-  }
-
-  // 5. Write small result to a tiny canvas
-  const tinyCanvas = document.createElement("canvas");
-  tinyCanvas.width = dw;
-  tinyCanvas.height = dh;
-  const tinyCtx = tinyCanvas.getContext("2d");
-  tinyCtx.putImageData(new ImageData(tinyData, dw, dh), 0, 0);
-
-  // 6. Draw to dithered canvas (export resolution)
-  const outW = loadedImage.width;
-  const outH = loadedImage.height;
-  ditheredCanvas.width = outW;
-  ditheredCanvas.height = outH;
-  ditheredCtx.imageSmoothingEnabled = false;
-  ditheredCtx.clearRect(0, 0, outW, outH);
-  ditheredCtx.drawImage(tinyCanvas, 0, 0, dw, dh, 0, 0, outW, outH);
-
-  // 7. Draw scaled preview
-  const maxPreview = 260;
-  const s = Math.min(1, maxPreview / outW, maxPreview / outH);
-  const pw = Math.max(1, Math.floor(outW * s));
-  const ph = Math.max(1, Math.floor(outH * s));
-  previewCanvas.width = pw;
-  previewCanvas.height = ph;
-  previewCtx.imageSmoothingEnabled = false;
-  previewCtx.clearRect(0, 0, pw, ph);
-  previewCtx.drawImage(ditheredCanvas, 0, 0, outW, outH, 0, 0, pw, ph);
-
-  downloadBtn.disabled = false;
-
-  if (!forPreviewOnly) {
-    debug(`Dithering applied. Method=${method}, mode=${mode}, dw=${dw}, dh=${dh}`);
-  }
-}
-
-// ============================================================
-// Dithering algorithms
-// ============================================================
-function writePixel(out, idx, bit, usePalette, fg, bg) {
-  if (usePalette) {
-    const c = bit ? fg : bg;
-    out[idx] = c.r;
-    out[idx + 1] = c.g;
-    out[idx + 2] = c.b;
-  } else {
-    const v = bit ? 255 : 0;
-    out[idx] = v;
-    out[idx + 1] = v;
-    out[idx + 2] = v;
-  }
-  out[idx + 3] = 255;
-}
-
-// Floyd–Steinberg
-function ditherFloyd(lum, out, w, h, usePalette, fg, bg) {
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const i = y * w + x;
-      const oldVal = lum[i];
-      const bit = oldVal >= 128 ? 1 : 0;
-      const newVal = bit ? 255 : 0;
-      const err = oldVal - newVal;
-
-      const p = i * 4;
-      writePixel(out, p, bit, usePalette, fg, bg);
-
-      if (x + 1 < w) lum[i + 1] += err * 7 / 16;
-      if (y + 1 < h) {
-        if (x > 0) lum[i + w - 1] += err * 3 / 16;
-        lum[i + w] += err * 5 / 16;
-        if (x + 1 < w) lum[i + w + 1] += err * 1 / 16;
-      }
-    }
-  }
-}
-
-// Ordered (4×4 Bayer)
-function ditherOrdered(lum, out, w, h, usePalette, fg, bg) {
-  const bayer = [
-    [0, 8, 2, 10],
-    [12, 4, 14, 6],
-    [3, 11, 1, 9],
-    [15, 7, 13, 5]
-  ];
-
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const i = y * w + x;
-      const L = lum[i] / 255;
-      const t = (bayer[y & 3][x & 3] + 0.5) / 16;
-      const bit = (L >= t) ? 1 : 0;
-
-      const p = i * 4;
-      writePixel(out, p, bit, usePalette, fg, bg);
-    }
-  }
-}
-
-// Atkinson
-function ditherAtkinson(lum, out, w, h, usePalette, fg, bg) {
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const i = y * w + x;
-      const oldVal = lum[i];
-      const bit = oldVal >= 128 ? 1 : 0;
-      const newVal = bit ? 255 : 0;
-      const err = (oldVal - newVal) / 8;
-
-      const p = i * 4;
-      writePixel(out, p, bit, usePalette, fg, bg);
-
-      if (x + 1 < w) lum[i + 1] += err;
-      if (x + 2 < w) lum[i + 2] += err;
-      if (y + 1 < h) {
-        if (x > 0) lum[i + w - 1] += err;
-        lum[i + w] += err;
-        if (x + 1 < w) lum[i + w + 1] += err;
-      }
-      if (y + 2 < h) {
-        lum[i + 2 * w] += err;
-      }
-    }
-  }
-}
-
-// Sierra Lite
-function ditherSierraLite(lum, out, w, h, usePalette, fg, bg) {
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const i = y * w + x;
-      const oldVal = lum[i];
-      const bit = oldVal >= 128 ? 1 : 0;
-      const newVal = bit ? 255 : 0;
-      const err = oldVal - newVal;
-
-      const p = i * 4;
-      writePixel(out, p, bit, usePalette, fg, bg);
-
-      if (x + 1 < w) lum[i + 1] += err * 2 / 4;
-      if (y + 1 < h) {
-        if (x > 0) lum[i + w - 1] += err * 1 / 4;
-        lum[i + w] += err * 1 / 4;
-      }
-    }
-  }
-}
-
-// Burkes
-function ditherBurkes(lum, out, w, h, usePalette, fg, bg) {
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const i = y * w + x;
-      const oldVal = lum[i];
-      const bit = oldVal >= 128 ? 1 : 0;
-      const newVal = bit ? 255 : 0;
-      const err = oldVal - newVal;
-
-      const p = i * 4;
-      writePixel(out, p, bit, usePalette, fg, bg);
-
-      // next row / neighbors according to Burkes kernel
-      const weights = [
-        { dx: 1, dy: 0, w: 8 },
-        { dx: 2, dy: 0, w: 4 },
-        { dx: -2, dy: 1, w: 2 },
-        { dx: -1, dy: 1, w: 4 },
-        { dx: 0, dy: 1, w: 8 },
-        { dx: 1, dy: 1, w: 4 },
-        { dx: 2, dy: 1, w: 2 }
-      ];
-      const norm = 32;
-
-      for (const { dx, dy, w: weight } of weights) {
-        const nx = x + dx;
-        const ny = y + dy;
-        if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
-          lum[ny * w + nx] += err * (weight / norm);
+    function writePixelTiny(i, bit) {
+        const p = i * 4;
+        if (usePalette) {
+            const col = bit ? fg : bg;
+            tinyData[p] = col.r;
+            tinyData[p + 1] = col.g;
+            tinyData[p + 2] = col.b;
+        } else {
+            const v = bit ? 255 : 0;
+            tinyData[p] = tinyData[p + 1] = tinyData[p + 2] = v;
         }
-      }
+        tinyData[p + 3] = 255;
     }
-  }
+
+    if (mode === "gray") {
+        for (let i = 0; i < lumSmall.length; i++) {
+            const v = lumSmall[i];
+            const p = i * 4;
+            tinyData[p] = tinyData[p + 1] = tinyData[p + 2] = v;
+            tinyData[p + 3] = 255;
+        }
+    } else {
+        // -----------------------------
+        //   DITHERING ALGORITHMS
+        // -----------------------------
+
+        if (method === "ordered") ordered();
+        else if (method === "atkinson") atkinson();
+        else if (method === "sierra") sierraLite();
+        else if (method === "burkes") burkes();
+        else floyd(); // default
+
+        function floyd() {
+            for (let y = 0; y < dh; y++) {
+                for (let x = 0; x < dw; x++) {
+                    const i = y * dw + x;
+                    const old = lumSmall[i];
+                    const bit = old >= customThreshold ? 1 : 0;
+                    const newv = bit ? 255 : 0;
+                    writePixelTiny(i, bit);
+
+                    const err = old - newv;
+
+                    if (x + 1 < dw) lumSmall[i + 1] += err * 7 / 16;
+                    if (y + 1 < dh) {
+                        if (x > 0) lumSmall[i + dw - 1] += err * 3 / 16;
+                        lumSmall[i + dw] += err * 5 / 16;
+                        if (x + 1 < dw) lumSmall[i + dw + 1] += err * 1 / 16;
+                    }
+                }
+            }
+        }
+
+        function ordered() {
+            const bayer = [
+                [0, 8, 2, 10],
+                [12, 4, 14, 6],
+                [3, 11, 1, 9],
+                [15, 7, 13, 5]
+            ];
+            for (let y = 0; y < dh; y++) {
+                for (let x = 0; x < dw; x++) {
+                    const i = y * dw + x;
+                    const L = lumSmall[i] / 255;
+                    const t = (bayer[y & 3][x & 3] + 0.5) / 16;
+                    const bit = L >= t ? 1 : 0;
+                    writePixelTiny(i, bit);
+                }
+            }
+        }
+
+        function atkinson() {
+            for (let y = 0; y < dh; y++) {
+                for (let x = 0; x < dw; x++) {
+                    const i = y * dw + x;
+                    const old = lumSmall[i];
+                    const bit = old >= customThreshold ? 1 : 0;
+                    const newv = bit ? 255 : 0;
+                    writePixelTiny(i, bit);
+
+                    const err = (old - newv) / 8;
+
+                    if (x + 1 < dw) lumSmall[i + 1] += err;
+                    if (x + 2 < dw) lumSmall[i + 2] += err;
+                    if (y + 1 < dh) {
+                        if (x > 0) lumSmall[i + dw - 1] += err;
+                        lumSmall[i + dw] += err;
+                        if (x + 1 < dw) lumSmall[i + dw + 1] += err;
+                    }
+                    if (y + 2 < dh) lumSmall[i + 2 * dw] += err;
+                }
+            }
+        }
+
+        function sierraLite() {
+            for (let y = 0; y < dh; y++) {
+                for (let x = 0; x < dw; x++) {
+                    const i = y * dw + x;
+                    const old = lumSmall[i];
+                    const bit = old >= customThreshold ? 1 : 0;
+                    const newv = bit ? 255 : 0;
+                    writePixelTiny(i, bit);
+
+                    const err = old - newv;
+
+                    if (x + 1 < dw) lumSmall[i + 1] += err * 2 / 4;
+                    if (y + 1 < dh) {
+                        if (x > 0) lumSmall[i + dw - 1] += err * 1 / 4;
+                        lumSmall[i + dw] += err * 1 / 4;
+                    }
+                }
+            }
+        }
+
+        function burkes() {
+            const weights = [
+                { dx: 1, dy: 0, w: 8 },
+                { dx: 2, dy: 0, w: 4 },
+                { dx: -2, dy: 1, w: 2 },
+                { dx: -1, dy: 1, w: 4 },
+                { dx: 0, dy: 1, w: 8 },
+                { dx: 1, dy: 1, w: 4 },
+                { dx: 2, dy: 1, w: 2 }
+            ];
+            const norm = 32;
+
+            for (let y = 0; y < dh; y++) {
+                for (let x = 0; x < dw; x++) {
+                    const i = y * dw + x;
+                    const old = lumSmall[i];
+                    const bit = old >= customThreshold ? 1 : 0;
+                    const newv = bit ? 255 : 0;
+                    writePixelTiny(i, bit);
+
+                    const err = old - newv;
+
+                    for (const { dx, dy, w: ww } of weights) {
+                        const nx = x + dx, ny = y + dy;
+                        if (nx >= 0 && nx < dw && ny >= 0 && ny < dh)
+                            lumSmall[ny * dw + nx] += err * (ww / norm);
+                    }
+                }
+            }
+        }
+    }
+
+    // -----------------------------
+    // Final upscale to full canvas
+    // -----------------------------
+    const tinyCanvas = document.createElement("canvas");
+    tinyCanvas.width = dw;
+    tinyCanvas.height = dh;
+    tinyCanvas.getContext("2d").putImageData(new ImageData(tinyData, dw, dh), 0, 0);
+
+    ditheredCanvas.width = w;
+    ditheredCanvas.height = h;
+    ditheredCtx.imageSmoothingEnabled = false;
+    ditheredCtx.drawImage(tinyCanvas, 0, 0, dw, dh, 0, 0, w, h);
+
+    // Preview
+    const s = Math.min(1, 260 / w, 260 / h);
+    const pw = Math.floor(w * s);
+    const ph = Math.floor(h * s);
+    previewCanvas.width = pw;
+    previewCanvas.height = ph;
+
+    previewCtx.imageSmoothingEnabled = false;
+    previewCtx.drawImage(ditheredCanvas, 0, 0, w, h, 0, 0, pw, ph);
+
+    if (!previewOnly) debug(`Dither applied: ${method}, ${mode}.`);
+    downloadBtn.disabled = false;
 }
 
-// ============================================================
+// ------------------------------------------------------------
 // Download
-// ============================================================
+// ------------------------------------------------------------
 downloadBtn.addEventListener("click", () => {
-  if (downloadBtn.disabled) return;
-  const link = document.createElement("a");
-  link.download = "dithered.png";
-  link.href = ditheredCanvas.toDataURL("image/png");
-  link.click();
-  debug("Dithered image downloaded as dithered.png");
+    const link = document.createElement("a");
+    link.download = "dithered.png";
+    link.href = ditheredCanvas.toDataURL("image/png");
+    link.click();
+    debug("Saved dithered.png");
 });
