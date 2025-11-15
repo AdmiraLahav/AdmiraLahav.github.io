@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Image Dither App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Image Dither App</h1>
+      <p>Upload an image, choose a dithering method, and export the result.</p>
+    </header>
+
+    <section class="controls">
+      <label class="control-item">
+        <span>Choose image:</span>
+        <input type="file" id="imageInput" accept="image/*" />
+      </label>
+
+      <label class="control-item">
+        <span>Dithering method:</span>
+        <select id="methodSelect">
+          <option value="floyd">Floyd–Steinberg (error diffusion)</option>
+          <option value="ordered">Ordered (Bayer matrix)</option>
+        </select>
+      </label>
+
+      <label class="control-item">
+        <span>Output mode:</span>
+        <select id="modeSelect">
+          <option value="mono">Monochrome (black & white)</option>
+          <option value="gray">Grayscale (no dithering, for comparison)</option>
+        </select>
+      </label>
+
+      <button id="ditherBtn">Apply Dither</button>
+      <button id="downloadBtn" disabled>Download Result</button>
+    </section>
+
+    <section class="canvas-area">
+      <div class="canvas-block">
+        <h2>Original</h2>
+        <canvas id="originalCanvas"></canvas>
+      </div>
+      <div class="canvas-block">
+        <h2>Dithered</h2>
+        <canvas id="ditheredCanvas"></canvas>
+      </div>
+    </section>
+
+    <section class="debug-section">
+      <h2>Debug Log</h2>
+      <pre id="debugLog">(No logs yet)</pre>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
