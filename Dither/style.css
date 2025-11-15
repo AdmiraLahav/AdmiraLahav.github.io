@@ -1,4 +1,3 @@
-/* Basic layout and typography */
 * {
   box-sizing: border-box;
 }
@@ -12,7 +11,7 @@ body {
 }
 
 .app {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 1.5rem;
 }
@@ -33,7 +32,7 @@ header p {
 /* Controls */
 .controls {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 1rem;
   margin-bottom: 1.5rem;
   padding: 1rem;
@@ -59,6 +58,57 @@ select {
   color: #e4f0ff;
 }
 
+.palette-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.palette-group label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+}
+
+.palette-group input[type="color"] {
+  margin-top: 0.25rem;
+  width: 3rem;
+  height: 2rem;
+  padding: 0;
+  border-radius: 6px;
+  border: 1px solid #31425d;
+  background: transparent;
+}
+
+/* Sliders */
+.slider-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.slider-group label {
+  display: flex;
+  flex-direction: column;
+  background: #0b1623;
+  padding: 0.8rem;
+  border-radius: 10px;
+  border: 1px solid #1e2b3b;
+  font-size: 0.85rem;
+}
+
+.slider-group input[type="range"] {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.buttons-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
 button {
   padding: 0.5rem 0.9rem;
   border-radius: 6px;
@@ -80,6 +130,12 @@ button:not(:disabled):hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(45, 143, 255, 0.4);
   background: #115191;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #9cb3c7;
 }
 
 /* Canvas area */
@@ -110,6 +166,41 @@ canvas {
   border-radius: 8px;
 }
 
+/* Dithered with zoom wrapper */
+.canvas-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.zoom-controls label {
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.zoom-controls input[type="range"] {
+  width: 130px;
+}
+
+.dithered-wrapper {
+  overflow: auto;
+  border-radius: 8px;
+  border: 1px solid #1e2b3b;
+  padding: 0.25rem;
+}
+
+#ditheredCanvas {
+  transform-origin: top left;
+}
+
+/* Preview canvas smaller */
+#previewCanvas {
+  max-height: 260px;
+}
+
 /* Debug section */
 .debug-section {
   background: #050910;
@@ -134,26 +225,3 @@ canvas {
   border-radius: 8px;
   border: 1px solid #1e2b3b;
 }
-
-.slider-group {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-  width: 100%;
-}
-
-.slider-group label {
-  display: flex;
-  flex-direction: column;
-  background: #0b1623;
-  padding: 0.8rem;
-  border-radius: 10px;
-  border: 1px solid #1e2b3b;
-  font-size: 0.85rem;
-}
-
-.slider-group input[type="range"] {
-  width: 100%;
-  margin-top: 6px;
-}
-
