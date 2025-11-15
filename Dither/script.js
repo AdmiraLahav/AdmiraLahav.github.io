@@ -3,6 +3,19 @@
 // =============================
 
 // DOM elements
+// Sliders
+const brightnessSlider = document.getElementById("brightness");
+const contrastSlider = document.getElementById("contrast");
+const gammaSlider = document.getElementById("gamma");
+const thresholdSlider = document.getElementById("threshold");
+const scaleSlider = document.getElementById("scale");
+
+const brightnessVal = document.getElementById("brightnessVal");
+const contrastVal = document.getElementById("contrastVal");
+const gammaVal = document.getElementById("gammaVal");
+const thresholdVal = document.getElementById("thresholdVal");
+const scaleVal = document.getElementById("scaleVal");
+
 const imageInput = document.getElementById("imageInput");
 const methodSelect = document.getElementById("methodSelect");
 const modeSelect = document.getElementById("modeSelect");
