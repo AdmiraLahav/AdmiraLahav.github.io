@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Image Dither App</title>
+  <title>Image Dither App — Advanced</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="app">
     <header>
-      <h1>Image Dither App</h1>
-      <p>Upload an image, choose a dithering method, and export the result.</p>
+      <h1>Image Dither Lab</h1>
+      <p>Drop or load an image, tweak sliders, and explore different dithering algorithms.</p>
     </header>
 
     <section class="controls">
@@ -22,52 +22,79 @@
       <label class="control-item">
         <span>Dithering method:</span>
         <select id="methodSelect">
-          <option value="floyd">Floyd–Steinberg (error diffusion)</option>
-          <option value="ordered">Ordered (Bayer matrix)</option>
+          <option value="floyd">Floyd–Steinberg</option>
+          <option value="ordered">Ordered (4×4 Bayer)</option>
+          <option value="atkinson">Atkinson</option>
+          <option value="sierra">Sierra Lite</option>
+          <option value="burkes">Burkes</option>
         </select>
       </label>
 
       <label class="control-item">
         <span>Output mode:</span>
         <select id="modeSelect">
-          <option value="mono">Monochrome (black & white)</option>
-          <option value="gray">Grayscale (no dithering, for comparison)</option>
+          <option value="mono">Monochrome (B/W)</option>
+          <option value="gray">Grayscale (no dithering)</option>
+          <option value="palette">2-Color Palette</option>
         </select>
       </label>
 
-      <button id="ditherBtn">Apply Dither</button>
-      <button id="downloadBtn" disabled>Download Result</button>
-<!-- Ditherboy-style Sliders -->
-<div class="slider-group">
+      <div class="palette-group">
+        <label>
+          Foreground color
+          <input type="color" id="fgColor" value="#ffffff" />
+        </label>
+        <label>
+          Background color
+          <input type="color" id="bgColor" value="#000000" />
+        </label>
+      </div>
 
-  <label>
-    Brightness: <span id="brightnessVal">0</span>
-    <input type="range" id="brightness" min="-100" max="100" value="0" />
-  </label>
+      <div class="slider-group">
+        <label>
+          Brightness: <span id="brightnessVal">0</span>
+          <input type="range" id="brightness" min="-100" max="100" value="0" />
+        </label>
 
-  <label>
-    Contrast: <span id="contrastVal">100</span>
-    <input type="range" id="contrast" min="0" max="300" value="100" />
-  </label>
+        <label>
+          Contrast: <span id="contrastVal">100</span>
+          <input type="range" id="contrast" min="0" max="300" value="100" />
+        </label>
 
-  <label>
-    Gamma: <span id="gammaVal">1.0</span>
-    <input type="range" id="gamma" min="0.1" max="3" value="1" step="0.1" />
-  </label>
+        <label>
+          Gamma: <span id="gammaVal">1.0</span>
+          <input type="range" id="gamma" min="0.1" max="3" step="0.1" value="1" />
+        </label>
 
-  <label>
-    Threshold Offset: <span id="thresholdVal">0</span>
-    <input type="range" id="threshold" min="-128" max="128" value="0" />
-  </label>
+        <label>
+          Threshold offset: <span id="thresholdVal">0</span>
+          <input type="range" id="threshold" min="-128" max="128" value="0" />
+        </label>
 
-  <label>
-    Downscale (%): <span id="scaleVal">100</span>
-    <input type="range" id="scale" min="10" max="100" value="100" />
-  </label>
+        <label>
+          Downscale (%): <span id="scaleVal">100</span>
+          <input type="range" id="scale" min="10" max="100" value="100" />
+        </label>
 
-</div>
+        <label>
+          Black point: <span id="blackVal">0</span>
+          <input type="range" id="blackPoint" min="0" max="127" value="0" />
+        </label>
 
-      
+        <label>
+          White point: <span id="whiteVal">255</span>
+          <input type="range" id="whitePoint" min="128" max="255" value="255" />
+        </label>
+      </div>
+
+      <div class="buttons-group">
+        <button id="ditherBtn">Apply Dither</button>
+        <button id="downloadBtn" disabled>Download Result</button>
+      </div>
+
+      <p class="hint">
+        Tip: You can also drag &amp; drop an image anywhere on this page.
+      </p>
     </section>
 
     <section class="canvas-area">
@@ -75,9 +102,25 @@
         <h2>Original</h2>
         <canvas id="originalCanvas"></canvas>
       </div>
+
       <div class="canvas-block">
-        <h2>Dithered</h2>
-        <canvas id="ditheredCanvas"></canvas>
+        <div class="canvas-block-header">
+          <h2>Dithered</h2>
+          <div class="zoom-controls">
+            <label>
+              Zoom: <span id="zoomVal">1.0×</span>
+              <input type="range" id="zoomSlider" min="1" max="8" step="0.5" value="1" />
+            </label>
+          </div>
+        </div>
+        <div class="dithered-wrapper">
+          <canvas id="ditheredCanvas"></canvas>
+        </div>
+      </div>
+
+      <div class="canvas-block">
+        <h2>Preview (scaled)</h2>
+        <canvas id="previewCanvas"></canvas>
       </div>
     </section>
 
