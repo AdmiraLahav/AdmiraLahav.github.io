@@ -1,21 +1,8 @@
-// =============================
-// Simple image dithering app
-// =============================
+// ============================================================
+//  Image Dither App - Full JS (with Ditherboy-style controls)
+// ============================================================
 
 // DOM elements
-// Sliders
-const brightnessSlider = document.getElementById("brightness");
-const contrastSlider = document.getElementById("contrast");
-const gammaSlider = document.getElementById("gamma");
-const thresholdSlider = document.getElementById("threshold");
-const scaleSlider = document.getElementById("scale");
-
-const brightnessVal = document.getElementById("brightnessVal");
-const contrastVal = document.getElementById("contrastVal");
-const gammaVal = document.getElementById("gammaVal");
-const thresholdVal = document.getElementById("thresholdVal");
-const scaleVal = document.getElementById("scaleVal");
-
 const imageInput = document.getElementById("imageInput");
 const methodSelect = document.getElementById("methodSelect");
 const modeSelect = document.getElementById("modeSelect");
@@ -29,226 +16,228 @@ const debugLog = document.getElementById("debugLog");
 const originalCtx = originalCanvas.getContext("2d");
 const ditheredCtx = ditheredCanvas.getContext("2d");
 
-// In-memory original image
+// Sliders
+const brightness = document.getElementById("brightness");
+const contrast = document.getElementById("contrast");
+const gamma = document.getElementById("gamma");
+const threshold = document.getElementById("threshold");
+const scale = document.getElementById("scale");
+
+const brightnessVal = document.getElementById("brightnessVal");
+const contrastVal = document.getElementById("contrastVal");
+const gammaVal = document.getElementById("gammaVal");
+const thresholdVal = document.getElementById("thresholdVal");
+const scaleVal = document.getElementById("scaleVal");
+
+// Loaded image object
 let loadedImage = null;
 
-// Small debug logger
-function debug(message) {
-  const ts = new Date().toISOString().split("T")[1].replace("Z", "");
-  const line = `[${ts}] ${message}`;
-  if (debugLog.textContent === "(No logs yet)") {
-    debugLog.textContent = line;
-  } else {
-    debugLog.textContent += "\n" + line;
-  }
-  debugLog.scrollTop = debugLog.scrollHeight;
+// Debug logger
+function debug(msg) {
+    const time = new Date().toLocaleTimeString();
+    debugLog.textContent += `[${time}] ${msg}\n`;
+    debugLog.scrollTop = debugLog.scrollHeight;
 }
 
-// =============================
-// File loading
-// =============================
-
+// ============================================================
+// Load Image
+// ============================================================
 imageInput.addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (!file) {
-    debug("No file selected.");
-    return;
-  }
+    const file = e.target.files[0];
+    if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    const img = new Image();
-    img.onload = () => {
-      loadedImage = img;
-      drawOriginal(img);
-      debug(`Image loaded: ${file.name} (${img.width}x${img.height})`);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+            loadedImage = img;
+
+            originalCanvas.width = img.width;
+            originalCanvas.height = img.height;
+            ditheredCanvas.width = img.width;
+            ditheredCanvas.height = img.height;
+
+            originalCtx.drawImage(img, 0, 0);
+            debug(`Loaded image ${img.width}x${img.height}`);
+        };
+        img.src = ev.target.result;
     };
-    img.onerror = () => {
-      debug("Error loading image. Make sure it is a valid image file.");
-    };
-    img.src = event.target.result;
-  };
-  reader.readAsDataURL(file);
+    reader.readAsDataURL(file);
 });
 
-function drawOriginal(img) {
-  originalCanvas.width = img.width;
-  originalCanvas.height = img.height;
-  originalCtx.clearRect(0, 0, img.width, img.height);
-  originalCtx.drawImage(img, 0, 0);
+// ============================================================
+// Slider → Live-update
+// ============================================================
+function refreshSliders() {
+    brightnessVal.textContent = brightness.value;
+    contrastVal.textContent = contrast.value;
+    gammaVal.textContent = gamma.value;
+    thresholdVal.textContent = threshold.value;
+    scaleVal.textContent = scale.value;
 
-  // Mirror the size for the dithered canvas
-  ditheredCanvas.width = img.width;
-  ditheredCanvas.height = img.height;
-  ditheredCtx.clearRect(0, 0, img.width, img.height);
+    if (loadedImage) applyDither(methodSelect.value, modeSelect.value);
 }
 
-// =============================
-// Dither button
-// =============================
+brightness.oninput =
+    contrast.oninput =
+        gamma.oninput =
+            threshold.oninput =
+                scale.oninput = refreshSliders;
 
+// ============================================================
+// Apply Dithering
+// ============================================================
 ditherBtn.addEventListener("click", () => {
-  if (!loadedImage) {
-    debug("Cannot dither: no image loaded.");
-    return;
-  }
-  const method = methodSelect.value; // "floyd" or "ordered"
-  const mode = modeSelect.value;     // "mono" or "gray"
-
-  debug(`Applying dithering - method=${method}, mode=${mode}`);
-  applyDither(method, mode);
+    if (!loadedImage) return debug("No image loaded.");
+    applyDither(methodSelect.value, modeSelect.value);
 });
-
-// =============================
-// Dithering logic
-// =============================
 
 function applyDither(method, mode) {
-  const w = originalCanvas.width;
-  const h = originalCanvas.height;
 
-  const srcData = originalCtx.getImageData(0, 0, w, h);
-  const dstData = ditheredCtx.createImageData(w, h);
+    const w = originalCanvas.width;
+    const h = originalCanvas.height;
 
-  // Grayscale luminance buffer used by algorithms
-  const lum = new Float32Array(w * h);
+    let imageData = originalCtx.getImageData(0, 0, w, h);
+    let src = imageData.data;
 
-  // 1. Build initial grayscale buffer
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const idx = (y * w + x) * 4;
-      const r = srcData.data[idx + 0];
-      const g = srcData.data[idx + 1];
-      const b = srcData.data[idx + 2];
-      const a = srcData.data[idx + 3];
+    // Step 1: Convert to grayscale luminance
+    let lum = new Float32Array(w * h);
 
-      // Standard luminance formula
-      const L = 0.299 * r + 0.587 * g + 0.114 * b;
-      lum[y * w + x] = L;
-
-      // If mode is pure grayscale (no dithering), we handle it later.
-      // For dithering modes we'll overwrite dstData anyway.
-      dstData.data[idx + 3] = a; // preserve alpha
+    for (let i = 0, j = 0; i < src.length; i += 4, j++) {
+        const r = src[i];
+        const g = src[i + 1];
+        const b = src[i + 2];
+        lum[j] = 0.299 * r + 0.587 * g + 0.114 * b;
     }
-  }
 
-  if (mode === "gray") {
-    // Just copy grayscale into output, no dithering
-    for (let y = 0; y < h; y++) {
-      for (let x = 0; x < w; x++) {
-        const idx = (y * w + x) * 4;
-        const L = lum[y * w + x];
-        dstData.data[idx + 0] = L;
-        dstData.data[idx + 1] = L;
-        dstData.data[idx + 2] = L;
-        // alpha already set above
-      }
+    // Step 2: Downscale (Ditherboy pixelation)
+    const scalePct = Number(scale.value) / 100;
+    const tw = Math.floor(w * scalePct);
+    const th = Math.floor(h * scalePct);
+
+    let lumSmall = new Float32Array(tw * th);
+
+    for (let y = 0; y < th; y++) {
+        for (let x = 0; x < tw; x++) {
+            const sx = Math.floor((x / tw) * w);
+            const sy = Math.floor((y / th) * h);
+            lumSmall[y * tw + x] = lum[sy * w + sx];
+        }
     }
-    ditheredCtx.putImageData(dstData, 0, 0);
+
+    // Step 3: Apply brightness, contrast, gamma, threshold offset
+    let B = Number(brightness.value);
+    let C = Number(contrast.value) / 100;
+    let G = Number(gamma.value);
+    let T = Number(threshold.value);
+
+    for (let i = 0; i < lumSmall.length; i++) {
+        let v = lumSmall[i];
+
+        v += B;                   // brightness
+        v = ((v - 128) * C) + 128;  // contrast
+        v = 255 * Math.pow(v / 255, 1 / G); // gamma
+        v += T;                    // threshold offset
+
+        lumSmall[i] = Math.min(255, Math.max(0, v));
+    }
+
+    // Step 4: Create output buffer for tiny canvas
+    let tinyData = new Uint8ClampedArray(tw * th * 4);
+
+    if (mode === "gray") {
+        // No dithering
+        for (let i = 0; i < lumSmall.length; i++) {
+            const v = lumSmall[i];
+            const p = i * 4;
+            tinyData[p] = v;
+            tinyData[p + 1] = v;
+            tinyData[p + 2] = v;
+            tinyData[p + 3] = 255;
+        }
+    } else {
+        // Apply chosen dithering method
+        if (method === "floyd") dither_floyd(lumSmall, tinyData, tw, th);
+        else dither_ordered(lumSmall, tinyData, tw, th);
+    }
+
+    // Step 5: Draw tiny dithered canvas
+    let tinyCanvas = document.createElement("canvas");
+    tinyCanvas.width = tw;
+    tinyCanvas.height = th;
+    let tinyCtx = tinyCanvas.getContext("2d", { willReadFrequently: true });
+    tinyCtx.putImageData(new ImageData(tinyData, tw, th), 0, 0);
+
+    // Step 6: Upscale to full-size canvas
+    ditheredCtx.imageSmoothingEnabled = false;
+    ditheredCtx.clearRect(0, 0, w, h);
+    ditheredCtx.drawImage(tinyCanvas, 0, 0, tw, th, 0, 0, w, h);
+
     downloadBtn.disabled = false;
-    debug("Grayscale conversion complete (no dithering).");
-    return;
-  }
-
-  // 2. Apply selected dithering method
-  if (method === "floyd") {
-    floydSteinbergDither(lum, dstData, w, h);
-  } else if (method === "ordered") {
-    orderedDither(lum, dstData, w, h);
-  } else {
-    debug(`Unknown method "${method}", nothing done.`);
-    return;
-  }
-
-  ditheredCtx.putImageData(dstData, 0, 0);
-  downloadBtn.disabled = false;
-  debug("Dithering finished successfully.");
+    debug("Dithering complete.");
 }
 
-/**
- * Floyd–Steinberg error diffusion dithering (monochrome).
- * lum: Float32Array (grayscale values 0–255), modified in-place.
- */
-function floydSteinbergDither(lum, dstData, w, h) {
-  const threshold = 128;
+// ============================================================
+// Floyd–Steinberg Dither
+// ============================================================
+function dither_floyd(lum, out, w, h) {
+    const threshold = 128;
 
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const i = y * w + x;
-      const oldVal = lum[i];
-      const newVal = oldVal < threshold ? 0 : 255;
-      const err = oldVal - newVal;
+    for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
 
-      // Write the quantized pixel to dstData
-      const idx = i * 4;
-      dstData.data[idx + 0] = newVal;
-      dstData.data[idx + 1] = newVal;
-      dstData.data[idx + 2] = newVal;
-      dstData.data[idx + 3] = 255;
+            const i = y * w + x;
+            const old = lum[i];
+            const newv = old < threshold ? 0 : 255;
+            const err = old - newv;
 
-      // Distribute error to neighbors (if inside bounds)
-      // (x+1, y)
-      if (x + 1 < w) {
-        lum[i + 1] += (err * 7) / 16;
-      }
-      // (x-1, y+1)
-      if (x - 1 >= 0 && y + 1 < h) {
-        lum[i + w - 1] += (err * 3) / 16;
-      }
-      // (x, y+1)
-      if (y + 1 < h) {
-        lum[i + w] += (err * 5) / 16;
-      }
-      // (x+1, y+1)
-      if (x + 1 < w && y + 1 < h) {
-        lum[i + w + 1] += (err * 1) / 16;
-      }
+            const p = i * 4;
+            out[p] = out[p + 1] = out[p + 2] = newv;
+            out[p + 3] = 255;
+
+            // Spread error
+            if (x + 1 < w) lum[i + 1] += err * 7 / 16;
+            if (y + 1 < h) {
+                if (x > 0) lum[i + w - 1] += err * 3 / 16;
+                lum[i + w] += err * 5 / 16;
+                if (x + 1 < w) lum[i + w + 1] += err * 1 / 16;
+            }
+        }
     }
-  }
 }
 
-/**
- * Ordered dithering using a 4x4 Bayer matrix (monochrome).
- * Threshold pattern is tiled over the image.
- */
-function orderedDither(lum, dstData, w, h) {
-  // 4x4 Bayer matrix, values 0–15
-  const bayer4 = [
-    [0, 8, 2, 10],
-    [12, 4, 14, 6],
-    [3, 11, 1, 9],
-    [15, 7, 13, 5],
-  ];
+// ============================================================
+// Ordered Dither (4x4 Bayer)
+// ============================================================
+function dither_ordered(lum, out, w, h) {
+    const bayer = [
+        [0, 8, 2, 10],
+        [12, 4, 14, 6],
+        [3, 11, 1, 9],
+        [15, 7, 13, 5]
+    ];
 
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const i = y * w + x;
-      const L = lum[i];
+    for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
 
-      // Normalize luminance and threshold
-      const lumNorm = L / 255;
-      const t = (bayer4[y & 3][x & 3] + 0.5) / 16; // (0..1)
+            let L = lum[y * w + x] / 255;
+            let threshold = (bayer[y & 3][x & 3] + 0.5) / 16;
+            let v = L < threshold ? 0 : 255;
 
-      const newVal = lumNorm < t ? 0 : 255;
-
-      const idx = i * 4;
-      dstData.data[idx + 0] = newVal;
-      dstData.data[idx + 1] = newVal;
-      dstData.data[idx + 2] = newVal;
-      dstData.data[idx + 3] = 255;
+            let p = (y * w + x) * 4;
+            out[p] = out[p + 1] = out[p + 2] = v;
+            out[p + 3] = 255;
+        }
     }
-  }
 }
 
-// =============================
-// Download button
-// =============================
-
+// ============================================================
+// Download TIFF
+// ============================================================
 downloadBtn.addEventListener("click", () => {
-  if (downloadBtn.disabled) return;
-  const link = document.createElement("a");
-  link.download = "dithered.png";
-  link.href = ditheredCanvas.toDataURL("image/png");
-  link.click();
-  debug("Dithered image downloaded as dithered.png");
+    const link = document.createElement("a");
+    link.download = "dithered.png";
+    link.href = ditheredCanvas.toDataURL("image/png");
+    link.click();
+    debug("Saved as dithered.png");
 });
