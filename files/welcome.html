@@ -1,8 +1,68 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
-  
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>File Retrieval — AdmiraLahav</title>
+  <style>
+    :root {
+      --bg: #0b0f12;
+      --panel: #071018;
+      --text: #cfe8ff;
+      --accent: #66d9ef;
+      --green: #27ff27;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Courier New", monospace;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      margin: 0 0 1rem 0;
+      color: var(--accent);
+      text-align: center;
+      font-size: 1.6rem;
+    }
+
+    .box {
+      background: var(--panel);
+      padding: 1.5rem;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 800px;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+    }
+
+    .cmd {
+      background: #000;
+      color: var(--green);
+      padding: 1rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      white-space: pre-wrap;
+      user-select: all;
+    }
+  </style>
 </head>
+
 <body>
-<h1>THIS IS A PAGE TO SHOW THE PATH WITH CURL COMMAND ON WIN, USE THE NEXT COMMAND TO GET [for now] ncat.exe</h1>
-  <h1>curl https://admiralahav.github.io/files/ncat.exe --output ./ncat.exe</h1>
+  <h1>File Retrieval — cURL Commands</h1>
+
+  <div class="box">
+    <p>This page provides the Windows cURL command to download the current file:</p>
+
+    <div class="cmd">curl https://admiralahav.github.io/files/ncat.exe --output ncat.exe</div>
+
+    <p style="margin-top:1rem; opacity: 0.8;">
+      Run this inside CMD or PowerShell.
+    </p>
+  </div>
 </body>
+</html>
