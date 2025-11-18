@@ -26,7 +26,15 @@
     <div id="desktop"></div>
 
     <script src="js/windowManager.js"></script>
-    <script src="js/desktop.js"></script>
-    <script src="js/os.js"></script>
+<script src="js/desktop.js"></script>
+
+<!-- Load apps BEFORE os.js -->
+<script src="js/apps/terminal.js"></script>
+<script src="js/apps/settings.js"></script>
+<script src="js/apps/explorer.js"></script>
+
+<!-- os.js must be LAST -->
+<script src="js/os.js"></script>
+
 </body>
 </html>
