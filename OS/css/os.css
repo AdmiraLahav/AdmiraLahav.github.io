@@ -61,3 +61,21 @@ html, body {
     left: 80px;
     overflow: hidden;
 }
+
+/* System Tray (Ubuntu-style) */
+#top-bar .right-section {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-size: 13px;
+}
+
+.sys-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.8;
+    cursor: pointer;
+}
+.sys-icon:hover {
+    opacity: 1;
+}
