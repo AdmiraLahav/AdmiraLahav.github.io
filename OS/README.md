@@ -1,0 +1,15 @@
+/FakeOS
+   index.html
+   /css
+       os.css
+       theme.css
+   /js
+       os.js
+       windowManager.js
+       desktop.js
+   /assets
+       icons/
+           launcher.svg
+           close.svg
+           minimize.svg
+           maximize.svg
