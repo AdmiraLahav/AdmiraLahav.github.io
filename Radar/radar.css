@@ -1,0 +1,237 @@
+:root {
+  --bg: #020617;
+  --bg-soft: #020617;
+  --panel: #020617;
+  --border: #1e293b;
+  --accent: #22c55e;
+  --accent-soft: rgba(34, 197, 94, 0.25);
+  --glow: #22d3ee;
+  --text: #e5e7eb;
+  --muted: #6b7280;
+  --danger: #f97373;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono",
+    "Courier New", monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  background: radial-gradient(circle at 0 0, #0b1120 0, transparent 55%),
+    #020617;
+  font-family: var(--mono);
+  color: var(--text);
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+/* Outer shell */
+
+.radar-shell {
+  width: min(1100px, 100%);
+  height: min(650px, 100%);
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: radial-gradient(circle at 0 0, rgba(34, 197, 94, 0.18), transparent 55%),
+    #020617;
+  box-shadow: 0 22px 45px rgba(0, 0, 0, 0.75);
+  overflow: hidden;
+}
+
+/* Header */
+
+.radar-header {
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(
+    90deg,
+    rgba(15, 23, 42, 0.95),
+    rgba(6, 19, 34, 0.98)
+  );
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.radar-header .title {
+  color: var(--accent);
+}
+
+.radar-header .meta {
+  color: var(--muted);
+}
+
+/* Main layout */
+
+.radar-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.9fr);
+  gap: 8px;
+  padding: 8px;
+}
+
+/* Radar square area */
+
+.radar-square {
+  position: relative;
+  background: radial-gradient(circle at 50% -20%, #1e293b 0, transparent 60%),
+    var(--bg-soft);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  cursor: none; /* we draw custom crosshair */
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+/* Keep inner canvas square */
+
+#radar-canvas {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  display: block;
+}
+
+/* Sidebar */
+
+.radar-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.panel {
+  flex: 1;
+  min-height: 0;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.98),
+    rgba(3, 7, 18, 0.98)
+  );
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-header {
+  padding: 6px 10px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  background: radial-gradient(circle at 0 0, rgba(34, 197, 94, 0.2), transparent 60%);
+}
+
+.panel-body {
+  padding: 8px 10px;
+  font-size: 11px;
+  line-height: 1.4;
+  overflow-y: auto;
+}
+
+.panel-body .placeholder {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.status-line {
+  margin-bottom: 4px;
+  color: var(--muted);
+}
+
+/* Target info list */
+
+.target-field {
+  margin-bottom: 4px;
+}
+
+.target-label {
+  color: var(--muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.target-value {
+  font-size: 11px;
+}
+
+/* Hover widget near target */
+
+.target-widget {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity 120ms ease-out;
+  display: flex;
+  flex-direction: column;
+}
+
+.target-widget.visible {
+  opacity: 1;
+}
+
+#target-widget-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.target-widget-info {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  right: 4px;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+/* Crosshair */
+
+.crosshair-layer {
+  position: absolute;
+  inset: 0;
+}
+
+/* Small-screen tweaks */
+
+@media (max-width: 900px) {
+  .radar-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1.4fr) minmax(0, 0.9fr);
+  }
+
+  .radar-sidebar {
+    flex-direction: row;
+  }
+
+  .panel {
+    flex: 1;
+  }
+}
