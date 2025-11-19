@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Minimal City Planner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    /* ====== GLOBAL LAYOUT ====== */
+    :root {
+      --bg: #f0f0f0;
+      --panel-bg: #e0e0e0;
+      --text-main: #222;
+      --accent: #0077aa;
+
+      /* Tile colors */
+      --empty: #ffffff;
+      --water: #cfe8ff;
+      --road: #a0a0a0;
+      --res-low: #3ca746;
+      --res-high: #1f5c27;
+      --commercial: #2a5bba;
+      --industrial: #e3d15b;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    header {
+      padding: 8px 16px;
+      background: #d3d3d3;
+      border-bottom: 1px solid #bdbdbd;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    header .subtitle {
+      font-size: 13px;
+      color: #555;
+    }
+
+    /* ====== MAIN REGION ====== */
+    #main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Left: grid area */
+    #grid-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f5f5f5;
+      overflow: auto;
+      padding: 8px;
+    }
+
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(50, 1fr);
+      grid-template-rows: repeat(50, 1fr);
+      width: min(90vh, 90vw);
+      height: min(90vh, 90vw);
+      border: 1px solid #ccc;
+      background: var(--empty);
+    }
+
+    .cell {
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      background: var(--empty);
+      position: relative;
+      cursor: crosshair;
+    }
+
+    .cell:hover {
+      outline: 1px solid var(--accent);
+      outline-offset: -1px;
+    }
+
+    /* Overlay hint, rendered as an inner layer over the base color */
+    .cell-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      mix-blend-mode: multiply;
+      opacity: 0;
+      transition: opacity 0.1s linear;
+    }
+
+    /* Right: info panel */
+    #side-panel {
+      width: 260px;
+      background: var(--panel-bg);
+      border-left: 1px solid #c0c0c0;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
+      overflow-y: auto;
+    }
+
+    #stats,
+    #legend,
+    #sim-controls {
+      background: #f1f1f1;
+      border-radius: 4px;
+      padding: 8px;
+      border: 1px solid #ccc;
+    }
+
+    #stats h2,
+    #legend h2,
+    #sim-controls h2 {
+      margin: 0 0 4px;
+      font-size: 14px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 3px;
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 2px;
+      border: 1px solid #777;
+    }
+
+    /* ====== BOTTOM BAR ====== */
+    #bottom-bar {
+      height: 70px;
+      background: #dcdcdc;
+      border-top: 1px solid #bdbdbd;
+      display: flex;
+      align-items: center;
+      padding: 6px 10px;
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .bottom-section {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .group-label {
+      font-weight: 600;
+      margin-right: 4px;
+    }
+
+    button.tool-btn {
+      border: 1px solid #999;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 12px;
+      background: #f5f5f5;
+      cursor: pointer;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    button.tool-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: #004c6e;
+    }
+
+    select,
+    input[type="number"],
+    input[type="range"] {
+      font-size: 12px;
+      padding: 2px 4px;
+    }
+
+    /* Tile base colors (applied via classes) */
+    .tile-empty { background: var(--empty); }
+    .tile-water { background: var(--water); }
+    .tile-road { background: var(--road); }
+    .tile-res-low { background: var(--res-low); }
+    .tile-res-high { background: var(--res-high); }
+    .tile-commercial { background: var(--commercial); }
+    .tile-industrial { background: var(--industrial); }
+
+    /* Slightly soften */
+    .tile-water,
+    .tile-road,
+    .tile-res-low,
+    .tile-res-high,
+    .tile-commercial,
+    .tile-industrial {
+      box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div>
+      <h1>Minimal City Planner</h1>
+      <div class="subtitle">50×50 sandbox with simple economy, population, traffic, and pollution.</div>
+    </div>
+    <div class="subtitle">Tip: Left click to build, right click to erase.</div>
+  </header>
+
+  <div id="main">
+    <div id="grid-wrapper">
+      <div id="grid"></div>
+    </div>
+
+    <aside id="side-panel">
+      <section id="stats">
+        <h2>City Stats</h2>
+        <div class="stat-row"><span>Money:</span><span id="stat-money"></span></div>
+        <div class="stat-row"><span>Income / Tick:</span><span id="stat-income"></span></div>
+        <div class="stat-row"><span>Population:</span><span id="stat-pop"></span></div>
+        <div class="stat-row"><span>Jobs:</span><span id="stat-jobs"></span></div>
+        <div class="stat-row"><span>Unemployment:</span><span id="stat-unemployment"></span></div>
+        <div class="stat-row"><span>Average Happiness:</span><span id="stat-happiness"></span></div>
+        <div class="stat-row"><span>Avg Pollution:</span><span id="stat-pollution"></span></div>
+        <div class="stat-row"><span>Avg Traffic:</span><span id="stat-traffic"></span></div>
+      </section>
+
+      <section id="sim-controls">
+        <h2>Simulation</h2>
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;">
+          <button id="btn-play" class="tool-btn active">Run</button>
+          <button id="btn-step" class="tool-btn">Step</button>
+        </div>
+        <div>
+          Speed:
+          <input type="range" id="speed-range" min="200" max="2000" value="800" />
+          <span id="speed-label">800 ms</span>
+        </div>
+      </section>
+
+      <section id="legend">
+        <h2>Legend</h2>
+        <div class="legend-item"><div class="legend-color" style="background:var(--empty);"></div><span>Empty</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:var(--water);"></div><span>Water</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:var(--road);"></div><span>Road</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:var(--res-low);"></div><span>Residential (Low)</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:var(--res-high);"></div><span>Residential (High)</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:var(--commercial);"></div><span>Commercial</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:var(--industrial);"></div><span>Industrial</span></div>
+      </section>
+    </aside>
+  </div>
+
+  <div id="bottom-bar">
+    <!-- Tools -->
+    <div class="bottom-section">
+      <span class="group-label">Brush:</span>
+      <button class="tool-btn" data-tool="road">Road</button>
+      <button class="tool-btn" data-tool="water">Water</button>
+      <button class="tool-btn" data-tool="res-low">Res L</button>
+      <button class="tool-btn" data-tool="res-high">Res H</button>
+      <button class="tool-btn" data-tool="commercial">Comm</button>
+      <button class="tool-btn" data-tool="industrial">Ind</button>
+      <button class="tool-btn" data-tool="erase">Erase</button>
+    </div>
+
+    <!-- Overlay -->
+    <div class="bottom-section">
+      <span class="group-label">Overlay:</span>
+      <select id="overlay-select">
+        <option value="none">None</option>
+        <option value="zoning">Zoning</option>
+        <option value="pollution">Pollution</option>
+        <option value="traffic">Traffic</option>
+        <option value="population">Population</option>
+      </select>
+    </div>
+
+    <!-- Quick hint -->
+    <div class="bottom-section" style="margin-left:auto;">
+      <span>Costs: Roads/Walls cheap, zones more expensive. Try to balance jobs, homes, and shops.</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ====== MODEL CONSTANTS ======
+  const GRID_SIZE = 50;
+
+  const TILE = {
+    EMPTY: 0,
+    WATER: 1,
+    ROAD: 2,
+    RES_LOW: 3,
+    RES_HIGH: 4,
+    COMMERCIAL: 5,
+    INDUSTRIAL: 6
+  };
+
+  // Costs to build each tile
+  const BUILD_COST = {
+    [TILE.EMPTY]: 0,
+    [TILE.WATER]: 20,
+    [TILE.ROAD]: 5,
+    [TILE.RES_LOW]: 40,
+    [TILE.RES_HIGH]: 80,
+    [TILE.COMMERCIAL]: 60,
+    [TILE.INDUSTRIAL]: 70
+  };
+
+  // Income per tick from active entities
+  const BASE_TAX = {
+    resLowPerPerson: 0.6,
+    resHighPerPerson: 1.0,
+    jobPerSlot: 0.5
+  };
+
+  const ROAD_UPKEEP_PER_TILE = 0.2;
+
+  // How much pollution industrial tiles generate
+  const INDUSTRIAL_POLLUTION_STRENGTH = 4;
+  const POLLUTION_DECAY = 0.85;
+
+  // ====== STATE ======
+  const state = {
+    grid: [],
+    pollution: [],
+    traffic: [],
+    populationMap: [],
+    money: 5000,
+    incomeLastTick: 0,
+    population: 0,
+    jobs: 0,
+    happiness: 1.0,
+    unemploymentRate: 0,
+    avgPollution: 0,
+    avgTraffic: 0,
+    tickInterval: null,
+    tickSpeed: 800,
+    running: true,
+    currentBrush: TILE.ROAD,
+    currentOverlay: "none",
+    mouseDown: false,
+    lastHoveredIndex: null
+  };
+
+  // ====== INITIALIZATION ======
+  const gridEl = document.getElementById("grid");
+  const overlaySelectEl = document.getElementById("overlay-select");
+  const toolButtons = Array.from(document.querySelectorAll("button.tool-btn[data-tool]"));
+
+  function initGrid() {
+    state.grid = new Array(GRID_SIZE * GRID_SIZE).fill(TILE.EMPTY);
+    state.pollution = new Array(GRID_SIZE * GRID_SIZE).fill(0);
+    state.traffic = new Array(GRID_SIZE * GRID_SIZE).fill(0);
+    state.populationMap = new Array(GRID_SIZE * GRID_SIZE).fill(0);
+
+    gridEl.innerHTML = "";
+    for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
+      const cell = document.createElement("div");
+      cell.className = "cell tile-empty";
+      cell.dataset.index = i;
+
+      const overlay = document.createElement("div");
+      overlay.className = "cell-overlay";
+      cell.appendChild(overlay);
+
+      gridEl.appendChild(cell);
+    }
+  }
+
+  // Helper to convert index <-> coords
+  function idx(x, y) {
+    return y * GRID_SIZE + x;
+  }
+  function xyFromIndex(index) {
+    const y = Math.floor(index / GRID_SIZE);
+    const x = index % GRID_SIZE;
+    return { x, y };
+  }
+
+  function inBounds(x, y) {
+    return x >= 0 && y >= 0 && x < GRID_SIZE && y < GRID_SIZE;
+  }
+
+  // ====== TILE MANIPULATION ======
+  function setTile(index, tileType) {
+    state.grid[index] = tileType;
+    applyTileClass(index);
+  }
+
+  function applyTileClass(index) {
+    const cell = gridEl.children[index];
+    const tileType = state.grid[index];
+    cell.classList.remove(
+      "tile-empty",
+      "tile-water",
+      "tile-road",
+      "tile-res-low",
+      "tile-res-high",
+      "tile-commercial",
+      "tile-industrial"
+    );
+    switch (tileType) {
+      case TILE.WATER: cell.classList.add("tile-water"); break;
+      case TILE.ROAD: cell.classList.add("tile-road"); break;
+      case TILE.RES_LOW: cell.classList.add("tile-res-low"); break;
+      case TILE.RES_HIGH: cell.classList.add("tile-res-high"); break;
+      case TILE.COMMERCIAL: cell.classList.add("tile-commercial"); break;
+      case TILE.INDUSTRIAL: cell.classList.add("tile-industrial"); break;
+      case TILE.EMPTY:
+      default: cell.classList.add("tile-empty"); break;
+    }
+  }
+
+  function tryBuild(index, tileType) {
+    const current = state.grid[index];
+    if (current === tileType) return;
+    if (tileType === "erase") {
+      if (current !== TILE.EMPTY) {
+        setTile(index, TILE.EMPTY);
+      }
+      return;
+    }
+    const cost = BUILD_COST[tileType] ?? 0;
+    if (cost > state.money) {
+      return; // cannot afford
+    }
+    state.money -= cost;
+    setTile(index, tileType);
+  }
+
+  // ====== SIMULATION ======
+  function getNeighbors(x, y) {
+    const dirs = [
+      [1, 0], [-1, 0], [0, 1], [0, -1]
+    ];
+    const result = [];
+    for (const [dx, dy] of dirs) {
+      const nx = x + dx;
+      const ny = y + dy;
+      if (inBounds(nx, ny)) {
+        result.push({ x: nx, y: ny });
+      }
+    }
+    return result;
+  }
+
+  function getRadiusNeighbors(x, y, radius) {
+    const result = [];
+    for (let dy = -radius; dy <= radius; dy++) {
+      for (let dx = -radius; dx <= radius; dx++) {
+        const nx = x + dx;
+        const ny = y + dy;
+        if (!inBounds(nx, ny)) continue;
+        if (dx === 0 && dy === 0) continue;
+        result.push({ x: nx, y: ny });
+      }
+    }
+    return result;
+  }
+
+  function simulateTick() {
+    let totalPopulation = 0;
+    let totalJobs = 0;
+    let totalHappiness = 0;
+    let totalPollution = 0;
+    let totalTraffic = 0;
+    let roadTiles = 0;
+
+    // Reset maps
+    state.populationMap.fill(0);
+    // Decay pollution first
+    for (let i = 0; i < state.pollution.length; i++) {
+      state.pollution[i] *= POLLUTION_DECAY;
+    }
+    state.traffic.fill(0);
+
+    // First pass: calculate local stats
+    for (let index = 0; index < state.grid.length; index++) {
+      const tile = state.grid[index];
+      const { x, y } = xyFromIndex(index);
+
+      if (tile === TILE.ROAD) {
+        roadTiles++;
+      }
+
+      // Spread industrial pollution
+      if (tile === TILE.INDUSTRIAL) {
+        const neighbors = getRadiusNeighbors(x, y, 3);
+        for (const n of neighbors) {
+          const nIdx = idx(n.x, n.y);
+          const dist = Math.max(1, Math.abs(n.x - x) + Math.abs(n.y - y));
+          state.pollution[nIdx] += INDUSTRIAL_POLLUTION_STRENGTH / dist;
+        }
+      }
+    }
+
+    // Second pass: compute population, jobs, traffic
+    for (let index = 0; index < state.grid.length; index++) {
+      const tile = state.grid[index];
+      const { x, y } = xyFromIndex(index);
+      const pollutionLevel = state.pollution[index];
+
+      const neighbors = getNeighbors(x, y);
+      const nearRoad = neighbors.some(n => state.grid[idx(n.x, n.y)] === TILE.ROAD);
+
+      if (tile === TILE.RES_LOW || tile === TILE.RES_HIGH) {
+        if (!nearRoad) {
+          continue; // no access, no residents
+        }
+        const baseCap = tile === TILE.RES_LOW ? 10 : 30;
+        // Pollution reduces capacity
+        const pollutionPenalty = Math.max(0, pollutionLevel / 10);
+        const effectiveCap = Math.max(0, baseCap - pollutionPenalty * baseCap);
+        const populationHere = effectiveCap;
+
+        state.populationMap[index] = populationHere;
+        totalPopulation += populationHere;
+
+        // Happiness: 1.0 if low pollution, downwards as pollution grows
+        const localHappiness = Math.max(0, 1 - pollutionLevel / 30);
+        totalHappiness += localHappiness * populationHere;
+      }
+
+      if (tile === TILE.COMMERCIAL || tile === TILE.INDUSTRIAL) {
+        if (!nearRoad) continue;
+        const jobSlots = tile === TILE.COMMERCIAL ? 20 : 40;
+        totalJobs += jobSlots;
+
+        // Traffic: more jobs means heavier traffic around roads
+        const radiusNeigh = getRadiusNeighbors(x, y, 2);
+        for (const n of radiusNeigh) {
+          const nIdx = idx(n.x, n.y);
+          if (state.grid[nIdx] === TILE.ROAD) {
+            state.traffic[nIdx] += jobSlots / 20;
+          }
+        }
+      }
+    }
+
+    // Third: compute economy, unemployment, averages
+    const unemployment = totalPopulation === 0 ? 0 : Math.max(0, (totalPopulation - totalJobs) / totalPopulation);
+    const avgHappiness = totalPopulation > 0 ? totalHappiness / totalPopulation : 1.0;
+
+    let sumPollution = 0;
+    let sumTraffic = 0;
+    for (let i = 0; i < state.grid.length; i++) {
+      sumPollution += state.pollution[i];
+      sumTraffic += state.traffic[i];
+    }
+
+    const avgPollution = sumPollution / state.grid.length;
+    const avgTraffic = sumTraffic / (roadTiles || 1);
+
+    // Income
+    const roadUpkeepCost = roadTiles * ROAD_UPKEEP_PER_TILE;
+    const taxFromResidents =
+      totalPopulation * BASE_TAX.resLowPerPerson +
+      (totalPopulation * 0) * BASE_TAX.resHighPerPerson; // could differentiate if we tracked separate
+    const jobTax = totalJobs * BASE_TAX.jobPerSlot;
+
+    // Penalize if unemployment is bad
+    const unemploymentPenalty = unemployment * 20;
+
+    const income =
+      taxFromResidents + jobTax - roadUpkeepCost - unemploymentPenalty - avgPollution * 1.5;
+
+    state.money += income;
+    state.incomeLastTick = income;
+    state.population = totalPopulation;
+    state.jobs = totalJobs;
+    state.unemploymentRate = unemployment;
+    state.happiness = avgHappiness;
+    state.avgPollution = avgPollution;
+    state.avgTraffic = avgTraffic;
+
+    updateStatsUI();
+    applyOverlay();
+  }
+
+  // ====== UI: STATS ======
+  function formatMoney(v) {
+    return v.toFixed(0);
+  }
+  function formatFloat(v) {
+    return v.toFixed(2);
+  }
+
+  const statMoneyEl = document.getElementById("stat-money");
+  const statIncomeEl = document.getElementById("stat-income");
+  const statPopEl = document.getElementById("stat-pop");
+  const statJobsEl = document.getElementById("stat-jobs");
+  const statUnemploymentEl = document.getElementById("stat-unemployment");
+  const statHappinessEl = document.getElementById("stat-happiness");
+  const statPollutionEl = document.getElementById("stat-pollution");
+  const statTrafficEl = document.getElementById("stat-traffic");
+
+  function updateStatsUI() {
+    statMoneyEl.textContent = formatMoney(state.money);
+    statIncomeEl.textContent = formatFloat(state.incomeLastTick);
+    statPopEl.textContent = state.population.toFixed(0);
+    statJobsEl.textContent = state.jobs.toFixed(0);
+    statUnemploymentEl.textContent = (state.unemploymentRate * 100).toFixed(1) + " %";
+    statHappinessEl.textContent = formatFloat(state.happiness);
+    statPollutionEl.textContent = formatFloat(state.avgPollution);
+    statTrafficEl.textContent = formatFloat(state.avgTraffic);
+  }
+
+  // ====== OVERLAYS ======
+  function applyOverlay() {
+    const mode = state.currentOverlay;
+    let maxPollution = 0;
+    let maxTraffic = 0;
+    let maxPopulation = 0;
+
+    if (mode === "pollution") {
+      for (const v of state.pollution) if (v > maxPollution) maxPollution = v;
+    } else if (mode === "traffic") {
+      for (const v of state.traffic) if (v > maxTraffic) maxTraffic = v;
+    } else if (mode === "population") {
+      for (const v of state.populationMap) if (v > maxPopulation) maxPopulation = v;
+    }
+
+    for (let i = 0; i < gridEl.children.length; i++) {
+      const cell = gridEl.children[i];
+      const overlay = cell.querySelector(".cell-overlay");
+      overlay.style.opacity = 0;
+      overlay.style.background = "transparent";
+      overlay.style.outline = "none";
+
+      if (mode === "none") continue;
+
+      if (mode === "zoning") {
+        const tile = state.grid[i];
+        let color = "transparent";
+        if (tile === TILE.RES_LOW || tile === TILE.RES_HIGH) {
+          color = "rgba(0, 200, 0, 0.5)";
+        } else if (tile === TILE.COMMERCIAL) {
+          color = "rgba(0, 0, 200, 0.5)";
+        } else if (tile === TILE.INDUSTRIAL) {
+          color = "rgba(200, 160, 0, 0.5)";
+        }
+        overlay.style.opacity = color === "transparent" ? 0 : 1;
+        overlay.style.background = color;
+      } else if (mode === "pollution") {
+        if (maxPollution <= 0) continue;
+        const strength = state.pollution[i] / maxPollution;
+        if (strength <= 0) continue;
+        overlay.style.opacity = 0.7 * strength;
+        overlay.style.background = "rgba(200, 150, 0, 1)";
+      } else if (mode === "traffic") {
+        if (maxTraffic <= 0) continue;
+        const strength = state.traffic[i] / maxTraffic;
+        if (strength <= 0) continue;
+        overlay.style.opacity = 0.7 * strength;
+        overlay.style.background = "rgba(200, 0, 0, 1)";
+      } else if (mode === "population") {
+        if (maxPopulation <= 0) continue;
+        const strength = state.populationMap[i] / maxPopulation;
+        if (strength <= 0) continue;
+        overlay.style.opacity = 0.65 * strength;
+        overlay.style.background = "rgba(0, 0, 0, 1)";
+      }
+    }
+  }
+
+  // ====== INPUT HANDLING ======
+  function setBrushFromName(name) {
+    switch (name) {
+      case "road": state.currentBrush = TILE.ROAD; break;
+      case "water": state.currentBrush = TILE.WATER; break;
+      case "res-low": state.currentBrush = TILE.RES_LOW; break;
+      case "res-high": state.currentBrush = TILE.RES_HIGH; break;
+      case "commercial": state.currentBrush = TILE.COMMERCIAL; break;
+      case "industrial": state.currentBrush = TILE.INDUSTRIAL; break;
+      case "erase": state.currentBrush = "erase"; break;
+    }
+  }
+
+  function updateToolButtonsActive() {
+    toolButtons.forEach(btn => {
+      btn.classList.toggle("active", false);
+    });
+    const activeBtn = toolButtons.find(btn => {
+      const toolName = btn.dataset.tool;
+      if (state.currentBrush === "erase") {
+        return toolName === "erase";
+      }
+      if (state.currentBrush === TILE.ROAD && toolName === "road") return true;
+      if (state.currentBrush === TILE.WATER && toolName === "water") return true;
+      if (state.currentBrush === TILE.RES_LOW && toolName === "res-low") return true;
+      if (state.currentBrush === TILE.RES_HIGH && toolName === "res-high") return true;
+      if (state.currentBrush === TILE.COMMERCIAL && toolName === "commercial") return true;
+      if (state.currentBrush === TILE.INDUSTRIAL && toolName === "industrial") return true;
+      return false;
+    });
+    if (activeBtn) activeBtn.classList.add("active");
+  }
+
+  toolButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const name = btn.dataset.tool;
+      setBrushFromName(name);
+      updateToolButtonsActive();
+    });
+  });
+
+  // Prevent default right-click menu on grid
+  gridEl.addEventListener("contextmenu", e => e.preventDefault());
+
+  gridEl.addEventListener("mousedown", e => {
+    if (!(e.target.classList.contains("cell") || e.target.parentElement.classList.contains("cell"))) return;
+    state.mouseDown = true;
+    const cell = e.target.classList.contains("cell") ? e.target : e.target.parentElement;
+    const index = parseInt(cell.dataset.index, 10);
+    state.lastHoveredIndex = index;
+    const brush = e.button === 2 ? "erase" : state.currentBrush;
+    tryBuild(index, brush);
+  });
+
+  gridEl.addEventListener("mouseup", () => {
+    state.mouseDown = false;
+    state.lastHoveredIndex = null;
+  });
+
+  gridEl.addEventListener("mouseleave", () => {
+    state.mouseDown = false;
+    state.lastHoveredIndex = null;
+  });
+
+  gridEl.addEventListener("mousemove", e => {
+    if (!state.mouseDown) return;
+    if (!(e.target.classList.contains("cell") || e.target.parentElement.classList.contains("cell"))) return;
+    const cell = e.target.classList.contains("cell") ? e.target : e.target.parentElement;
+    const index = parseInt(cell.dataset.index, 10);
+    if (index === state.lastHoveredIndex) return;
+    state.lastHoveredIndex = index;
+    tryBuild(index, state.currentBrush);
+  });
+
+  overlaySelectEl.addEventListener("change", () => {
+    state.currentOverlay = overlaySelectEl.value;
+    applyOverlay();
+  });
+
+  // Simulation controls
+  const btnPlay = document.getElementById("btn-play");
+  const btnStep = document.getElementById("btn-step");
+  const speedRange = document.getElementById("speed-range");
+  const speedLabel = document.getElementById("speed-label");
+
+  function startSimulation() {
+    stopSimulation();
+    state.running = true;
+    btnPlay.textContent = "Pause";
+    btnPlay.classList.add("active");
+    state.tickInterval = setInterval(simulateTick, state.tickSpeed);
+  }
+
+  function stopSimulation() {
+    state.running = false;
+    btnPlay.textContent = "Run";
+    btnPlay.classList.remove("active");
+    if (state.tickInterval) clearInterval(state.tickInterval);
+    state.tickInterval = null;
+  }
+
+  btnPlay.addEventListener("click", () => {
+    if (state.running) {
+      stopSimulation();
+    } else {
+      startSimulation();
+    }
+  });
+
+  btnStep.addEventListener("click", () => {
+    simulateTick();
+  });
+
+  speedRange.addEventListener("input", () => {
+    const value = parseInt(speedRange.value, 10);
+    state.tickSpeed = value;
+    speedLabel.textContent = value + " ms";
+    if (state.running) {
+      startSimulation();
+    }
+  });
+
+  // ====== INITIAL BOOT ======
+  initGrid();
+  updateStatsUI();
+  setBrushFromName("road");
+  updateToolButtonsActive();
+  startSimulation();
+</script>
+</body>
+</html>
