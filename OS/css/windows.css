@@ -2,34 +2,44 @@
     position: absolute;
     width: 600px;
     height: 380px;
+
     background: var(--panel);
     border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
     overflow: hidden;
+
     display: flex;
     flex-direction: column;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+
+    /* MUST be here to allow moving */
+    pointer-events: auto;
 }
 
 .window-titlebar {
-    height: 28px;
-    background: rgba(255,255,255,0.04);
+    height: 30px;
+    background: rgba(255,255,255,0.05);
+
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 8px;
+
+    padding: 0 10px;
     user-select: none;
+
     cursor: grab;
+    pointer-events: auto;
 }
 
 .window-title {
-    font-size: 13px;
-    opacity: 0.8;
+    font-size: 14px;
+    opacity: 0.85;
 }
 
 .window-buttons {
     display: flex;
-    gap: 6px;
+    gap: 8px;
 }
 
 .win-btn {
@@ -39,9 +49,9 @@
     cursor: pointer;
 }
 
-.win-close { background: #ff4c4c; }
-.win-min { background: #ffaa3b; }
-.win-max { background: #27ff27; }
+.win-close { background:#ff4c4c; }
+.win-min   { background:#ffaa3b; }
+.win-max   { background:#27ff27; }
 
 .window-content {
     flex: 1;
