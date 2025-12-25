@@ -126,6 +126,7 @@
   </div>
 
   <script>
+console.warn("You are not supposed to be here")
     document.getElementById('reload').addEventListener('click', () => location.reload());
     const u = document.getElementById('url');
     if (location && location.hostname) u.textContent = location.hostname;
