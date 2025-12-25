@@ -39,7 +39,58 @@
   // Each preset has:
   // - defaults: initial values for fields and toggles
   // - template: markdown skeleton using {{TOKENS}} + {{BLOCKS}}
-  const PRESETS = {
+  const PRESETS = {mission_report: {
+  name: "Military Mission Report",
+  defaults: {
+    title: "Mission Report - OPERATION NAME",
+    desc: "Brief mission overview and intent.",
+    tags: "mission, report, military, ops",
+    features:
+`- Primary objective: 
+- Secondary objective: 
+- Tertiary objective: `,
+    steps:
+`1. Insertion
+2. Movement to objective
+3. Objective execution
+4. Exfiltration`,
+    notes:
+`- Friendly forces: 
+- Enemy forces: 
+- Terrain and weather: 
+- Equipment notes: `,
+    toggles: { badges: false, toc: true, meta: true, footer: true },
+  },
+  template: [
+    "# {{TITLE}}",
+    "",
+    "{{META}}",
+    "",
+    "## Mission Overview",
+    "{{DESCRIPTION}}",
+    "",
+    "{{TOC}}",
+    "## Objectives",
+    "{{FEATURES}}",
+    "",
+    "## Timeline",
+    "{{STEPS}}",
+    "",
+    "## Situation",
+    "{{NOTES}}",
+    "",
+    "## Assessment",
+    "- Mission status: ",
+    "- Objective completion: ",
+    "- Casualties and damage: ",
+    "",
+    "## Lessons Learned",
+    "- ",
+    "- ",
+    "",
+    "{{FOOTER}}",
+  ].join("\n"),
+},
     readme_basic: {
       name: "README, Basic",
       defaults: {
