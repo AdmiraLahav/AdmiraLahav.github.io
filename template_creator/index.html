@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MD Template Creator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="dot"></div>
+      <div>
+        <div class="title">MD Template Creator</div>
+        <div class="subtitle">Presets, forms, instant copy-paste output</div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <button id="btnReset" class="btn ghost" type="button" title="Reset fields to preset defaults">Reset</button>
+      <button id="btnCopy" class="btn" type="button" title="Copy generated Markdown">Copy</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Inputs</h2>
+        <div class="hint">No saving. Refresh resets to default preset.</div>
+      </div>
+
+      <div class="field">
+        <label for="preset">Preset</label>
+        <select id="preset">
+          <option value="readme_basic">README, Basic</option>
+          <option value="readme_cyber">README, Cyber</option>
+          <option value="lab_report">Lab Report</option>
+          <option value="notes">Notes</option>
+          <option value="changelog">Changelog</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="title">Title</label>
+        <input id="title" type="text" placeholder="Project name, doc title..." autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label for="desc">Description</label>
+        <textarea id="desc" rows="4" placeholder="Short summary..." spellcheck="false"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="tags">Tags (comma separated)</label>
+        <input id="tags" type="text" placeholder="security, web, python" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label for="features">Features (one per line)</label>
+        <textarea id="features" rows="4" placeholder="- item 1&#10;- item 2" spellcheck="false"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="steps">Steps (one per line)</label>
+        <textarea id="steps" rows="4" placeholder="1. Do this&#10;2. Do that" spellcheck="false"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="notes">Notes</label>
+        <textarea id="notes" rows="4" placeholder="Extra notes..." spellcheck="false"></textarea>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="toggles">
+        <label class="toggle">
+          <input id="tBadges" type="checkbox" />
+          <span>Include badges</span>
+        </label>
+
+        <label class="toggle">
+          <input id="tToc" type="checkbox" />
+          <span>Include table of contents</span>
+        </label>
+
+        <label class="toggle">
+          <input id="tMeta" type="checkbox" />
+          <span>Include meta block</span>
+        </label>
+
+        <label class="toggle">
+          <input id="tFooter" type="checkbox" />
+          <span>Include footer</span>
+        </label>
+      </div>
+
+      <div class="divider"></div>
+
+      <details class="debug" open>
+        <summary>Debug</summary>
+        <div class="debug-grid">
+          <div><span class="k">Preset</span><span id="dbgPreset" class="v">-</span></div>
+          <div><span class="k">Chars</span><span id="dbgChars" class="v">0</span></div>
+          <div><span class="k">Last action</span><span id="dbgLast" class="v">-</span></div>
+        </div>
+      </details>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Output</h2>
+        <div class="hint">Live Markdown text. Copy and paste wherever.</div>
+      </div>
+
+      <textarea id="output" class="output" readonly spellcheck="false"></textarea>
+
+      <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Tip: add more presets inside <code>script.js</code> - no backend needed.</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
