@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <link rel="icon" href="/favicon.png">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AdmiraLahav Hub</title>
+<style>
+  :root {
+    --bg:#0b0f12; --panel:#071018; --text:#cfe8ff; --muted:#88a0b3; --accent:#66d9ef;
+  }
+  html,body {
+    margin:0; height:100%; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono","Courier New",monospace;
+    background:linear-gradient(180deg,#030506 0%, #071018 100%);
+    color:var(--text); display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  h1 { color:var(--accent); margin-bottom:24px; font-size:22px; }
+  .hub-links {
+    display:grid; gap:12px; width:260px;
+  }
+  a {
+    display:block; text-align:center; padding:10px 0; text-decoration:none;
+    color:var(--text); background:rgba(255,255,255,0.04); border-radius:8px;
+    border:1px solid rgba(255,255,255,0.05); transition:0.2s;
+  }
+  a:hover {
+    background:var(--accent); color:#02131a; font-weight:700;
+  }
+  .muted { margin-top:16px; font-size:12px; color:var(--muted); }
+</style>
+</head>
+<body>
+
+  <h1>AdmiraLahav Hub</h1>
+  <div class="hub-links">
+    <a href="Terminal.html">Terminal</a> <!--Might replace later to /Terminal/Terminal.html     note, you will need to change the terminal .html creds pulls to ./(Terminal)/creds.json -->
+    <a href="files.html">Downloadable Files</a>
+    <!--<a href="files/welcome.html">👋 Welcome Page</a>-->
+    <a href="XSS/Main.html">XSS</a>
+    <a href="Dither/Dither.html">Ditherer</a>
+    <a href="Radar/index.html">Radar</a>
+    <a href="README.md">README</a>
+    <a href="index.html">Index.html</a>
+    <a href="files/test_downloaf.txt" download>Test Download</a>
+  </div>
+
+  <div class="muted">v1.5 — Redirect hub for my GitHub Pages</div>
+
+</body>
+</html>
