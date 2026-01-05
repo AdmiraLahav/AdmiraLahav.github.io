@@ -1,0 +1,11 @@
+clear
+echo Avalable custom commands:
+printf "cdL\ncdB\npw\n..\ncdF\nh\n"
+
+#alias
+alias cdL='cd /data/data/com.termux/files/home/storage/shared/Documents/Lav_proj'
+alias cdB='cd ~'
+alias pw='cat ~/git-auth'
+alias ..='cd ..'
+alias cdF='cd /data/data/com.termux/files/usr'
+alias h='cat help-file'
