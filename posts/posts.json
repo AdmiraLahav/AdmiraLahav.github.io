@@ -10,5 +10,15 @@
     "author": "Lahav",
     "date": "2026-01-02",
     "content": "Another post loaded from JSON."
-  }
+  },
+  {
+    "title": "Very long post",
+    "author: "Me",
+    "date": "2026-00-00",
+    "content": "bla
+bla
+bla
+blax3
+xyz xyz xyz"
+}
 ]
