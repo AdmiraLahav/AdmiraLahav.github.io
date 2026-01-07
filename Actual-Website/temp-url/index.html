@@ -25,22 +25,25 @@
 <body>
   <p id="indx-p">The very act of loggin in into the internet for the first time makes you tracable</p>
 </body>
+
 <script>
 const base = "/Actual-Website/tmp-url/";
 const params = new URLSearchParams(location.search);
 const restoredPath = params.get("p");
 
-if (restoredPath) {
-  history.replaceState({}, "", base + restoredPath);
-}
-</script>
-<script>
 function randomPath(len = 8) {
   return crypto.getRandomValues(new Uint32Array(len))
     .reduce((s, n) => s + (n % 36).toString(36), "");
 }
 
-history.replaceState({}, "", base + randomPath());
+if (restoredPath) {
+  // Coming from 404.html
+  history.replaceState({}, "", base + restoredPath);
+} else if (location.pathname === base) {
+  // Fresh visit to base URL
+  history.replaceState({}, "", base + randomPath());
+}
 </script>
+
 
 </html>
