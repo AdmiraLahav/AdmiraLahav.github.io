@@ -28,12 +28,17 @@
 
 <script>
 function randomHash(len = 2) {
-  return crypto.getRandomValues(new Uint32Array(len))
-    .reduce((s, n) => s + (n % 36).toString(36), "");
+let length = 8; // controls output length
+let letters = "abcdefghijklmnopqrstuvwxyz";
+let result = "";
+
+for (let i = 0; i < length; i++) {
+    result = letters[Math.floor(Math.random() * letters.length)];
+}
 }
 
 // Always generate a new hash on every load or refresh
-location.replace("#" + randomHash());
+location.replace("#" + "lav-" + randomHash());
 </script>
 
 
