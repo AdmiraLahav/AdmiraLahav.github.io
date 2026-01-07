@@ -32,10 +32,10 @@ function randomHash(len = 8) {
     .reduce((s, n) => s + (n % 36).toString(36), "");
 }
 
-if (!location.hash) {
-  location.replace("#" + randomHash());
-}
+// Always generate a new hash on every load or refresh
+location.replace("#" + randomHash());
 </script>
+
 
 
 
