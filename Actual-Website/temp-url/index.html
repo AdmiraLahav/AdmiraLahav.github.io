@@ -33,15 +33,12 @@ let letters = "abcdefghijklmnopqrstuvwxyz";
 let result = "";
 
 for (let i = 0; i < length; i++) {
-    result = letters[Math.floor(Math.random() * letters.length)];
+    result = result + letters[Math.floor(Math.random() * letters.length)];
 }
+return result;
 }
 
 // Always generate a new hash on every load or refresh
 location.replace("#" + "lav-" + randomHash());
 </script>
-
-
-
-
 </html>
