@@ -27,7 +27,7 @@
 </body>
 
 <script>
-function randomHash(len = 8) {
+function randomHash(len = 2) {
   return crypto.getRandomValues(new Uint32Array(len))
     .reduce((s, n) => s + (n % 36).toString(36), "");
 }
