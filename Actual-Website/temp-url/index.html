@@ -27,7 +27,7 @@
 </body>
 
 <script>
-function randomHash(len = 2) {
+function RandomURL(len = 2) {
 let length = 8; // controls output length
 let letters = "abcdefghijklmnopqrstuvwxyz";
 let result = "";
@@ -39,6 +39,6 @@ return result;
 }
 
 // Always generate a new hash on every load or refresh
-location.replace("#" + "lav-" + randomHash());
+location.replace("#" + "lav-" + RandomURL());
 </script>
 </html>
