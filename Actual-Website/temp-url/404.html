@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecting</title>
+  <script>
+    const base = "/tmp-url/";
+    const path = location.pathname.replace(base, "");
+    location.replace(base + "?p=" + encodeURIComponent(path));
+  </script>
+</head>
+<body></body>
+</html>

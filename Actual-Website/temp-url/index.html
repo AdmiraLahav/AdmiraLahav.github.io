@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style>
+    :root {
+      background-color: #000001;    
+    }
+    P {
+      color: aliceblue;
+    }
+
+    #indx-p {
+      position: relative;
+      text-align: center;
+    }
+    #link {
+      color: aliceblue;
+      cursor:default;
+      text-decoration-line: none;
+    }
+  </style>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" url="/Actual-Website/index.html">
+  <title>Redirecting</title>
+</head>
+<body>
+  <p id="indx-p">The very act of loggin in into the internet for the first time makes you tracable</p>
+</body>
+<script>
+const base = "/tmp-url/";
+const params = new URLSearchParams(location.search);
+const restoredPath = params.get("p");
+
+if (restoredPath) {
+  history.replaceState({}, "", base + restoredPath);
+}
+</script>
+</html>
