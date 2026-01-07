@@ -35,4 +35,13 @@ if (restoredPath) {
   history.replaceState({}, "", base + restoredPath);
 }
 </script>
+<script>
+function randomPath(len = 8) {
+  return crypto.getRandomValues(new Uint32Array(len))
+    .reduce((s, n) => s + (n % 36).toString(36), "");
+}
+
+history.replaceState({}, "", base + randomPath());
+</script>
+
 </html>
