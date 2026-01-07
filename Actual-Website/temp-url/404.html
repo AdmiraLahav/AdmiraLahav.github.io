@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Redirecting</title>
   <script>
-    const base = "/Actual-Website/tmp-url/";
+    const base = "/Actual-Website/temp-url/";
     const path = location.pathname.replace(base, "");
     location.replace(base + "?p=" + encodeURIComponent(path));
   </script>
