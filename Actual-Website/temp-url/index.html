@@ -27,23 +27,16 @@
 </body>
 
 <script>
-const base = "/Actual-Website/temp-url/";
-const params = new URLSearchParams(location.search);
-const restoredPath = params.get("p");
-
-function randomPath(len = 8) {
+function randomHash(len = 8) {
   return crypto.getRandomValues(new Uint32Array(len))
     .reduce((s, n) => s + (n % 36).toString(36), "");
 }
 
-if (restoredPath) {
-  // Coming from 404.html
-  history.replaceState({}, "", base + restoredPath);
-} else if (location.pathname === base) {
-  // Fresh visit to base URL
-  history.replaceState({}, "", base + randomPath());
+if (!location.hash) {
+  location.replace("#" + randomHash());
 }
 </script>
+
 
 
 </html>
