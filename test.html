@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #0b0f12;
+    color: #cfe8ff;
+    font-family: Arial, sans-serif;
+  }
+
+  .container {
+    position: relative;
+    text-align: center;
+  }
+
+  .bg-404 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 220px;
+    font-weight: 900;
+    color: #ffffff;
+    opacity: 0.05;
+    z-index: 1;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .content h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+
+  .content p {
+    font-size: 18px;
+    color: #88a0b3;
+  }
+</style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="bg-404">404</div>
+
+    <div class="content">
+      <p>The page you're looking for doesn't exist.</p>
+    </div>
+  </div>
+</body>
+</html>
