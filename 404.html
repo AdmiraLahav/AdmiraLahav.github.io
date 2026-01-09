@@ -3,8 +3,9 @@
 <head>
   <style>
     :root {
+
         --black: #0a0a0a;
-      background-color: #0a0a0a;    
+      background-color: var(--black);    
       color: aliceblue;
       position:relative;
     }
@@ -17,13 +18,14 @@
     font-family: Arial, sans-serif;
   }
   .container {
-    /*pos*/
+    position: relative;
     text-align: center;
+    top: 50%;
   }
   .bg-404 {
-    /*pos*/
-    top: 50%;
+    position: absolute;
     left: 50%;
+    top: 100%;
     transform: translate(-50%, -50%);
     z-index: 1;
     user-select: none;
@@ -35,47 +37,47 @@
     opacity: 0.05;
   }
   .content {
+    position: relative;
     /*pos*/
-    z-index: 2;
+    z-index: 3;
   }
   .content p {
     text-align: center;
-    top: 100px;
+    top: 700px;
     font-size: 1.75rem;
   }
   .cut-boxL {
-  /*pos*/
-  width: 800px;
-  height: 145px;
-  top: 450px;
-  left: -40px;
-  z-index: 3;
+  position: absolute;
+  width: 400px;
+  height: 60px;
+  top: 650px;
+  left: -48px;
+  z-index: 2;
   background: var(--black);
   rotate: -50deg;
 }
 .cut-boxR {
-  /*pos*/
-  width: 800px;
-  height: 185px;
-  top: 450px;
-  left: 1225px;
-  z-index: 3;
+  position: absolute;
+  width: 300px;
+  height: 75px;
+  top: 655px;
+  left: 500px;
+  z-index: 2;
   background: var(--black);
   rotate: 90deg;
 }
 .cut-boxC {
-  /*pos*/
-  width: 600px;
-  height: 185px;
-  top: 1650px;
-  left: 700px;
-  z-index: 3;
-  background: var(--black);
+  position: absolute;
+  width: 320px;
+  height: 80px;
+  top: 645px;
+  left: 222px;
+  z-index: 2;
+  background:var(--black);
 }
   </style>
   <meta charset="UTF-8">
-  <meta http-equiv="refresh" url="/Actual-Website/index.html">
-  <title>Redirecting</title>
+  <title>404</title>
 </head>
 <body>
 <div class="container">
@@ -85,9 +87,10 @@
     <div class="cut-boxR"></div>
     <div class="cut-boxC"></div>
     </div>
+
     <div class="content">
       <p>The page you're looking for doesn't exist.</p>
     </div>
-  </div>
+</div>
 </body>
 </html>
