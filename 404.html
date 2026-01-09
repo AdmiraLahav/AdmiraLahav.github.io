@@ -1,96 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <style>
-    :root {
-
-        --black: #0a0a0a;
-      background-color: var(--black);    
-      color: aliceblue;
-      position:relative;
-    }
-    body {
-    margin: 0;
-    height: 50vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: Arial, sans-serif;
-  }
-  .container {
-    position: relative;
-    text-align: center;
-    top: 50%;
-  }
-  .bg-404 {
-    position: absolute;
-    left: 50%;
-    top: 100%;
-    transform: translate(-50%, -50%);
-    z-index: 1;
-    user-select: none;
-    pointer-events: none;
-  }
-  .bg-404 p {
-    font-size: 400px;
-    font-weight: 900;
-    opacity: 0.05;
-  }
-  .content {
-    position: relative;
-    /*pos*/
-    z-index: 3;
-  }
-  .content p {
-    text-align: center;
-    top: 700px;
-    font-size: 1.75rem;
-  }
-  .cut-boxL {
-  position: absolute;
-  width: 400px;
-  height: 60px;
-  top: 650px;
-  left: -48px;
-  z-index: 2;
-  background: var(--black);
-  rotate: -50deg;
-}
-.cut-boxR {
-  position: absolute;
-  width: 300px;
-  height: 75px;
-  top: 655px;
-  left: 500px;
-  z-index: 2;
-  background: var(--black);
-  rotate: 90deg;
-}
-.cut-boxC {
-  position: absolute;
-  width: 320px;
-  height: 80px;
-  top: 645px;
-  left: 222px;
-  z-index: 2;
-  background:var(--black);
-}
-  </style>
   <meta charset="UTF-8">
   <title>404</title>
-</head>
-<body>
-<div class="container">
-    <div class="bg-404">
-    <div class="cut-boxL"></div>
-        <p>404</p>
-    <div class="cut-boxR"></div>
-    <div class="cut-boxC"></div>
-    </div>
 
-    <div class="content">
-      <p>The page you're looking for doesn't exist.</p>
+  <style>
+    :root {
+      --black: #0a0a0a;
+      --test:#ff00003b;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: var(--black);
+      color: aliceblue;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      position: relative;
+      width: 600px;
+      height: 400px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .bg-404 {
+      position: relative;
+      z-index: 1;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .bg-404 p {
+      font-size: 400px;
+      font-weight: 900;
+      opacity: 0.05;
+      margin: 0;
+    }
+
+    .cut-boxL {
+      position: absolute;
+      width: 400px;
+      height: 60px;
+      background:var(--black);
+      transform: rotate(-49.5deg);
+      top: 45%;
+      left: -6%;
+      z-index: 2;
+    }
+
+    .cut-boxR {
+      position: absolute;
+      width: 300px;
+      height: 75px;
+      background: var(--black);
+      transform: rotate(90deg);
+      top: 40%;
+      right: 0.1%;
+      z-index: 2;
+    }
+
+    .cut-boxC {
+      position: absolute;
+      width: 300px;
+      height: 80px;
+      background: var(--black);
+      top: 43%;
+      left: 48%;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="bg-404">
+      <div class="cut-boxL"></div>
+      <p>404</p>
+      <div class="cut-boxR"></div>
+      <div class="cut-boxC"></div>
     </div>
-</div>
+  </div>
 </body>
 </html>
