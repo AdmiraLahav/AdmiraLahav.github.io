@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Year Progress Dots</title>
+<style>
+    html, body {
+        margin: 0;
+        background: black;
+        overflow: hidden;
+        font-family: Consolas, monospace;
+        color: #aaa;
+    }
+
+    #grid {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: grid;
+        grid-template-columns: repeat(30, 10px);
+        gap: 6px;
+        padding: 40px;
+    }
+
+    .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #2a2a2a;
+    }
+
+    .passed {
+        background: #ffffff;
+        box-shadow: 0 0 4px rgba(255,255,255,0.7);
+    }
+
+    #info {
+        position: absolute;
+        bottom: 30px;
+        left: 40px;
+        font-size: 14px;
+        color: #9fd1ff;
+    }
+
+    #percent {
+        color: #777;
+        margin-left: 10px;
+    }
+</style>
+</head>
+<body>
+
+<div id="grid"></div>
+<div id="info">
+    <span id="daysLeft"></span>
+    <span id="percent"></span>
+</div>
+
+<script>
+const totalDays = 365;
+const grid = document.getElementById("grid");
+
+const start = new Date(new Date().getFullYear(), 0, 1);
+const today = new Date();
+const dayOfYear = Math.floor((today - start) / (1000 * 60 * 60 * 24)) + 1;
+
+for (let i = 1; i <= totalDays; i++) {
+    const dot = document.createElement("div");
+    dot.classList.add("dot");
+    if (i <= dayOfYear) dot.classList.add("passed");
+    grid.appendChild(dot);
+}
+
+const daysLeft = totalDays - dayOfYear;
+const percent = ((dayOfYear / totalDays) * 100).toFixed(1);
+
+document.getElementById("daysLeft").textContent = `${daysLeft}d left`;
+document.getElementById("percent").textContent = `· ${percent}%`;
+</script>
+
+</body>
+</html>
