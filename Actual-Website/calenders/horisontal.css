@@ -1,0 +1,54 @@
+html, body {
+    margin: 0;
+    background: black;
+    overflow: hidden;
+    font-family: Consolas, monospace;
+    color: #aaa;
+}
+
+#grid {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.month {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+}
+
+
+.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #2a2a2a;
+}
+
+.passed {
+    background: #ffffff;
+    box-shadow: 0 0 4px rgba(255,255,255,0.7);
+}
+
+#info {
+    position: absolute;
+    bottom: 30px;
+    left: 40px;
+    font-size: 14px;
+    color: #9fd1ff;
+}
+
+#percent {
+    color: #777;
+    margin-left: 10px;
+}
+a {
+    cursor:default;
+    color: #777;
+    text-decoration-line: none;
+    }
