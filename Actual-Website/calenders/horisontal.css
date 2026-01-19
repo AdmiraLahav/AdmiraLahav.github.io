@@ -6,11 +6,14 @@ html, body {
     color: #aaa;
 }
 
-#grid {
+#cal-container {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+#grid {
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -21,7 +24,6 @@ html, body {
     flex-direction: row;
     gap: 6px;
 }
-
 
 .dot {
     width: 6px;
@@ -36,19 +38,19 @@ html, body {
 }
 
 #info {
-    position: absolute;
-    bottom: 30px;
-    left: 40px;
+    margin-top: 12px;
     font-size: 14px;
     color: #9fd1ff;
+    transform: translate(-50px, 30px);
 }
 
 #percent {
     color: #777;
     margin-left: 10px;
 }
+
 a {
-    cursor:default;
+    cursor: default;
     color: #777;
-    text-decoration-line: none;
-    }
+    text-decoration: none;
+}
