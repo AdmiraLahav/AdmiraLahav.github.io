@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style>
+    :root {
+      background-color: #000001;
+      --text:aliceblue;
+    }
+    p {
+      color: var(--text);
+    }
+
+    #indx-p {
+      position: relative;
+      text-align: center;
+    }
+    #link {
+      color: var(--text);
+      cursor:default;
+      text-decoration-line: none;
+    }
+  </style>
+  <meta charset="UTF-8">
+  <title>Temporary URL</title>
+</head>
+<body>
+  <p id="indx-p">The very act of loggin in into the internet for the first time makes you tracable</p>
+</body>
+
+<script>
+// Always generate a new hash on every load or refresh
+location.replace("#" + "lav");
+</script>
+</html>
