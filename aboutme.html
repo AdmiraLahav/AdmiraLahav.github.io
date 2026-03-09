@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style>
+    /*main page css start*/
+    :root {
+      background-color: #000001;
+      --text:aliceblue;
+      --hight:840px;
+      --top-width:300 - 2 * 10;
+    }
+    div {
+        color: var(--text);
+        border-color: aqua;
+    }
+    #left {
+        margin-left: 50px;
+        height: var(--hight);
+        width: 300px;
+        background-color: red;
+        justify-content: center;
+        align-items: flex-start;
+    }
+    #right {
+        background-color: aqua;
+        height: var(--hight);
+        width: 600px;
+    }
+    .container {
+        display: flex;
+        gap: 10px;
+    }
+    #top {
+        position: static;
+        margin: 10px;
+        background-color: gray;
+        height: 100px;
+        width: var(--top-width);
+    }
+    /*main page css end*/
+  </style>
+  <link rel="stylesheet" href="">
+  <meta charset="UTF-8">
+  <title>About Me</title>
+</head>
+<body>
+<div class="container">
+    <div id="left" class="container">
+        <div id="top">
+
+        </div>
+    </div>
+    <div id="right">
+    </div>
+</div>
+</body>
+<!--Start Script-->
+<script src=""></script>
+</html>
