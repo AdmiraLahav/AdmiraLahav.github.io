@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style>
+    :root {
+      background-color: #000001;
+      --text: aliceblue;
+    }
+
+    body {
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0px;
+      padding: 0px;
+    }
+
+    p {
+      text-align: left;
+    }
+
+    a {
+      cursor: default;
+      text-decoration-line: none;
+    }
+
+    .clock {
+      text-align: left;
+    }
+
+    #content {
+      width: 200px;
+      text-align: left;
+    }
+    .int {
+        color: green;
+    }
+    .string {
+        color: rgb(255, 0, 0);
+    }
+  </style>
+
+  <meta charset="UTF-8">
+  <title>Clock</title>
+</head>
+
+<body>
+  <div>
+    <p class="clock">Clock {</p>
+
+    <div id="content">
+      <p class="int" id="year"></p>
+      <p class="string" id="month"></p>
+      <p class="string" id="day"></p>
+      <p class="int" id="hour"></p>
+      <p class="int" id="minute"></p>
+      <p class="int" id="second"></p>
+    </div>
+    <p class="clock">}</p>
+  </div>
+</body>
+
+<script>
+function Update() {
+const date = new Date();
+let year = date.getFullYear();
+let month_id = date.getMonth();
+let month_list = [
+"January","February","March","April","May","June","July",
+"August","September","October","November","December"
+];
+
+let day_id = date.getDay();
+let day_list = [
+"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"
+];
+
+let hour = date.getHours();
+let minute = date.getMinutes();
+let second = date.getSeconds();
+
+
+document.getElementById("year").textContent = `"year": ${year},`;
+document.getElementById("month").textContent = `"month": "${month_list[month_id]}",`;
+document.getElementById("day").textContent = `"day": "${day_list[day_id]}",`;
+document.getElementById("hour").textContent = `"hour": ${hour},`;
+document.getElementById("minute").textContent = `"minute": ${minute},`;
+document.getElementById("second").textContent = `"second": ${second}`;
+}
+Update();
+setInterval(Update, 900);
+</script>
+
+</html>
