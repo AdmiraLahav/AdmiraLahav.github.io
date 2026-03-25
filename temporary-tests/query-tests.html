@@ -5,11 +5,10 @@
   <title>User Panel</title>
   <style>
     :root {
-      --bg: #0b0f12;
-      --panel: #0b1721;
+      --bg: #000001;
+      --panel: #111111;
       --text: #cfe8ff;
       --muted: #88a0b3;
-      --accent: #66d9ef;
       --green: #27ff27;
       --blue: #3ea6ff;
       --red: #ff4c4c;
@@ -34,7 +33,7 @@
     }
 
     .title {
-      color: var(--accent);
+      color: var(--blue);
       margin-bottom: 15px;
     }
 
@@ -61,35 +60,17 @@
     <div class="title">[ USER PANEL ]</div>
 
     <div class="field">
-      Username: <span id="username" class="value">Loading...</span>
-    </div>
-
-    <div class="field">
-      Admin: <span id="admin" class="value">Loading...</span>
+      Dark mode status: <span id="input" class="value">Loading...</span>
     </div>
   </div>
-
-  <script>
-    // Parse URL parameters
-    const params = new URLSearchParams(window.location.search);
-
-    // Get values
-    const username = params.get("user") || "Guest";
-    const admin = params.get("admin") === "true";
-
-    // Display values
-    const usernameEl = document.getElementById("username");
-    const adminEl = document.getElementById("admin");
-
-    usernameEl.textContent = username;
-
-    adminEl.textContent = admin ? "TRUE" : "FALSE";
-    adminEl.classList.add(admin ? "true" : "false");
-
-    // Debug logging
-    console.log("Parsed user:", username);
-    console.log("Parsed admin:", admin);
-  </script>
-
 </body>
+<script>
+    const url_paramaters = new URLSearchParams(window.location.search);
+
+    const dark_mode_status = url_paramaters.get("dark_mode") || "Unknown";
+
+    const display_status = document.getElementById("input");
+
+    display_status.textContent = dark_mode_status;
+  </script>
 </html>
