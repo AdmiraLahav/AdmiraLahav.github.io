@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <style>
+        html {
+            background-color: #00000f;
+            color: aliceblue;
+        }
+    </style>
   <title>Markdown Renderer</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
@@ -9,7 +15,7 @@
 <div id="content"></div>
 
 <script>
-fetch('README.md')
+fetch('Drawing.md')
   .then(response => response.text())
   .then(text => {
     document.getElementById('content').innerHTML = marked.parse(text);
