@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spring Back Card</title>
+  <style>
+    :root {
+      --bg: #0b0f12;
+      --panel: #0b1721;
+      --text: #cfe8ff;
+      --muted: #88a0b3;
+      --accent: #66d9ef;
+      --green: #27ff27;
+      --blue: #3ea6ff;
+      --red: #ff4c4c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at top, #11202d 0%, var(--bg) 45%),
+        var(--bg);
+      font-family: Arial, sans-serif;
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    .scene {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      display: grid;
+      place-items: center;
+    }
+
+    .origin-ring {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border: 2px dashed rgba(102, 217, 239, 0.2);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .card {
+      position: absolute;
+      width: 220px;
+      height: 140px;
+      border-radius: 18px;
+      background: linear-gradient(145deg, #122636, #0b1721);
+      border: 1px solid rgba(102, 217, 239, 0.35);
+      box-shadow:
+        0 0 20px rgba(62, 166, 255, 0.15),
+        0 12px 30px rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: grab;
+      transition: box-shadow 0.2s ease;
+      will-change: transform;
+    }
+
+    .card:active {
+      cursor: grabbing;
+    }
+
+    .card.dragging {
+      box-shadow:
+        0 0 25px rgba(102, 217, 239, 0.35),
+        0 18px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .card-content h2 {
+      font-size: 1.2rem;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .card-content p {
+      font-size: 0.95rem;
+      color: var(--muted);
+      padding: 0 14px;
+      line-height: 1.4;
+    }
+
+    .hint {
+      position: absolute;
+      bottom: 24px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+  <div class="scene">
+    <div class="origin-ring"></div>
+
+    <div class="card" id="card">
+      <div class="card-content">
+        <h2>Drag Me</h2>
+        <p>I move freely, but I always return home.</p>
+      </div>
+    </div>
+
+    <div class="hint">Click and drag the card</div>
+  </div>
+<div style="width: 25%; height: 50px; overflow: auto; scrollbar-face-color: #CE7E00; scrollbar-shadow-color: #FFFFFF; br /scrollbar-highlight-color: #6F4709; scrollbar-3dlight-color:#11111; scrollbar-darkshadow-color: #6F4709; br /scrollbar-track-color: #FFE8C1; scrollbar-arrow-color: #6F4709;"></div>
+  <script>
+    const card = document.getElementById("card");
+
+    let position = { x: 0, y: 0 };
+    let velocity = { x: 0, y: 0 };
+    let target = { x: 0, y: 0 };
+
+    let isDragging = false;
+    let dragOffset = { x: 0, y: 0 };
+    let pointerStart = { x: 0, y: 0 };
+    let cardStart = { x: 0, y: 0 };
+
+    const springStrength = 0.08;
+    const damping = 0.82;
+
+    function updateCardPosition() {
+      card.style.transform = `translate(${position.x}px, ${position.y}px)`;
+    }
+
+    function animate() {
+      if (!isDragging) {
+        const forceX = (target.x - position.x) * springStrength;
+        const forceY = (target.y - position.y) * springStrength;
+
+        velocity.x += forceX;
+        velocity.y += forceY;
+
+        velocity.x *= damping;
+        velocity.y *= damping;
+
+        position.x += velocity.x;
+        position.y += velocity.y;
+
+        if (Math.abs(position.x) < 0.01) position.x = 0;
+        if (Math.abs(position.y) < 0.01) position.y = 0;
+        if (Math.abs(velocity.x) < 0.01) velocity.x = 0;
+        if (Math.abs(velocity.y) < 0.01) velocity.y = 0;
+
+        updateCardPosition();
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    function startDrag(clientX, clientY) {
+      isDragging = true;
+      card.classList.add("dragging");
+
+      pointerStart.x = clientX;
+      pointerStart.y = clientY;
+
+      cardStart.x = position.x;
+      cardStart.y = position.y;
+
+      velocity.x = 0;
+      velocity.y = 0;
+    }
+
+    function duringDrag(clientX, clientY) {
+      if (!isDragging) return;
+
+      const dx = clientX - pointerStart.x;
+      const dy = clientY - pointerStart.y;
+
+      position.x = cardStart.x + dx;
+      position.y = cardStart.y + dy;
+
+      updateCardPosition();
+    }
+
+    function endDrag() {
+      isDragging = false;
+      card.classList.remove("dragging");
+
+      target.x = 0;
+      target.y = 0;
+    }
+
+    card.addEventListener("mousedown", (event) => {
+      startDrag(event.clientX, event.clientY);
+    });
+
+    window.addEventListener("mousemove", (event) => {
+      duringDrag(event.clientX, event.clientY);
+    });
+
+    window.addEventListener("mouseup", endDrag);
+
+    card.addEventListener("touchstart", (event) => {
+      const touch = event.touches[0];
+      startDrag(touch.clientX, touch.clientY);
+    }, { passive: true });
+
+    window.addEventListener("touchmove", (event) => {
+      const touch = event.touches[0];
+      if (touch) {
+        duringDrag(touch.clientX, touch.clientY);
+      }
+    }, { passive: true });
+
+    window.addEventListener("touchend", endDrag);
+
+    updateCardPosition();
+    animate();
+
+    console.log("Spring card initialized successfully.");
+  </script>
+</body>
+</html>
