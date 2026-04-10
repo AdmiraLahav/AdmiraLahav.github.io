@@ -1,102 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>About Me</title>
-
-<style>
-:root {
-  --bg: #0b0f12;
-  --panel: #0b1721;
-  --text: #cfe8ff;
-  --muted: #88a0b3;
-  --accent: #66d9ef;
-}
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: monospace;
-  margin: 0;
-  padding: 40px;
-}
-
-.container {
-  max-width: 800px;
-  margin: auto;
-}
-
-h1 {
-  color: var(--accent);
-}
-
-p {
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-/* Subtle hiding, not obvious */
-.meta-noise {
-  font-size: 0.1px;
-  color: transparent;
-  line-height: 0;
-}
-</style>
-
-<!-- Looks like normal metadata -->
-<meta name="description" content="About page, status inactive, page under construction, fallback content may apply">
-<meta name="keywords" content="about, profile, page inactive, maintenance, fallback, temporary page">
-
+    <title>Console Demo</title>
 </head>
-
 <body>
 
-<div class="container">
-  <h1>About Me</h1>
-
-  <p>
-    Welcome. This page contains some basic information about me and my work.
-  </p>
-
-  <p>
-    I focus on building, experimenting, and understanding systems from the inside.
-  </p>
-
-  <!-- Looks like accessibility / fallback text -->
-  <p class="meta-noise">
-    page inactive fallback content not found retry loading resource unavailable temporary state
-  </p>
-
-</div>
-
-<!-- Looks like normal footer / system text -->
-<footer class="meta-noise">
-  status: 404 | state: inactive | mode: maintenance | response: null
-</footer>
+<h3>Nothing to see here.</h3>
+<p>Open the console.</p>
 
 <script>
-/*
-  Blend noise into DOM like real apps do
-*/
-const subtleNoise = [
-  "resource unavailable",
-  "retry failed",
-  "page inactive",
-  "temporary fallback",
-  "content not loaded"
-];
+// === BASIC CONSOLE PLAYGROUND ===
 
-function injectNoise() {
-  const el = document.createElement("div");
-  el.className = "meta-noise";
-  el.textContent = subtleNoise[Math.floor(Math.random() * subtleNoise.length)];
-  document.body.appendChild(el);
+// Step 1: simple output
+console.log("Page loaded.");
+
+// Step 2: hidden function
+function test() {
+    console.log("You ran the test function.");
 }
 
-// low frequency, not spammy
-setInterval(injectNoise, 3000);
+// Step 3: global function (accessible from console)
+window.unlock = function() {
+    document.body.innerHTML = "<h1>Unlocked</h1>";
+};
+
+// Step 4: function with parameter
+window.say = function(msg) {
+    console.log("You said:", msg);
+};
+
+// Step 5: simple password check
+const secret = "1234";
+
+window.login = function(input) {
+    if (input === secret) {
+        console.log("Access granted");
+    } else {
+        console.log("Access denied");
+    }
+};
+
+// Step 6: object interaction
+window.system = {
+    status: "locked",
+    open: function() {
+        this.status = "open";
+        console.log("System opened");
+    }
+};
+
 </script>
 
 </body>
