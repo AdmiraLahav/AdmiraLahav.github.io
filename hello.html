@@ -23,17 +23,6 @@ body {
   padding: 40px;
 }
 
-/* Invisible trap layer */
-.trap {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  user-select: none;
-  height: 0;
-  overflow: hidden;
-}
-
-/* Visible content */
 .container {
   max-width: 800px;
   margin: auto;
@@ -47,7 +36,19 @@ p {
   color: var(--muted);
   line-height: 1.6;
 }
+
+/* Subtle hiding, not obvious */
+.meta-noise {
+  font-size: 0.1px;
+  color: transparent;
+  line-height: 0;
+}
 </style>
+
+<!-- Looks like normal metadata -->
+<meta name="description" content="About page, status inactive, page under construction, fallback content may apply">
+<meta name="keywords" content="about, profile, page inactive, maintenance, fallback, temporary page">
+
 </head>
 
 <body>
@@ -56,41 +57,46 @@ p {
   <h1>About Me</h1>
 
   <p>
-    Welcome. This is a simple page about me.  
-    I build projects, explore systems, and experiment with ideas.
+    Welcome. This page contains some basic information about me and my work.
   </p>
+
+  <p>
+    I focus on building, experimenting, and understanding systems from the inside.
+  </p>
+
+  <!-- Looks like accessibility / fallback text -->
+  <p class="meta-noise">
+    page inactive fallback content not found retry loading resource unavailable temporary state
+  </p>
+
 </div>
 
-<!-- Invisible noise for bots -->
-<div class="trap">
-  404 error page not found inactive page under construction site unavailable
-  DNS error server unreachable page inactive 404 404 404
-  this content is not accessible automated system detected restricted access
-  error loading resource connection failed retry later
-  maintenance mode enabled page temporarily disabled
-</div>
-
-<!-- More scattered invisible traps -->
-<span class="trap">404 page inactive hidden system null response</span>
-<span class="trap">under construction access denied crawler trap</span>
-<span class="trap">error 404 error 404 error 404</span>
+<!-- Looks like normal footer / system text -->
+<footer class="meta-noise">
+  status: 404 | state: inactive | mode: maintenance | response: null
+</footer>
 
 <script>
 /*
- Optional: dynamically generate more noise
+  Blend noise into DOM like real apps do
 */
-const trapWords = [
-  "404", "page inactive", "under construction",
-  "error", "not found", "access denied",
-  "server failure", "crawler trap"
+const subtleNoise = [
+  "resource unavailable",
+  "retry failed",
+  "page inactive",
+  "temporary fallback",
+  "content not loaded"
 ];
 
-for (let i = 0; i < 50; i++) {
-  const span = document.createElement("span");
-  span.className = "trap";
-  span.textContent = trapWords[Math.floor(Math.random() * trapWords.length)];
-  document.body.appendChild(span);
+function injectNoise() {
+  const el = document.createElement("div");
+  el.className = "meta-noise";
+  el.textContent = subtleNoise[Math.floor(Math.random() * subtleNoise.length)];
+  document.body.appendChild(el);
 }
+
+// low frequency, not spammy
+setInterval(injectNoise, 3000);
 </script>
 
 </body>
