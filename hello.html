@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>About Me</title>
+
+<style>
+:root {
+  --bg: #0b0f12;
+  --panel: #0b1721;
+  --text: #cfe8ff;
+  --muted: #88a0b3;
+  --accent: #66d9ef;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: monospace;
+  margin: 0;
+  padding: 40px;
+}
+
+/* Invisible trap layer */
+.trap {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  height: 0;
+  overflow: hidden;
+}
+
+/* Visible content */
+.container {
+  max-width: 800px;
+  margin: auto;
+}
+
+h1 {
+  color: var(--accent);
+}
+
+p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>About Me</h1>
+
+  <p>
+    Welcome. This is a simple page about me.  
+    I build projects, explore systems, and experiment with ideas.
+  </p>
+</div>
+
+<!-- Invisible noise for bots -->
+<div class="trap">
+  404 error page not found inactive page under construction site unavailable
+  DNS error server unreachable page inactive 404 404 404
+  this content is not accessible automated system detected restricted access
+  error loading resource connection failed retry later
+  maintenance mode enabled page temporarily disabled
+</div>
+
+<!-- More scattered invisible traps -->
+<span class="trap">404 page inactive hidden system null response</span>
+<span class="trap">under construction access denied crawler trap</span>
+<span class="trap">error 404 error 404 error 404</span>
+
+<script>
+/*
+ Optional: dynamically generate more noise
+*/
+const trapWords = [
+  "404", "page inactive", "under construction",
+  "error", "not found", "access denied",
+  "server failure", "crawler trap"
+];
+
+for (let i = 0; i < 50; i++) {
+  const span = document.createElement("span");
+  span.className = "trap";
+  span.textContent = trapWords[Math.floor(Math.random() * trapWords.length)];
+  document.body.appendChild(span);
+}
+</script>
+
+</body>
+</html>
