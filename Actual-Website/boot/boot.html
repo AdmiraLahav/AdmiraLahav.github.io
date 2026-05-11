@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Lahav Systems | Boot</title>
+
+  <link rel="stylesheet" href="../../assets/css/boot.css" />
+</head>
+<body>
+  <main class="boot-screen" id="bootScreen">
+    <section class="boot-terminal" aria-label="System boot sequence">
+      <div class="boot-header">
+        <span class="status-dot"></span>
+        <span>LAHAV SYSTEMS NODE</span>
+      </div>
+
+      <div class="boot-output" id="bootOutput"></div>
+
+      <div class="boot-footer">
+        <span id="bootStatus">BOOT STATUS: INITIALIZING</span>
+      </div>
+    </section>
+
+    <div class="crt-overlay"></div>
+    <div class="scanline"></div>
+  </main>
+
+  <script src="../../assets/js/boot.js"></script>
+</body>
+</html>
