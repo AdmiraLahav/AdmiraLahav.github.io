@@ -1,6 +1,6 @@
 clear
 echo Avalable custom commands:
-printf "cdL\ncdB\npw\n..\ncdF\nh\n"
+printf "cdL\ncdB\npw\n..\ncdF\nh\n\npy"
 
 #alias
 alias cdL='cd /data/data/com.termux/files/home/storage/shared/Documents/Lav_proj'
