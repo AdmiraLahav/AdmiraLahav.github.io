@@ -18,7 +18,6 @@
     }
     /*main page css end*/
   </style>
-  <link rel="stylesheet" href="/assets/css/horisontal.css">
   <link rel="stylesheet" href="/assets/shared/default.css">
   <link rel="icon" href="/assets/shared/favicon.png">
   <meta charset="UTF-8">
@@ -30,15 +29,17 @@
       <p><a id="link" href="/My-Site/index.html">The very act of loggin in into the internet for the first time makes you tracable</a></p>
       <p>The only true way to stay unanimous is to be unimportant enough for peapole to not even care who you are</p>
     </div>
-<!--Calander-->
-<div id="cal-container">
-    <div id="grid"></div>
-    <div id="info">
-        <span id="daysLeft"></span>
-        <a href="/index.html"><span id="percent"></span></a>
-    </div>
-</div>
+
+<iframe
+    id="calander"
+    src=""
+    name="testname"
+    allowTransparency="true"
+    style="width: 100%; height: 100vh; border: none;"
+>
+</iframe>
 </body>
-<!--Start Script-->
-<script src="/assets/js/calanders.js"></script>
+<script>
+document.getElementById('calander').src = '/My-Site/calenders/calander horisontal.html';
+</script>
 </html>
