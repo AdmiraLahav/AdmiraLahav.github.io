@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 — Not Found</title>
+
+<style>
+  :root {
+    --black: #0A0A0A;
+    --paper: #EDEAE3;
+    --muted: rgba(237, 234, 227, 0.38);
+    --faint: rgba(237, 234, 227, 0.08);
+    --stamp: #A6392C;
+    --stamp-dim: rgba(166, 57, 44, 0.55);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--black);
+    background-image:
+      linear-gradient(var(--faint) 1px, transparent 1px),
+      linear-gradient(90deg, var(--faint) 1px, transparent 1px);
+    background-size: 42px 42px;
+    color: var(--paper);
+    font-family: "IBM Plex Mono", "JetBrains Mono", "Courier New", Consolas, monospace;
+    overflow: hidden;
+  }
+
+  .doc {
+    position: relative;
+    width: min(640px, 92vw);
+    padding: 2.5rem 2rem;
+  }
+
+  .doc-header,
+  .doc-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .doc-header { margin-bottom: 3.5rem; }
+  .doc-footer { margin-top: 3.5rem; }
+
+  .stage {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 220px;
+  }
+
+  .digits {
+    font-size: clamp(90px, 22vw, 180px);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin: 0;
+    user-select: none;
+    display: flex;
+  }
+
+  .redact {
+    position: absolute;
+    background: #000;
+    box-shadow: 0 0 0 1px rgba(237, 234, 227, 0.04);
+    z-index: 2;
+    transform-origin: left center;
+  }
+
+  .redact::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      100deg,
+      rgba(255,255,255,0.015) 0px,
+      rgba(255,255,255,0.015) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  }
+
+  .r1 { width: 62%; height: 22px; top: 28%; left: -4%; rotate: -3deg; }
+  .r2 { width: 78%; height: 30px; top: 52%; left: 8%; rotate: 1.4deg; }
+  .r3 { width: 46%; height: 18px; top: 74%; left: 30%; rotate: -1deg; }
+
+  .stamp {
+    position: absolute;
+    z-index: 3;
+    top: 50%;
+    left: 50%;
+    display: inline-block;
+    padding: 0.4em 0.9em;
+    border: 3px solid var(--stamp);
+    color: var(--stamp);
+    font-size: clamp(20px, 3.4vw, 28px);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: transparent;
+    mix-blend-mode: screen;
+    transform: translate(-50%, -50%) rotate(-9deg) scale(1.6);
+    opacity: 0;
+    animation: stamp-down 0.4s cubic-bezier(.2,.8,.3,1.3) 0.7s forwards;
+  }
+
+  .stamp::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border: 1px solid var(--stamp-dim);
+  }
+
+  @keyframes stamp-down {
+    0%   { opacity: 0; transform: translate(-50%, -50%) rotate(-9deg) scale(1.8); }
+    60%  { opacity: 1; transform: translate(-50%, -50%) rotate(-7deg) scale(0.94); }
+    100% { opacity: 1; transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  }
+
+  .redact { animation: slide-in 0.5s ease-out both; }
+  .r1 { animation-delay: 0.05s; }
+  .r2 { animation-delay: 0.15s; }
+  .r3 { animation-delay: 0.25s; }
+
+  @keyframes slide-in {
+    from { transform: scaleX(0) rotate(var(--rot, 0deg)); opacity: 0; }
+    to   { transform: scaleX(1) rotate(var(--rot, 0deg)); opacity: 1; }
+  }
+
+  .caption {
+    text-align: center;
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: var(--muted);
+    max-width: 34ch;
+    margin: 2.5rem auto 0;
+  }
+
+  .caption strong { color: var(--paper); font-weight: 600; }
+
+  .actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .btn {
+    color: var(--paper);
+    text-decoration: none;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid var(--muted);
+    padding: 0.75em 1.4em;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+
+  .btn:hover,
+  .btn:focus-visible {
+    border-color: var(--paper);
+    color: var(--paper);
+    outline: none;
+  }
+
+  .btn:focus-visible {
+    box-shadow: 0 0 0 2px var(--black), 0 0 0 4px var(--paper);
+  }
+
+  @media (max-width: 480px) {
+    .doc-header, .doc-footer { flex-direction: column; gap: 0.35rem; }
+    .stage { height: 160px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .redact, .stamp { animation: none; opacity: 1; transform: none; }
+    .stamp { transform: translate(-50%, -50%) rotate(-8deg); }
+  }
+</style>
+</head>
+
+<body>
+  <div class="doc">
+
+    <div class="doc-header">
+      <span>file: /requested-page</span>
+      <span>status: unrecoverable</span>
+    </div>
+
+    <div class="stage">
+      <p class="digits">404</p>
+      <div class="redact r1" style="--rot:-3deg"></div>
+      <div class="redact r2" style="--rot:1.4deg"></div>
+      <div class="redact r3" style="--rot:-1deg"></div>
+      <div class="stamp">Not Found</div>
+    </div>
+
+    <p class="caption">
+      This page was <strong>moved, deleted, or never filed.</strong>
+      No further record exists at this address.
+    </p>
+
+    <div class="actions">
+      <a class="btn" href="/">Return to Home</a>
+    </div>
+
+    <div class="doc-footer">
+      <span>error 404</span>
+      <span>ref auto-generated</span>
+    </div>
+
+  </div>
+</body>
+</html>

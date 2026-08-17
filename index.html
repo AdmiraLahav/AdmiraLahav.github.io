@@ -1,44 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <style>
-    /*main page css start*/
-    p {
-      color: aliceblue;
-      padding-top: 5px;
-      position: relative;
-      text-align: center;
-    }
-    #link {
-      color: aliceblue;
-    }
-    a {
-      cursor:default;
-      text-decoration-line: none;
-    }
-    /*main page css end*/
-  </style>
-  <link rel="stylesheet" href="/assets/css/horisontal.css">
-  <link rel="stylesheet" href="/assets/shared/default.css">
-  <link rel="icon" href="/assets/shared/favicon.png">
-  <meta charset="UTF-8">
-  <title>Main Page</title>
-</head>
+<html>
+<link rel="stylesheet" href="/assets/shared/default.css">
+<link rel="icon" href="/assets/shared/favicon.png">
 <body>
-  <!--Text-->
-    <div>
-      <p><a id="link" href="/My-Site/index.html">The very act of loggin in into the internet for the first time makes you tracable</a></p>
-      <p>The only true way to stay unanimous is to be unimportant enough for peapole to not even care who you are</p>
-    </div>
-<!--Calander-->
-<div id="cal-container">
-    <div id="grid"></div>
-    <div id="info">
-        <span id="daysLeft"></span>
-        <a href="/index.html"><span id="percent"></span></a>
-    </div>
-</div>
+<iframe
+    id="1"
+    src=""
+    name="testname"
+    allowTransparency="true"
+    style="width: 100%; height: 100vh; border: none;"
+>
+</iframe>
 </body>
-<!--Start Script-->
-<script src="/assets/js/calanders.js"></script>
+<script>
+a=Math.floor(Math.random() * 3);
+
+if (a==0){
+    console.warn("first")
+    document.getElementById('1').src = '/assets/404-pages/404-A.html';
+}
+else if (a==1){
+    console.warn("sec")
+    document.getElementById('1').src = '/assets/404-pages/404-B.html';
+}
+else if (a==2){
+    console.warn("third")
+    document.getElementById('1').src = '/assets/404-pages/404-C.html';
+}
+console.log(a)
+</script>
 </html>

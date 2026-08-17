@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/assets/shared/default.css">
+  <link rel="icon" href="/assets/shared/favicon.png">
+  <title>404</title>
+
+  <style>
+    :root {
+      --black: #0A0A0A;
+      --text: aliceblue;
+      --muted: rgba(240, 248, 255, 0.4);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: var(--black);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 1.5rem;
+    }
+
+    .stage {
+      position: relative;
+      width: min(90vw, 720px);
+      aspect-ratio: 16 / 9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .digits {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      font-size: clamp(90px, 24vw, 260px);
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      opacity: 0.12;
+      user-select: none;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    /* redaction bars — sized in %, so they scale with .stage instead of
+       relying on fixed px + hand-tuned rotation like the original */
+    .cut {
+      position: absolute;
+      left: -10%;
+      width: 120%;
+      height: 15%;
+      background: var(--black);
+      z-index: 2;
+      transform-origin: center;
+      animation: cut-in 0.5s ease-out both;
+    }
+
+    .cut1 { top: 20%;  transform: rotate(-5deg); animation-delay: 0.05s; }
+    .cut2 { top: 46%;  transform: rotate(3deg);  animation-delay: 0.15s; }
+    .cut3 { top: 72%;  transform: rotate(-2deg); animation-delay: 0.25s; }
+
+    @keyframes cut-in {
+      from { transform: scaleX(0) rotate(var(--rot, 0deg)); opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .cut1 { --rot: -5deg; }
+    .cut2 { --rot: 3deg; }
+    .cut3 { --rot: -2deg; }
+
+    .caption {
+      margin: 1.75rem 0 0;
+      font-size: 0.95rem;
+      color: var(--muted);
+      max-width: 32ch;
+      line-height: 1.6;
+    }
+
+    .home {
+      display: inline-block;
+      margin-top: 1.5rem;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--muted);
+      padding-bottom: 2px;
+      transition: border-color 0.15s ease, opacity 0.15s ease;
+    }
+
+    .home:hover,
+    .home:focus-visible {
+      border-color: var(--text);
+      opacity: 0.85;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .cut { animation: none; opacity: 1; transform: rotate(var(--rot, 0deg)); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="stage">
+    <p class="digits">404</p>
+    <div class="cut cut1"></div>
+    <div class="cut cut2"></div>
+    <div class="cut cut3"></div>
+  </div>
+
+  <p class="caption">This page doesn't exist, or was never here to begin with.</p>
+  <a class="home" href="/index.html">Back to start</a>
+</body>
+</html>
