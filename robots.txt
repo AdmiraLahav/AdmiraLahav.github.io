@@ -1,5 +1,31 @@
-User-agent: ClaudeBot
-Allow: /Saved-As-Archive/
+# AI / LLM crawlers: blocked site-wide
+User-agent: GPTBot
+Disallow: /
 
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: OAI-SearchBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+# Everyone else (search engines, etc.): allowed, except the archive
 User-agent: *
 Disallow: /Saved-As-Archive/

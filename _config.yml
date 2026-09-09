@@ -1,0 +1,21 @@
+plugins:
+  - jekyll-redirect-from
+
+# Clean-URL routing: each entry below strips the .html off one page's URL
+# and leaves a redirect at the old address. Add a new page here by giving
+# it a bare "---\n---" front-matter marker (see files.html) and a matching
+# scope + values pair.
+defaults:
+  - scope:
+      path: "files.html"
+    values:
+      permalink: /files/
+      redirect_from:
+        - /files.html
+
+  - scope:
+      path: "My-Site/calenders/replica.html"
+    values:
+      permalink: /My-Site/calenders/replica/
+      redirect_from:
+        - "/My-Site/calenders/replica.html"
