@@ -2,5 +2,6 @@
 
 # My github site
 ## Rules of writing code:
+[example](github.com/AdmiraLahav/Lahav-C-Sharp/README.md)
 make sure that /assets are always in root dir
 add more shizz iono
